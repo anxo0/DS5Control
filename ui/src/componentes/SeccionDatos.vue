@@ -5,12 +5,6 @@ import { iconoDe } from '../mandos/iconos'
 import IconoMando from './IconoMando.vue'
 import VistaDatos from './VistaDatos.vue'
 
-/** Voltajes orientativos de una batería de litio de 3,7 V. */
-const VOLTIOS_VACIA = 3.0
-const VOLTIOS_LLENA = 4.2
-const VOLTIOS_BAJA = 3.5
-const VOLTIOS_MEDIA = 3.7
-
 onMounted(() => {
   pedirTelemetria(true)
   pedirDiagnostico()
@@ -21,17 +15,6 @@ watch(() => mando.value?.id, () => pedirDiagnostico())
 const voltios = computed(() => {
   const mv = diagnostico.value?.milivoltios
   return mv == null ? null : mv / 1000
-})
-const nivelVoltios = computed(() => {
-  const v = voltios.value
-  return v === null ? 0 : Math.max(0, Math.min(1, (v - VOLTIOS_VACIA) / (VOLTIOS_LLENA - VOLTIOS_VACIA)))
-})
-const lecturaVoltios = computed(() => {
-  const v = voltios.value
-  if (v === null) return ''
-  if (v < VOLTIOS_BAJA) return 'Muy baja'
-  if (v < VOLTIOS_MEDIA) return 'Baja'
-  return 'Bien'
 })
 
 const uso = computed(() => diagnostico.value?.uso ?? null)
@@ -63,12 +46,12 @@ const numero = (v: number) => v.toLocaleString('es-ES')
         <h2>Batería</h2>
         <div class="voltaje">
           <strong>{{ voltios === null ? '...' : `${voltios.toFixed(2)} V` }}</strong>
-          <span>{{ lecturaVoltios }}</span>
+          <span>voltaje ahora</span>
         </div>
-        <div class="carril"><i :style="{ transform: `scaleX(${nivelVoltios})` }" /></div>
+        <p class="nota">Cambia según lo cargada que esté. No indica la salud de la batería.</p>
         <dl v-if="uso">
-          <div><dt>Ciclos de carga</dt><dd>{{ numero(uso.ciclosCarga) }}</dd></div>
-          <div><dt>Cargas completas</dt><dd>{{ numero(uso.cargasCompletas) }}</dd></div>
+          <div><dt>Cargas registradas</dt><dd>{{ numero(uso.ciclosCarga) }}</dd></div>
+          <div><dt>Cargas hasta el 100 %</dt><dd>{{ numero(uso.cargasCompletas) }}</dd></div>
           <div><dt>Tiempo total cargando</dt><dd>{{ duracion(uso.carga) }}</dd></div>
         </dl>
       </section>
@@ -212,21 +195,8 @@ h2 {
 }
 
 .voltaje span {
-  font-weight: 700;
-}
-
-.carril {
-  height: 10px;
-  overflow: hidden;
-  border-radius: 5px;
-  background: var(--ground);
-}
-
-.carril i {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  transform-origin: left;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 dl {

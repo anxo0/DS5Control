@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { cambiarAbrirConMute, cambiarEmulacion, cambiarGeneral, cargarGenerales, conectado, estadoApp, generales, mando } from '../estado/app'
+import { cambiarAbrirConMute, cambiarControlConMando, cambiarEmulacion, cambiarGeneral, cargarGenerales, conectado, estadoApp, generales, mando } from '../estado/app'
 import { PALETAS, cambiarPaleta, paleta } from '../estado/paleta'
 import { cambiarTema, tema } from '../estado/tema'
 import InterruptorFila from './InterruptorFila.vue'
@@ -90,6 +90,11 @@ function fijarTema(valor: 'claro' | 'oscuro') {
           etiqueta="Abrir con el botón de silencio"
           :activo="estadoApp.abrirConMute"
           @cambiar="cambiarAbrirConMute"
+        />
+        <InterruptorFila
+          etiqueta="Manejar la app con el mando"
+          :activo="estadoApp.controlConMando"
+          @cambiar="cambiarControlConMando"
         />
       </div>
     </section>

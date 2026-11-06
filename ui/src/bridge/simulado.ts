@@ -31,6 +31,7 @@ function estadoInicial(): EstadoApp {
       },
     ],
     abrirConMute: true,
+    controlConMando: false,
     perfiles: ['Default', 'Carreras'],
     registro: [
       { hora: '18:00:36', texto: 'Mando encontrado (Bluetooth)', aviso: false },
@@ -213,6 +214,9 @@ export function crearPuenteSimulado(): Puente {
           conMando(comando.mandoId, (m) => {
             m.ajustes[comando.gatillo === 'l2' ? 'gatilloL2' : 'gatilloR2'] = comando.efecto
           })
+          break
+        case 'controlConMando':
+          estado.controlConMando = comando.activo
           break
         case 'abrirConMute':
           estado.abrirConMute = comando.activo

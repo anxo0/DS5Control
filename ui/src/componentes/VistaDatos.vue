@@ -32,12 +32,12 @@ const fmt = (v: number) => (Math.abs(v) >= 100 ? Math.round(v) : v.toFixed(2))
 <template>
   <div v-if="datos" class="vista">
     <section>
-      <h3>Batería</h3>
-      <div class="bateria" role="img" :aria-label="`Nivel ${datos.bateria.nivel} de 10`">
+      <h3>Carga actual: {{ mando?.bateria ?? 0 }} %</h3>
+      <div class="bateria" role="img" :aria-label="`Carga ${mando?.bateria ?? 0} por ciento`">
         <span v-for="i in 10" :key="i" :class="{ lleno: i <= datos.bateria.nivel }" />
       </div>
       <p :class="{ alerta: datos.bateria.estado >= 10 }">
-        {{ ESTADOS[datos.bateria.estado] ?? 'Estado desconocido' }}, nivel {{ datos.bateria.nivel }} de 10
+        {{ ESTADOS[datos.bateria.estado] ?? 'Estado desconocido' }}
       </p>
     </section>
 

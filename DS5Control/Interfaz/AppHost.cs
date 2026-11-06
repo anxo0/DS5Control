@@ -35,6 +35,12 @@ namespace DS5ControlApp.Interfaz
         /// <summary>Gives the engine time to start before using the network.</summary>
         private const int UpdateCheckDelay = 5000;
 
+        private const int SmallIconWidth = 49;
+        private const int SmallIconHeight = 50;
+
+        [DllImport("user32.dll")]
+        private static extern int GetSystemMetrics(int index);
+
         private const int POWER_RESUME = 7;
         private const int POWER_SUSPEND = 4;
 
@@ -593,7 +599,7 @@ Suspend support not enabled.", true);
                 string file = Path.Combine(AppContext.BaseDirectory, "iconos", $"ds5control-{palette}.ico");
                 if (File.Exists(file))
                 {
-                    notifyIcon.Icon = new System.Drawing.Icon(file, System.Windows.Forms.SystemInformation.SmallIconSize);
+                    notifyIcon.Icon = new System.Drawing.Icon(file, GetSystemMetrics(SmallIconWidth), GetSystemMetrics(SmallIconHeight));
                 }
             }
         }

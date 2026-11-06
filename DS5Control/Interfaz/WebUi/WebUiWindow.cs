@@ -34,6 +34,11 @@ namespace DS5ControlApp.Interfaz.WebUi
         private const double RainbowSeconds = 4.0;
         private const byte TestRumble = 200;
         private const double FrameThickness = 5;
+        /// <summary>Fast enough for the controller to feel direct when moving around the page.</summary>
+        private const int ActivePollMs = 33;
+        /// <summary>Nobody navigates a window that has lost the focus.</summary>
+        private const int BackgroundPollMs = 120;
+        private const int HiddenPageSeconds = 30;
         private const int MaxLogEntries = 150;
 
         /// <summary>Remappable controls, by their name in <see cref="DS5Controls"/>.</summary>
@@ -50,7 +55,9 @@ namespace DS5ControlApp.Interfaz.WebUi
         private readonly AutoProfilesPanel autoProfiles;
         private readonly GeneralOptions general;
         private readonly ControllerService service;
-        private readonly WebView2 web = new WebView2();
+        private readonly DispatcherTimer release = new DispatcherTimer { Interval = TimeSpan.FromSeconds(HiddenPageSeconds) };
+        private CoreWebView2Environment environment;
+        private WebView2 web;
         private readonly Border frame = new Border();
         private readonly DispatcherTimer poll = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
         private readonly DispatcherTimer save = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -62,6 +69,8 @@ namespace DS5ControlApp.Interfaz.WebUi
         private string[] profiles = Array.Empty<string>();
         private bool pageReady;
         private bool telemetry;
+        private bool revealPending;
+        private bool controlWithController;
         private bool installingViGEm;
         private bool openWithMute;
         private string lastState = string.Empty;
@@ -87,7 +96,7 @@ namespace DS5ControlApp.Interfaz.WebUi
             PaletteChanged += host.SetAppIcon;
             ThemeChanged += host.SetTrayMenuTheme;
             service = new ControllerService(control);
-            openWithMute = ReadOpenWithMute();
+            ReadInterfaceSettings();
             RefreshProfiles();
             AppLogger.GuiLog += OnLog;
 
@@ -97,7 +106,6 @@ namespace DS5ControlApp.Interfaz.WebUi
             Height = 820;
             MinWidth = 960;
             MinHeight = 640;
-            frame.Child = web;
             frame.Background = new SolidColorBrush(Color.FromRgb(0xF2, 0xF4, 0xF7));
             Content = frame;
 
@@ -120,8 +128,10 @@ namespace DS5ControlApp.Interfaz.WebUi
             poll.Tick += (_, _) => Poll();
             save.Tick += (_, _) => SavePending();
             service.MuteButtonPressed += (_, _) => Dispatcher.BeginInvoke(OnMutePressed);
-            Loaded += async (_, _) => await StartAsync();
+            release.Tick += (_, _) => ReleasePage();
             IsVisibleChanged += (_, _) => UpdatePolling();
+            Activated += (_, _) => poll.Interval = TimeSpan.FromMilliseconds(ActivePollMs);
+            Deactivated += (_, _) => poll.Interval = TimeSpan.FromMilliseconds(BackgroundPollMs);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -141,13 +151,31 @@ namespace DS5ControlApp.Interfaz.WebUi
             base.OnClosed(e);
         }
 
-        private async System.Threading.Tasks.Task StartAsync()
+        /// <summary>
+        /// The page takes most of the memory and a hidden window needs none of it, so it only
+        /// exists while it can be seen. The state lives in the engine, so nothing is lost.
+        /// </summary>
+        private void ReleasePage()
         {
+            release.Stop();
+            if (web == null || IsVisible) return;
+
+            pageReady = false;
+            frame.Child = null;
+            web.Dispose();
+            web = null;
+        }
+
+        private async System.Threading.Tasks.Task StartPageAsync()
+        {
+            if (web != null) return;
+
+            web = new WebView2();
+            frame.Child = web;
             try
             {
-                string userData = Path.Combine(Global.appdatapath, "WebView2");
-                CoreWebView2Environment environment =
-                    await CoreWebView2Environment.CreateAsync(null, userData);
+                environment ??= await CoreWebView2Environment.CreateAsync(null,
+                    Path.Combine(Global.appdatapath, "WebView2"));
                 await web.EnsureCoreWebView2Async(environment);
 
                 CoreWebView2 core = web.CoreWebView2;
@@ -179,6 +207,12 @@ namespace DS5ControlApp.Interfaz.WebUi
                     pageReady = true;
                     lastState = string.Empty;
                     Poll();
+                    if (revealPending)
+                    {
+                        revealPending = false;
+                        web?.Focus();
+                        PostMessage(new { tipo = "mute" });
+                    }
                 }
                 else if (kind == "comando")
                 {
@@ -239,7 +273,14 @@ namespace DS5ControlApp.Interfaz.WebUi
             if (kind == "abrirConMute")
             {
                 openWithMute = command.GetProperty("activo").GetBoolean();
-                WriteOpenWithMute();
+                WriteInterfaceSettings();
+                return;
+            }
+
+            if (kind == "controlConMando")
+            {
+                controlWithController = command.GetProperty("activo").GetBoolean();
+                WriteInterfaceSettings();
                 return;
             }
 
@@ -448,19 +489,21 @@ namespace DS5ControlApp.Interfaz.WebUi
         }
 
         /// <summary>
-        /// Windows shows the icon of the shortcut a program was opened from, so the shortcut
-        /// has to follow the palette too.
+        /// Windows finds programs through their Start menu shortcut, and shows the icon of the
+        /// shortcut they were opened from. This creates it when it is missing, also for the
+        /// portable version, and keeps it on this copy of the program and on the palette.
         /// </summary>
         private static void UpdateStartMenuIcon(string icon)
         {
             string link = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Programs), "DS5Control.lnk");
-            if (!File.Exists(link)) return;
-
             try
             {
                 dynamic shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell"));
                 dynamic shortcut = shell.CreateShortcut(link);
+                shortcut.TargetPath = Global.exelocation;
+                shortcut.WorkingDirectory = Global.exedirpath;
+                shortcut.Description = "DS5Control";
                 shortcut.IconLocation = $"{icon},0";
                 shortcut.Save();
             }
@@ -673,6 +716,9 @@ namespace DS5ControlApp.Interfaz.WebUi
             if (IsVisible) poll.Start();
             else poll.Stop();
             lastState = string.Empty;
+            release.Stop();
+            if (IsVisible) _ = StartPageAsync();
+            else release.Start();
         }
 
         private void OnMutePressed()
@@ -695,8 +741,9 @@ namespace DS5ControlApp.Interfaz.WebUi
             if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
             BringToForeground();
             Activate();
-            web.Focus();
-            PostMessage(new { tipo = "mute" });
+            web?.Focus();
+            if (pageReady) PostMessage(new { tipo = "mute" });
+            else revealPending = true;
         }
 
         /// <summary>
@@ -752,6 +799,7 @@ namespace DS5ControlApp.Interfaz.WebUi
                 {
                     mandos = controllers.Select(ToState).ToArray(),
                     abrirConMute = openWithMute,
+                    controlConMando = controlWithController,
                     ventanaVisible = IsVisible,
                     perfiles = profiles,
                     registro = logEntries,
@@ -767,10 +815,10 @@ namespace DS5ControlApp.Interfaz.WebUi
             if (state != lastState)
             {
                 lastState = state;
-                web.CoreWebView2?.PostWebMessageAsJson(state);
+                web?.CoreWebView2?.PostWebMessageAsJson(state);
             }
 
-            if (IsActive && controllers.Count > 0)
+            if (controlWithController && IsActive && controllers.Count > 0)
             {
                 Navigate(controllers[0].Slot);
             }
@@ -805,7 +853,7 @@ namespace DS5ControlApp.Interfaz.WebUi
 
         private void PostMessage(object message)
         {
-            if (pageReady) web.CoreWebView2?.PostWebMessageAsJson(JsonSerializer.Serialize(message));
+            if (pageReady) web?.CoreWebView2?.PostWebMessageAsJson(JsonSerializer.Serialize(message));
         }
 
         private object ToState(ControllerInfoDto controller)
@@ -1001,16 +1049,21 @@ namespace DS5ControlApp.Interfaz.WebUi
             if (parts[4] == bool.TrueString) WindowState = WindowState.Maximized;
         }
 
-        private static bool ReadOpenWithMute()
+        private void ReadInterfaceSettings()
         {
             string path = Path.Combine(Global.appdatapath, SettingsFile);
-            return !File.Exists(path) || File.ReadAllText(path).Trim() != "abrirConMute=false";
+            string[] lines = File.Exists(path) ? File.ReadAllLines(path) : Array.Empty<string>();
+            openWithMute = !lines.Contains("abrirConMute=false");
+            controlWithController = lines.Contains("controlConMando=true");
         }
 
-        private void WriteOpenWithMute()
+        private void WriteInterfaceSettings()
         {
-            File.WriteAllText(Path.Combine(Global.appdatapath, SettingsFile),
-                $"abrirConMute={(openWithMute ? "true" : "false")}");
+            File.WriteAllLines(Path.Combine(Global.appdatapath, SettingsFile), new[]
+            {
+                $"abrirConMute={(openWithMute ? "true" : "false")}",
+                $"controlConMando={(controlWithController ? "true" : "false")}",
+            });
         }
     }
 }

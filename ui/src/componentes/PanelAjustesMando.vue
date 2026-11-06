@@ -14,6 +14,7 @@ import {
   pestana,
   probar,
   prueba,
+  seccion,
 } from '../estado/app'
 import type { Pestana } from '../estado/app'
 import { modeloDe } from '../mandos/modelos'
@@ -59,7 +60,8 @@ const pestanas = computed(() => {
   return lista
 })
 
-const bloqueado = computed(() => !conectado.value)
+const modoReal = computed(() => mando.value?.ajustes.emulacion === 'nativo')
+const bloqueado = computed(() => !conectado.value || modoReal.value)
 
 const selectorAbierto = ref(false)
 let colorPrevio = ''
@@ -141,7 +143,11 @@ const colorNivelBrillo = computed(() => {
         </button>
       </div>
 
-      <p v-if="bloqueado" class="nota">Conecta el mando para cambiar estos ajustes.</p>
+      <div v-if="modoReal" class="nota real" role="status">
+        <p>Estás en modo DualSense real: el juego controla luz, vibración y gatillos.</p>
+        <button class="cambiar" @click="seccion = 'ajustes'">Cambiar de modo</button>
+      </div>
+      <p v-else-if="bloqueado" class="nota">Conecta el mando para cambiar estos ajustes.</p>
 
       <section
         v-if="pestana === 'luz'"
@@ -513,4 +519,18 @@ h3 {
   background: var(--linea);
 }
 
+.nota.real {
+  display: grid;
+  gap: 8px;
+}
+
+.cambiar {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radio-control);
+  background: var(--ink);
+  color: var(--surface);
+  font-weight: 600;
+}
 </style>

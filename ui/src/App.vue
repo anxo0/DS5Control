@@ -108,7 +108,7 @@ onMounted(() => {
     alMute: () => {
       // Al volver del segundo plano, la ventana debe recuperar el foco de entrada.
       window.focus()
-      gestor?.mostrarFoco(true)
+      gestor?.mostrarFoco(estadoApp.value.controlConMando)
     },
     alNavegar: (accion) => salidas.accion(accion),
   })
@@ -116,6 +116,7 @@ onMounted(() => {
   puente.enviar({ tipo: 'paleta', valor: paleta.value })
 })
 
+watch(() => estadoApp.value.controlConMando, (activo) => gestor?.mostrarFoco(activo), { immediate: true })
 watch(tema, (valor) => puente.enviar({ tipo: 'tema', valor }))
 watch(paleta, (valor) => puente.enviar({ tipo: 'paleta', valor }))
 

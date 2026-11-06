@@ -155,6 +155,7 @@ export interface AutoPerfil {
 export interface EstadoApp {
   mandos: EstadoMando[]
   abrirConMute: boolean
+  controlConMando: boolean
   ventanaVisible: boolean
   perfiles: string[]
   registro: EntradaRegistro[]
@@ -171,6 +172,7 @@ export type Comando =
   | { tipo: 'gatillo'; mandoId: string; gatillo: Gatillo; efecto: EfectoGatillo }
   | { tipo: 'probarGatillos'; mandoId: string }
   | { tipo: 'abrirConMute'; activo: boolean }
+  | { tipo: 'controlConMando'; activo: boolean }
   | { tipo: 'ocultar' }
   | { tipo: 'instalarVigem' }
   | { tipo: 'pedirDiagnostico' }

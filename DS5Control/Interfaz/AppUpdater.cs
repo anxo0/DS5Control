@@ -31,7 +31,7 @@ namespace DS5ControlApp.Interfaz
             param([int]$Proceso, [string]$Origen, [string]$Destino, [string]$Programa)
             Wait-Process -Id $Proceso -Timeout 60 -ErrorAction SilentlyContinue
             for ($intento = 0; $intento -lt 10; $intento++) {
-                robocopy $Origen $Destino /E /R:2 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
+                robocopy $Origen $Destino /E /IS /IT /R:2 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
                 if ($LASTEXITCODE -lt 8) { break }
                 Start-Sleep -Seconds 1
             }

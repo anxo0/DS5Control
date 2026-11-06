@@ -31,7 +31,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
-using WPFLocalizeExtension.Engine;
 
 namespace DS5ControlApp
 {
@@ -218,6 +217,9 @@ namespace DS5ControlApp
             SetUICulture(DS5Control.Global.UseLang);
 
             DS5Control.Global.LoadLinkedProfiles();
+            int leftovers = Interfaz.LeftoverCleanup.Run(DS5Control.Global.exedirpath);
+            if (leftovers > 0) logger.Info($"Removed {leftovers} files left by older versions");
+
             Interfaz.AppHost host = new Interfaz.AppHost(parser);
             MainWindow = host;
             interfaceWindow = new Interfaz.WebUi.WebUiWindow(rootHub, host);
@@ -649,8 +651,6 @@ namespace DS5ControlApp
             {
                 //CultureInfo ci = new CultureInfo("ja");
                 CultureInfo ci = CultureInfo.GetCultureInfo(culture);
-                LocalizeDictionary.Instance.SetCurrentThreadCulture = true;
-                LocalizeDictionary.Instance.Culture = ci;
                 // fixes the culture in threads
                 CultureInfo.DefaultThreadCurrentCulture = ci;
                 CultureInfo.DefaultThreadCurrentUICulture = ci;

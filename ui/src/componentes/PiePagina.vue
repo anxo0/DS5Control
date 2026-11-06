@@ -23,7 +23,7 @@ const servicios = computed(() => {
 
 <template>
   <footer class="pie">
-    <span v-for="ayuda in AYUDAS" :key="ayuda.texto" class="ayuda">
+    <span v-for="ayuda in estadoApp.controlConMando ? AYUDAS : []" :key="ayuda.texto" class="ayuda">
       <span
         v-for="icono in ayuda.iconos"
         :key="icono.nombre"

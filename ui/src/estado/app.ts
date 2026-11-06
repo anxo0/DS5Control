@@ -17,6 +17,7 @@ export const puente = crearPuente()
 export const estadoApp = shallowRef<EstadoApp>({
   mandos: [],
   abrirConMute: true,
+  controlConMando: false,
   ventanaVisible: true,
   perfiles: [],
   registro: [],
@@ -64,6 +65,12 @@ function ajustar(cambio: Partial<AjustesMando>, comando: Comando) {
   ajustesLocales.value = { ...ajustesLocales.value, ...cambio }
   ultimoCambio = performance.now()
   puente.enviar(comando)
+  // Si el motor rechaza el cambio no llega eco: la pantalla no puede quedarse con un valor falso.
+  setTimeout(() => {
+    if (performance.now() - ultimoCambio >= MARGEN_ECO_MS && mando.value) {
+      ajustesLocales.value = mando.value.ajustes
+    }
+  }, MARGEN_ECO_MS + 20)
 }
 
 const idMando = () => mando.value?.id ?? ''
@@ -180,6 +187,9 @@ export const borrarPerfil = (nombre: string) => puente.enviar({ tipo: 'borrarPer
 
 export const asignarBoton = (control: string, salida: string | null) =>
   puente.enviar({ tipo: 'mapear', mandoId: idMando(), control, salida })
+
+export const cambiarControlConMando = (activo: boolean) =>
+  puente.enviar({ tipo: 'controlConMando', activo })
 
 export const cambiarAbrirConMute = (activo: boolean) =>
   puente.enviar({ tipo: 'abrirConMute', activo })

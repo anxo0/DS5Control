@@ -14,10 +14,14 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<EnableNETAnalyzers>false</EnableNETAnalyzers>
-		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<AssemblyVersion>0.2.1</AssemblyVersion>
-		<FileVersion>0.2.1</FileVersion>
-		<Version>0.2.1</Version>
+		<ServerGarbageCollection>false</ServerGarbageCollection>
+		<ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+		<TieredPGO>false</TieredPGO>
+		<SatelliteResourceLanguages>es</SatelliteResourceLanguages>
+		<UseSystemResourceKeys>true</UseSystemResourceKeys>
+		<AssemblyVersion>0.2.2</AssemblyVersion>
+		<FileVersion>0.2.2</FileVersion>
+		<Version>0.2.2</Version>
 		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
 		<Platform Condition=" '$(Platform)' == '' ">x64</Platform>
 		<Copyright>Copyright © Scarlet.Crush Productions 2012, 2013; InhexSTER, HecticSeptic, electrobrains 2013, 2014; Jays2Kings 2013, 2014, 2015, 2016; Ryochan7 2017-2023, schmaldeo 2024</Copyright>
@@ -76,21 +80,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="bloomtom.HttpProgress" Version="2.3.2" />
-		<PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.106" />
 		<PackageReference Include="H.NotifyIcon.Wpf" Version="2.0.74" />
-		<PackageReference Include="MdXaml" Version="1.27.0" />
 		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="NLog" Version="5.1.1" />
 		<!--<PackageReference Include="Nefarius.ViGEm.Client" Version="1.21.230" />-->
-		<PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
 		<PackageReference Include="System.Management" Version="7.0.2" />
-		<PackageReference Include="System.Memory" Version="4.5.5" />
 		<PackageReference Include="TaskScheduler" Version="2.10.1" />
-		<PackageReference Include="WPFLocalizeExtension" Version="3.9.4" />
 		<PackageReference Include="WpfScreenHelper" Version="2.1.0" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
 
@@ -202,15 +200,6 @@
 			<Generator>PublicResXFileCodeGenerator</Generator>
 			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
-		<EmbeddedResource Update="Properties\Resources.ja.resx">
-			<DependentUpon>Resources.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Properties\Resources.ru.resx">
-			<DependentUpon>Resources.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Properties\Resources.zh-hans.resx">
-			<DependentUpon>Resources.resx</DependentUpon>
-		</EmbeddedResource>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -225,76 +214,7 @@
 			<DependentUpon>Strings.resx</DependentUpon>
 		</Compile>
 
-		<EmbeddedResource Update="Translations\Strings.ar.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.cs.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.de.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.el.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
 		<EmbeddedResource Update="Translations\Strings.es.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.fi.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.fr.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.he.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.hu-HU.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.idn.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.it.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.ja.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.ms.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.nl.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.pl.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.pt.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.pt-BR.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.ru.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.se.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.tr.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.uk-UA.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.vi.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.zh-Hans.resx">
-			<DependentUpon>Strings.resx</DependentUpon>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Translations\Strings.zh-Hant.resx">
 			<DependentUpon>Strings.resx</DependentUpon>
 		</EmbeddedResource>
 	</ItemGroup>
