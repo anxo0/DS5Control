@@ -44,7 +44,7 @@ jobs:
     - name: Portable
       run: |
         Copy-Item COPYING, README.md, ui\THIRD_PARTY.md publicar
-        Compress-Archive publicar\* DS5Control-${{ env.VERSION }}-win-x64.zip
+        Compress-Archive publicar\* DS5Control-${{ env.VERSION }}-portable-win-x64.zip
     - name: Installer
       run: |
         choco install innosetup --no-progress -y
@@ -52,6 +52,6 @@ jobs:
     - name: Upload
       run: >
         gh release upload ${{ inputs.tag }} --clobber
-        DS5Control-${{ env.VERSION }}-win-x64.zip DS5Control-${{ env.VERSION }}-instalador.exe
+        DS5Control-${{ env.VERSION }}-portable-win-x64.zip DS5Control-${{ env.VERSION }}-instalador.exe
       env:
         GITHUB_TOKEN: ${{ github.TOKEN }}

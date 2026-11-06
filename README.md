@@ -22,7 +22,7 @@ DS5Control es un fork de [DS4Windows](https://github.com/schmaldeo/DS4Windows) c
 En la [última versión](https://github.com/anxo0/DS5Control/releases/latest) hay dos opciones:
 
 - **Instalador:** descarga `DS5Control-x.y.z-instalador.exe`, ejecútalo y busca DS5Control en el menú Inicio. No pide permisos de administrador.
-- **Portable:** descarga `DS5Control-x.y.z-win-x64.zip`, descomprímelo en la carpeta que quieras y ejecuta `DS5Control.exe`.
+- **Portable:** descarga `DS5Control-x.y.z-portable-win-x64.zip`, descomprímelo en la carpeta que quieras y ejecuta `DS5Control.exe`.
 
 Las dos se actualizan solas al abrirse. Windows puede avisar de que el programa no está firmado: pulsa "Más información" y "Ejecutar de todas formas".
 
