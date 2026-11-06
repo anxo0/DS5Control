@@ -159,6 +159,7 @@ namespace DS5Control.InputDevices
         private new const int BT_INPUT_REPORT_LENGTH = 78;
         protected const int TOUCHPAD_DATA_OFFSET = 33;
         private new const int BATTERY_MAX = 10;
+        private const int BATTERY_STATUS_CHARGING = 1;
         private const int BATTERY_STATUS_FULL = 2;
         private byte lastBatteryStatus = 0xFF;
 
@@ -753,7 +754,9 @@ namespace DS5Control.InputDevices
                     {
                         tempByte = inputReport[54 + reportOffset];
                         AudioStatus = tempByte;
-                        tempCharging = (tempByte & 0x08) != 0;
+                        // This byte only tells whether a USB host is attached, so a wall charger
+                        // or Bluetooth with the cable in would look like not charging.
+                        tempCharging = (inputReport[53 + reportOffset] >> 4) == BATTERY_STATUS_CHARGING;
                         if (tempCharging != charging)
                         {
                             charging = tempCharging;
@@ -771,7 +774,7 @@ namespace DS5Control.InputDevices
                         if (tempByte != lastBatteryStatus)
                         {
                             lastBatteryStatus = tempByte;
-                            AppLogger.LogToGui($"Battery status byte: 0x{tempByte:X2} (level {tempByte & 0x0F}/10, state 0x{tempByte >> 4:X}, charging bit {tempCharging})", false);
+                            AppLogger.LogToGui($"Battery status byte: 0x{tempByte:X2} (level {tempByte & 0x0F}/10, state 0x{tempByte >> 4:X})", false);
                         }
 
                         if (tempBattery != battery)
