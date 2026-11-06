@@ -24,6 +24,7 @@ namespace DS4WinWPF
     public class ArgumentParser
     {
         private bool mini;
+        private bool webUi = true;
         private bool stop;
         private bool driverinstall;
         private bool reenableDevice;
@@ -37,6 +38,7 @@ namespace DS4WinWPF
             new Dictionary<string, string>();
 
         public bool Mini { get => mini; }
+        public bool WebUi { get => webUi; }
         public bool Stop { get => stop; }
         public bool Driverinstall { get => driverinstall; }
         public bool ReenableDevice { get => reenableDevice; }
@@ -84,6 +86,10 @@ namespace DS4WinWPF
 
                     case "-m":
                         mini = true;
+                        break;
+
+                    case "-uiantigua":
+                        webUi = false;
                         break;
 
                     case "command":

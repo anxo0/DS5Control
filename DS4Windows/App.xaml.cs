@@ -241,9 +241,28 @@ namespace DS4WinWPF
             DS4Windows.Global.LoadLinkedProfiles();
             DS4Forms.MainWindow window = new DS4Forms.MainWindow(parser);
             MainWindow = window;
+            DS4Forms.WebUi.WebUiWindow webUi = null;
+            if (parser.WebUi)
+            {
+                webUi = new DS4Forms.WebUi.WebUiWindow(rootHub);
+                window.OpenOverride = webUi.Reveal;
+                webUi.StartFailed += (_, _) =>
+                {
+                    window.OpenOverride = null;
+                    webUi.Hide();
+                    window.Show();
+                };
+            }
+
             window.IsInitialShow = true;
             window.Show();
             window.IsInitialShow = false;
+
+            if (webUi != null)
+            {
+                webUi.Show();
+                window.Hide();
+            }
 
             // Set up hooks for IPC command calls
             HwndSource source = PresentationSource.FromVisual(window) as HwndSource;

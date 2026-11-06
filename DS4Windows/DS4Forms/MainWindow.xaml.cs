@@ -82,6 +82,12 @@ namespace DS4WinWPF.DS4Forms
 
         public bool IsInitialShow { get; set; }
 
+        /// <summary>
+        /// When set, another window is the interface: this one stays hidden and the tray
+        /// icon opens that window instead.
+        /// </summary>
+        public Action OpenOverride { get; set; }
+
         public MainWindow(ArgumentParser parser)
         {
             InitializeComponent();
@@ -688,6 +694,12 @@ Suspend support not enabled.", true);
 
         private void TrayIconVM_RequestOpen(object sender, EventArgs e)
         {
+            if (OpenOverride != null)
+            {
+                OpenOverride();
+                return;
+            }
+
             if (!showAppInTaskbar)
             {
                 Show();
@@ -1605,6 +1617,8 @@ Suspend support not enabled.", true);
 
         public void CheckMinStatus()
         {
+            if (OpenOverride != null) return;
+
             bool minToTask = Global.MinToTaskbar;
             if (WindowState == WindowState.Minimized && !minToTask)
             {

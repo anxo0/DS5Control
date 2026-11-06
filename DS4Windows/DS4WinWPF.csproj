@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -8,25 +8,25 @@
 		<RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
 		<RootNamespace>DS4WinWPF</RootNamespace>
 		<AssemblyName>DS4Windows</AssemblyName>
-		<ApplicationIcon>DS4W.ico</ApplicationIcon>
+		<ApplicationIcon>Resources\Logo\ds5control-fuego.ico</ApplicationIcon>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<StartupObject>DS4WinWPF.App</StartupObject>
 		<NeutralLanguage>en</NeutralLanguage>
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<EnableNETAnalyzers>false</EnableNETAnalyzers>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<AssemblyVersion>3.9.9</AssemblyVersion>
-		<FileVersion>3.9.9</FileVersion>
-		<Version>3.9.9</Version>
+		<AssemblyVersion>0.1.0</AssemblyVersion>
+		<FileVersion>0.1.0</FileVersion>
+		<Version>0.1.0</Version>
 		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
 		<Platform Condition=" '$(Platform)' == '' ">x64</Platform>
 		<Copyright>Copyright © Scarlet.Crush Productions 2012, 2013; InhexSTER, HecticSeptic, electrobrains 2013, 2014; Jays2Kings 2013, 2014, 2015, 2016; Ryochan7 2017-2023, schmaldeo 2024</Copyright>
 		<Description>Sony DualShock 4 to Microsoft Xinput controller mapper</Description>
 		<Authors>schmaldeo</Authors>
 		<Company>schmaldeo</Company>
-		<PackageProjectUrl>https://schmaldeo.github.io/DS4WindowsDocs</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/anxo0/DS5Control</PackageProjectUrl>
 		<PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.txt</PackageLicenseUrl>
-		<RepositoryUrl>https://github.com/anxo0/ds4_anxo0</RepositoryUrl>
+		<RepositoryUrl>https://github.com/anxo0/DS5Control</RepositoryUrl>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -90,6 +90,7 @@
 		<PackageReference Include="TaskScheduler" Version="2.10.1" />
 		<PackageReference Include="WPFLocalizeExtension" Version="3.9.4" />
 		<PackageReference Include="WpfScreenHelper" Version="2.1.0" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
 
 		<Reference Include="FakerInputWrapper">
 			<HintPath>..\libs\$(Platform)\FakerInputWrapper\FakerInputWrapper.dll</HintPath>
@@ -403,5 +404,9 @@
 
 	<ItemGroup>
 		<Folder Remove="extras\" />
+	</ItemGroup>
+	<ItemGroup Condition="Exists('..\ui\dist\index.html')">
+		<Content Include="Resources\Logo\*.ico" Link="iconos\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="..\ui\dist\**\*" Link="ui\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 </Project>

@@ -28,6 +28,12 @@ namespace DS4Windows.Api
         /// <param name="percent">From 0 to <see cref="ControllerService.MaxRumbleStrength"/>, 100 being unchanged.</param>
         CommandResult SetRumbleStrength(int slot, int percent);
 
+        /// <param name="slot">Controller slot.</param>
+        /// <param name="seconds">Seconds per colour cycle, 0 to turn the rainbow off.</param>
+        CommandResult SetLightRainbow(int slot, double seconds);
+
+        CommandResult SetLightByBattery(int slot, bool enabled);
+
         CommandResult SetTriggerEffect(int slot, ControllerTrigger trigger, TriggerEffectKind effect);
 
         /// <summary>Writes the current settings of the slot to its active profile.</summary>

@@ -3290,8 +3290,8 @@ namespace DS4Windows
 
     public class Changelog
     {
-        public const string GITHUB_RELEASES_API_URI = "https://api.github.com/repos/anxo0/ds4_anxo0/releases";
-        public const string GITHUB_LATEST_RELEASE_API_URI = "https://api.github.com/repos/anxo0/ds4_anxo0/releases/latest";
+        public const string GITHUB_RELEASES_API_URI = "https://api.github.com/repos/anxo0/DS5Control/releases";
+        public const string GITHUB_LATEST_RELEASE_API_URI = "https://api.github.com/repos/anxo0/DS5Control/releases/latest";
 
         private static bool? _newerVersionAvailable = null;
         private static Version _latestVersion;

@@ -64,6 +64,43 @@ namespace DS4Windows.Api
             return ChangeLight(slot, level => level.SetBrightness(percent));
         }
 
+        public CommandResult SetLightRainbow(int slot, double seconds)
+        {
+            if (double.IsNaN(seconds) || seconds < 0) return CommandResult.InvalidValue;
+
+            return ChangeLightMode(slot, light =>
+            {
+                light.ds4winSettings.rainbow = seconds;
+                if (seconds > 0) light.ds4winSettings.ledAsBattery = false;
+            });
+        }
+
+        public CommandResult SetLightByBattery(int slot, bool enabled)
+        {
+            return ChangeLightMode(slot, light =>
+            {
+                light.ds4winSettings.ledAsBattery = enabled;
+                if (enabled) light.ds4winSettings.rainbow = 0;
+            });
+        }
+
+        private CommandResult ChangeLightMode(int slot, Action<LightbarSettingInfo> change)
+        {
+            ControllerSnapshot controller = source.Find(slot);
+            if (controller is null) return CommandResult.NoController;
+            if (!ToFeatures(controller).HasLight) return CommandResult.NotSupported;
+
+            LightbarSettingInfo light = Global.LightbarSettingsInfo[slot];
+            lock (settingsLock)
+            {
+                change(light);
+                light.ds4winSettings.useCustomLed = false;
+                light.Mode = LightbarMode.DS4Win;
+            }
+
+            return CommandResult.Ok;
+        }
+
         public CommandResult SetRumbleStrength(int slot, int percent)
         {
             if (percent is < 0 or > MaxRumbleStrength) return CommandResult.InvalidValue;
