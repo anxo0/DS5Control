@@ -146,8 +146,8 @@ func _medir() -> void:
 
 
 func _marcar_sector(stick: Vector2, sectores: Dictionary) -> void:
-	if stick.length() > 0.9:
-		sectores[int(posmod(stick.angle(), TAU) / TAU * 8.0)] = true
+	if stick.length() > 0.7:
+		sectores[int(posmod(stick.angle(), TAU) / TAU * 8.0) % 8] = true
 
 
 func _jugar(delta: float) -> void:

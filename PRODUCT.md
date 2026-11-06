@@ -1,4 +1,4 @@
-# Product
+﻿# Product
 
 <!-- impeccable:product-schema 1 -->
 
@@ -36,7 +36,7 @@ Se configura la primera vez. Después solo se abre al conectar el mando, se mini
 - Efectos de gatillo disponibles hoy en el código: ninguno, clic completo, rígido y pulso.
 - DualShock 3 necesita los drivers DsHidMini o Sixaxis, y BthPS3 por Bluetooth. No tiene barra de luz ni gatillos adaptativos.
 - Dependencias de terceros: ViGEmBus (archivado), HidHide, FakerInput. Licencia: GPL-3.0, heredada.
-- Nombre del producto: sin decidir. No debe confundirse con DS4Windows.
+- Nombre del producto: DS5Control. Revisar la mención a DS5 antes de una publicación abierta.
 
 ## Evidence on Hand
 
