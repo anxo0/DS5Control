@@ -72,6 +72,9 @@ export function crearPuenteWebView(canal: CanalWebView): Puente {
           case 'autoPerfiles':
             eventos.alAutoPerfiles(mensaje.lista)
             break
+          case 'diagnostico':
+            eventos.alDiagnostico(mensaje.datos)
+            break
           case 'mute':
             eventos.alMute()
             break

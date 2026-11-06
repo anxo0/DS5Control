@@ -1,9 +1,9 @@
 import { computed, ref, shallowRef } from 'vue'
 import { crearPuente } from '../bridge'
-import type { Emulacion, AccionEspecial, AccionNueva, AjusteAvanzado, AjustesMando, AutoPerfil, SeccionAvanzada, Comando, EfectoGatillo, EstadoApp, EstadoMando, Gatillo, GrupoAvanzado } from '../bridge'
+import type { Diagnostico, Emulacion, AccionEspecial, AccionNueva, AjusteAvanzado, AjustesMando, AutoPerfil, SeccionAvanzada, Comando, EfectoGatillo, EstadoApp, EstadoMando, Gatillo, GrupoAvanzado } from '../bridge'
 
-export type Seccion = 'mando' | 'botones' | 'perfiles' | 'acciones' | 'avanzado' | 'registro' | 'ajustes'
-export type Pestana = 'luz' | 'vibracion' | 'gatillos' | 'sticks' | 'datos'
+export type Seccion = 'mando' | 'botones' | 'perfiles' | 'acciones' | 'avanzado' | 'datos' | 'registro' | 'ajustes'
+export type Pestana = 'luz' | 'vibracion' | 'gatillos' | 'sticks'
 export type Prueba = 'vibracion' | 'gatillos'
 
 /** Por debajo de esto se avisa de batería baja. */
@@ -32,6 +32,7 @@ export const acciones = shallowRef<AccionEspecial[]>([])
 export const archivoElegido = ref('')
 export const generales = shallowRef<SeccionAvanzada[]>([])
 export const autoPerfiles = shallowRef<AutoPerfil[]>([])
+export const diagnostico = shallowRef<Diagnostico | null>(null)
 
 export const ajustesLocales = shallowRef<AjustesMando | null>(null)
 let ultimoCambio = -Infinity
@@ -133,6 +134,7 @@ export function cambiarOpcion(id: string, valor: AjusteAvanzado['valor']) {
   puente.enviar({ tipo: 'opcion', mandoId: idMando(), id, valor })
 }
 
+export const pedirDiagnostico = () => puente.enviar({ tipo: 'pedirDiagnostico' })
 export const pedirTelemetria = (activo: boolean) => puente.enviar({ tipo: 'telemetria', activo })
 
 export const cargarGenerales = () => puente.enviar({ tipo: 'pedirGenerales' })

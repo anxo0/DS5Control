@@ -7,6 +7,7 @@ import {
   acciones,
   archivoElegido,
   autoPerfiles,
+  diagnostico,
   generales,
   conectado,
   estadoApp,
@@ -31,6 +32,7 @@ import SeccionAcciones from './componentes/SeccionAcciones.vue'
 import SeccionAjustes from './componentes/SeccionAjustes.vue'
 import SeccionAvanzado from './componentes/SeccionAvanzado.vue'
 import SeccionBotones from './componentes/SeccionBotones.vue'
+import SeccionDatos from './componentes/SeccionDatos.vue'
 import SeccionPerfiles from './componentes/SeccionPerfiles.vue'
 import SeccionRegistro from './componentes/SeccionRegistro.vue'
 import PiePagina from './componentes/PiePagina.vue'
@@ -55,8 +57,8 @@ const cambiarPestana = async (delta: 1 | -1) => {
   }
   if (seccion.value !== 'mando' || !conectado.value || !mando.value) return
   const lista: Pestana[] = modeloDe(mando.value.tipo).gatillosAdaptativos
-    ? ['luz', 'vibracion', 'gatillos', 'sticks', 'datos']
-    : ['luz', 'vibracion', 'sticks', 'datos']
+    ? ['luz', 'vibracion', 'gatillos', 'sticks']
+    : ['luz', 'vibracion', 'sticks']
   const enPanel = !!document.activeElement?.closest('[role="tabpanel"]')
   const enPestanas = !!document.activeElement?.closest('[role="tablist"]')
   const i = lista.indexOf(pestana.value)
@@ -99,6 +101,7 @@ onMounted(() => {
     alOpciones: (lista) => { grupos.value = lista },
     alAcciones: (lista) => { acciones.value = lista },
     alGenerales: (lista) => { generales.value = lista },
+    alDiagnostico: (datos) => { diagnostico.value = datos },
     alAutoPerfiles: (lista) => { autoPerfiles.value = lista },
     alArchivo: (ruta) => { archivoElegido.value = ruta },
     alMute: () => {
@@ -133,6 +136,7 @@ watch([estadoApp, seccion, pestana], () => nextTick(() => gestor?.asegurarFoco()
       <SeccionPerfiles v-else-if="seccion === 'perfiles'" />
       <SeccionAcciones v-else-if="seccion === 'acciones'" />
       <SeccionAvanzado v-else-if="seccion === 'avanzado'" />
+      <SeccionDatos v-else-if="seccion === 'datos'" />
       <SeccionRegistro v-else />
     </div>
     <PiePagina />

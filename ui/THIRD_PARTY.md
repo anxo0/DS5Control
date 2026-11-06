@@ -7,6 +7,9 @@
 licencia MIT. Cambios sobre el original: colores sustituidos por variables CSS,
 símbolos de los botones con identificador propio y dibujados encima del botón.
 
+La lectura de datos de fábrica y de uso (`DualSenseDiagnostics.cs`) sigue el protocolo
+documentado en ese mismo proyecto.
+
 ```
 MIT License
 

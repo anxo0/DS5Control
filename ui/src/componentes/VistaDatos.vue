@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue'
-import { mando, pedirTelemetria } from '../estado/app'
+import { computed } from 'vue'
+import { mando } from '../estado/app'
 
 /** Tope de las barras: los giros rápidos pasan de aquí y las barras simplemente se llenan. */
 const MAX_GIRO = 20000
 const MAX_ACEL = 2
 const ANCHO_PANEL = 1920
 const ALTO_PANEL = 1080
-
-onMounted(() => pedirTelemetria(true))
-onBeforeUnmount(() => pedirTelemetria(false))
 
 const datos = computed(() => mando.value?.datos ?? null)
 
@@ -77,12 +74,6 @@ const fmt = (v: number) => (Math.abs(v) >= 100 ? Math.round(v) : v.toFixed(2))
       </dl>
     </section>
 
-    <section>
-      <h3>Fábrica</h3>
-      <dl>
-        <div v-for="f in datos.fabrica" :key="f.nombre"><dt>{{ f.nombre }}</dt><dd>{{ f.valor }}</dd></div>
-      </dl>
-    </section>
   </div>
   <p v-else class="nada">Estos datos solo están disponibles con un DualSense.</p>
 </template>

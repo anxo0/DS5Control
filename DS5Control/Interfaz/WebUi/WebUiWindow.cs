@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -80,6 +81,7 @@ namespace DS5ControlApp.Interfaz.WebUi
             autoProfiles = new AutoProfilesPanel(host.AutoProfiles);
             general = new GeneralOptions(host);
             host.OpenInterface = Reveal;
+            host.Closed += (_, _) => SavePending();
             host.IsInterfaceActive = () => IsActive;
             PaletteChanged += host.SetAppIcon;
             ThemeChanged += host.SetTrayMenuTheme;
@@ -336,6 +338,9 @@ namespace DS5ControlApp.Interfaz.WebUi
                 case "telemetria":
                     telemetry = command.GetProperty("activo").GetBoolean();
                     return true;
+                case "pedirDiagnostico":
+                    SendDiagnostics();
+                    return true;
                 case "pedirGenerales":
                     SendGeneral();
                     return true;
@@ -383,21 +388,25 @@ namespace DS5ControlApp.Interfaz.WebUi
                 giro = new { x = motion?.gyroYawFull ?? 0, y = motion?.gyroPitchFull ?? 0, z = motion?.gyroRollFull ?? 0 },
                 acel = new { x = motion?.accelXG ?? 0, y = motion?.accelYG ?? 0, z = motion?.accelZG ?? 0 },
                 toques = touches,
-                fabrica = new[]
-                {
-                    new { nombre = "Firmware compilado", valor = sense.FirmwareBuild },
-                    new { nombre = "MAC", valor = device.getMacAddress() },
-                    new { nombre = "Hardware", valor = $"0x{sense.HardwareInfo:X8}" },
-                    new { nombre = "Firmware", valor = ThreePart(sense.MainFirmware) },
-                    new { nombre = "Actualización", valor = $"{sense.UpdateFirmware >> 8:X}.{sense.UpdateFirmware & 0xFF:X2}" },
-                    new { nombre = "Arranque", valor = ThreePart(sense.BootloaderFirmware) },
-                    new { nombre = "Audio", valor = $"{sense.AudioFirmware >> 16:X4}_{sense.AudioFirmware & 0xFFFF:X4}" },
-                },
             };
         }
 
-        private static string ThreePart(uint version) =>
-            $"{version >> 24}.{(version >> 16) & 0xFF}.{version & 0xFFFF}";
+        /// <summary>The controller answers slowly, so this cannot hold up the window.</summary>
+        private void SendDiagnostics()
+        {
+            DS5Device device = control.DS5Controllers.FirstOrDefault(item => item != null);
+            if (device is not DS5Control.InputDevices.DualSenseDevice sense)
+            {
+                PostMessage(new { tipo = "diagnostico", datos = (object)null });
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                object result = new DS5Control.InputDevices.DualSenseDiagnostics(sense).Read();
+                Dispatcher.BeginInvoke(() => PostMessage(new { tipo = "diagnostico", datos = result }));
+            });
+        }
 
         private void SendGeneral() => PostMessage(new { tipo = "generales", secciones = general.Describe() });
 

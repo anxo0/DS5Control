@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -31,6 +31,9 @@ namespace DS5ControlApp.Interfaz
         /// <summary>IPC clients find the running application by this title.</summary>
         private const string IpcWindowTitle = "DS4Windows";
         private const string ReleasesPage = "https://github.com/anxo0/DS5Control/releases/latest";
+
+        /// <summary>Gives the engine time to start before using the network.</summary>
+        private const int UpdateCheckDelay = 5000;
 
         private const int POWER_RESUME = 7;
         private const int POWER_SUSPEND = 4;
@@ -143,39 +146,53 @@ namespace DS5ControlApp.Interfaz
                 Util.LogAssistBackgroundTask(startup);
             }
 
-#if !BETA_VERSION
-            Task updates = Task.Delay(100).ContinueWith(_ =>
+            if (Global.CheckWhen > 0)
             {
-                int checkWhen = Global.CheckWhen;
-                if (checkWhen > 0 && DateTime.Now >= Global.LastChecked + TimeSpan.FromHours(checkWhen))
-                {
-                    CheckForUpdates();
-                    Global.LastChecked = DateTime.Now;
-                }
-            });
-            Util.LogAssistBackgroundTask(updates);
-#endif
+                Task updates = Task.Delay(UpdateCheckDelay).ContinueWith(_ => UpdateAsync()).Unwrap();
+                Util.LogAssistBackgroundTask(updates);
+            }
         }
 
-        /// <summary>Returns true when a newer version exists, and tells the user where to get it.</summary>
-        public static bool CheckForUpdates()
+        /// <summary>
+        /// Moves to the latest release if there is a newer one, and reopens the program.
+        /// Returns false when this is already the latest version.
+        /// </summary>
+        public async Task<bool> UpdateAsync()
         {
+#if DEBUG
+            // A development build lives in bin: it must never be replaced by a release.
+            AppLogger.LogToGui("Las compilaciones de desarrollo no se actualizan.", false);
+            return await Task.FromResult(false);
+#else
             try
             {
-                if (!Changelog.CheckNewerVersionExists(out var version, false)) return false;
+                using var client = new System.Net.Http.HttpClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("DS5Control");
 
-                AppLogger.LogToTray($"Nueva versión disponible: {version}");
-                AppLogger.LogToGui($"Nueva versión disponible: {version}. {ReleasesPage}", false);
+                AppUpdate update = await AppUpdater.FindAsync(client, typeof(AppHost).Assembly.GetName().Version);
+                if (update == null) return false;
+
+                if (!AppUpdater.CanWriteTo(Global.exedirpath))
+                {
+                    AppLogger.LogToGui($"Hay una versión nueva ({update.Version}), pero no se puede escribir en {Global.exedirpath}. Descárgala de {ReleasesPage}", true);
+                    return true;
+                }
+
+                AppLogger.LogToGui($"Actualizando a la versión {update.Version}...", false);
+                string files = await AppUpdater.DownloadAsync(client, update);
+                using Process install = AppUpdater.StartInstall(files, Global.exedirpath, Environment.ProcessId);
+
+                await Dispatcher.InvokeAsync(Close);
                 return true;
             }
-            catch (Exception exception) when (exception is System.Net.Http.HttpRequestException or TaskCanceledException or InvalidOperationException)
+            catch (Exception exception) when (exception is System.Net.Http.HttpRequestException or TaskCanceledException
+                or IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
             {
-                AppLogger.LogToGui($"No se pudo comprobar si hay una versión nueva: {exception.Message}", true);
-                return false;
+                AppLogger.LogToGui($"No se pudo actualizar: {exception.Message}", true);
+                return true;
             }
+#endif
         }
-
-        public static void OpenReleases() => Util.StartProcessHelper(ReleasesPage);
 
         public async void RestartService()
         {

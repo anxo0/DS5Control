@@ -1,4 +1,4 @@
-name: .NET Release
+name: Release
 
 on:
   release:
@@ -10,43 +10,39 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest
-    #this makes it not run if tests failed.
-    #needs: test
     steps:
     - uses: actions/checkout@v4
       with:
-           ref: ${{ github.event.release.tag_name }}
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+        ref: ${{ github.event.release.tag_name }}
+    - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
+    - uses: actions/setup-node@v4
       with:
-        python-version: "3.10"
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Set envars for versions
-      run: | 
-        TAG=${{ github.event.release.tag_name }}
-        VERSION=${TAG#v}
-        echo Version: $VERSION
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "SHORT_VERSION=${VERSION%-*}" >> $GITHUB_ENV
+        node-version: 22
+    - name: Version
       shell: bash
-    - name: Build X64
-      run: dotnet publish .\DS5Control\DS5Control.csproj -c Release  /p:platform=x64 /p:AssemblyVersion=${{ env.SHORT_VERSION }} /p:FileVersion=${{ env.SHORT_VERSION }} /p:Version=${{ env.VERSION }} -o .\bin\x64\Release\output
-    - name: Post-Build script X64
-      run: python .\utils\post-build.py .\bin\x64\Release\output . ${{env.VERSION}}
-    - name: Publish release Build X64
-      run: gh release upload ${{github.event.release.tag_name}} .\bin\x64\Release\DS5Control_${{env.VERSION}}_x64.zip
-      env:
-        GITHUB_TOKEN: ${{ github.TOKEN }}
-    - name: Build X86
-      run: dotnet publish .\DS5Control\DS5Control.csproj -c Release  /p:platform=x86 /p:AssemblyVersion=${{ env.SHORT_VERSION }} /p:FileVersion=${{ env.SHORT_VERSION }} /p:Version=${{ env.VERSION }} -o .\bin\x86\Release\output
-    - name: Post-Build script X86
-      run: python .\utils\post-build.py .\bin\x86\Release\output . ${{env.VERSION}}
-    - name: Publish release Build X86
-      run: gh release upload ${{github.event.release.tag_name}} .\bin\x86\Release\DS5Control_${{env.VERSION}}_x86.zip
+      run: |
+        TAG=${{ github.event.release.tag_name }}
+        echo "VERSION=${TAG#v}" >> $GITHUB_ENV
+    - name: Interface
+      working-directory: ui
+      run: |
+        npm ci
+        npm run build
+    - name: Tests
+      run: dotnet test DS5ControlTests\DS5ControlTests.csproj -c Release -p:Platform=x64
+    - name: Publish
+      run: >
+        dotnet publish DS5Control\DS5Control.csproj -c Release -p:Platform=x64 -r win-x64
+        --self-contained false -p:Version=${{ env.VERSION }} -p:AssemblyVersion=${{ env.VERSION }}
+        -p:FileVersion=${{ env.VERSION }} -o publicar
+    # The program updates itself from the asset that ends in -win-x64.zip.
+    - name: Package
+      run: |
+        Copy-Item COPYING, README.md, ui\THIRD_PARTY.md publicar
+        Compress-Archive publicar\* DS5Control-${{ env.VERSION }}-win-x64.zip
+    - name: Upload
+      run: gh release upload ${{ github.event.release.tag_name }} DS5Control-${{ env.VERSION }}-win-x64.zip
       env:
         GITHUB_TOKEN: ${{ github.TOKEN }}

@@ -30,6 +30,11 @@ const SECCIONES: { id: Seccion; nombre: string; icono: string }[] = [
     icono: 'M10 6.500a3.500 3.500 0 1 1 0 7 3.500 3.500 0 0 1 0-7Z M10 2.500v2 M10 15.500v2 M2.500 10h2 M15.500 10h2 M4.700 4.700l1.400 1.400 M13.900 13.900l1.400 1.400 M15.300 4.700l-1.400 1.400 M6.100 13.900l-1.400 1.400',
   },
   {
+    id: 'datos',
+    nombre: 'Datos',
+    icono: 'M3 17h14 M5 17v-6 M10 17V4 M15 17V8',
+  },
+  {
     id: 'registro',
     nombre: 'Registro',
     icono: 'M4.500 2.500h11v15h-11Z M7.500 6.500h5 M7.500 10h5 M7.500 13.500h3',

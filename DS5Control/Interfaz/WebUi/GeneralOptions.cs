@@ -31,7 +31,7 @@ namespace DS5ControlApp.Interfaz.WebUi
                 {
                     Toggle("inicioWindows", "Abrir al iniciar Windows", () => settings.RunAtStartup, v => settings.RunAtStartup = v),
                     Toggle("inicioOculto", "Abrir en segundo plano", () => Global.StartMinimized, v => Global.StartMinimized = v),
-                    Toggle("actualizaciones", "Buscar versiones nuevas", () => settings.CheckForUpdates, v => settings.CheckForUpdates = v),
+                    Toggle("actualizaciones", "Actualizar solo al abrir", () => settings.CheckForUpdates, v => settings.CheckForUpdates = v),
                 },
                 new[]
                 {
@@ -70,10 +70,9 @@ namespace DS5ControlApp.Interfaz.WebUi
                 {
                     Button("reiniciar", "Reiniciar el motor", host.RestartService),
                     Button("carpeta", "Abrir carpeta de perfiles", () => Util.StartProcessInExplorer(Global.appdatapath)),
-                    Button("buscarVersion", "Buscar versión nueva", () =>
+                    Button("buscarVersion", "Buscar versión nueva", async () =>
                     {
-                        if (!AppHost.CheckForUpdates()) AppLogger.LogToGui("Tienes la última versión.", false);
-                        else AppHost.OpenReleases();
+                        if (!await host.UpdateAsync()) AppLogger.LogToGui("Tienes la última versión.", false);
                     }),
                     Button("vigem", "Descargar ViGEmBus", () => Util.StartProcessHelper(ViGEmPage)),
                     Button("hidhide", "Descargar HidHide", () => Util.StartProcessHelper(HidHidePage)),

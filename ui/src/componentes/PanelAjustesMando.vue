@@ -22,7 +22,6 @@ import { coloresGuardados, guardarColor } from '../estado/colores'
 import InterruptorFila from './InterruptorFila.vue'
 import IconoMando from './IconoMando.vue'
 import SelectorColor from './SelectorColor.vue'
-import VistaDatos from './VistaDatos.vue'
 import VistaSticks from './VistaSticks.vue'
 
 /** `curva` dibuja la resistencia del gatillo a lo largo de su recorrido. */
@@ -57,7 +56,6 @@ const pestanas = computed(() => {
     lista.push({ id: 'gatillos', nombre: 'Gatillos' })
   }
   lista.push({ id: 'sticks', nombre: 'Sticks' })
-  lista.push({ id: 'datos', nombre: 'Datos' })
   return lista
 })
 
@@ -271,17 +269,6 @@ const colorNivelBrillo = computed(() => {
           </button>
         </div>
         <p class="pista">Aprieta {{ gatilloElegido.nombre }} en el mando para notarlo.</p>
-      </section>
-
-      <section
-        v-else-if="pestana === 'datos'"
-        id="panel-datos"
-        role="tabpanel"
-        aria-labelledby="pestana-datos"
-        class="panel"
-        data-atras="[role='tab'][aria-selected='true']"
-      >
-        <VistaDatos />
       </section>
 
       <section

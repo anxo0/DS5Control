@@ -162,6 +162,7 @@ namespace DS5Control.InputDevices
         private const int BATTERY_STATUS_FULL = 2;
         private byte lastBatteryStatus = 0xFF;
 
+        public byte[] FirmwareInfo { get; private set; }
         public string FirmwareBuild { get; private set; } = string.Empty;
         public uint HardwareInfo { get; private set; }
         public uint MainFirmware { get; private set; }
@@ -311,6 +312,7 @@ namespace DS5Control.InputDevices
 
                 updateVersion = firmwareInfoData[44] | (uint)(firmwareInfoData[45] << 8);
 
+                FirmwareInfo = (byte[])firmwareInfoData.Clone();
                 FirmwareBuild = System.Text.Encoding.ASCII.GetString(firmwareInfoData, 1, 11) + " " +
                     System.Text.Encoding.ASCII.GetString(firmwareInfoData, 12, 8);
                 HardwareInfo = hwVersion;

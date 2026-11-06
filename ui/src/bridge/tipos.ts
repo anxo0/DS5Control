@@ -55,7 +55,32 @@ export interface DatosMando {
   giro: { x: number; y: number; z: number }
   acel: { x: number; y: number; z: number }
   toques: { x: number; y: number }[]
-  fabrica: { nombre: string; valor: string }[]
+}
+
+export interface FilaDato<T = number> {
+  nombre: string
+  valor: T
+}
+
+export interface UsoMando {
+  registros: number
+  activo: number
+  carga: number
+  haptico: number
+  gatilloIzq: number
+  gatilloDer: number
+  ciclosCarga: number
+  cargasCompletas: number
+  conexion: FilaDato[]
+  errores: FilaDato[]
+  pulsaciones: FilaDato[]
+  sticks: FilaDato[]
+}
+
+export interface Diagnostico {
+  milivoltios: number | null
+  fabrica: FilaDato<string>[]
+  uso: UsoMando | null
 }
 
 export interface EstadoMando {
@@ -74,7 +99,7 @@ export interface EstadoMando {
   pulsados: ControlMando[]
   perfil: string
   mapeo: BotonMapeado[]
-  /** Solo llega con la pestaña Datos abierta. */
+  /** Solo llega con la sección Datos abierta. */
   datos?: DatosMando | null
   sticks: { izq: PosicionStick; der: PosicionStick }
   /** Recorrido de cada gatillo, de 0 a 1. */
@@ -147,6 +172,7 @@ export type Comando =
   | { tipo: 'probarGatillos'; mandoId: string }
   | { tipo: 'abrirConMute'; activo: boolean }
   | { tipo: 'ocultar' }
+  | { tipo: 'pedirDiagnostico' }
   | { tipo: 'telemetria'; activo: boolean }
   | { tipo: 'pedirGenerales' }
   | { tipo: 'general'; id: string; valor: AjusteAvanzado['valor'] }
@@ -186,6 +212,7 @@ export type MensajeSaliente =
 export type MensajeEntrante =
   | { tipo: 'estado'; estado: EstadoApp }
   | { tipo: 'mute' }
+  | { tipo: 'diagnostico'; datos: Diagnostico | null }
   | { tipo: 'generales'; secciones: SeccionAvanzada[] }
   | { tipo: 'autoPerfiles'; lista: AutoPerfil[] }
   | { tipo: 'acciones'; acciones: AccionEspecial[] }
@@ -196,6 +223,7 @@ export type MensajeEntrante =
 export interface Eventos {
   alEstado(estado: EstadoApp): void
   alMute(): void
+  alDiagnostico(datos: Diagnostico | null): void
   alGenerales(secciones: SeccionAvanzada[]): void
   alAutoPerfiles(lista: AutoPerfil[]): void
   alAcciones(acciones: AccionEspecial[]): void

@@ -43,7 +43,7 @@ function alternarBoton(ajuste: AjusteAvanzado, indice: number) {
         {{ s.nombre }}
       </h2>
 
-      <div v-if="!cerrada(s)" class="ajustes">
+      <div v-if="!cerrada(s)" class="ajustes" :class="{ soloAcciones: s.ajustes.every((a) => a.tipo === 'accion') }">
         <template v-for="a in s.ajustes" :key="a.id">
           <InterruptorFila
             v-if="a.tipo === 'interruptor'"
@@ -180,6 +180,16 @@ h2 {
   display: grid;
   gap: 2px;
   margin-top: 8px;
+}
+
+.ajustes.soloAcciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.soloAcciones .accion {
+  margin: 0;
 }
 
 .fila {
