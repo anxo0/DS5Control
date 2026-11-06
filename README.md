@@ -19,15 +19,17 @@ DS5Control es un fork de [DS4Windows](https://github.com/schmaldeo/DS4Windows) c
 
 ## Descarga
 
-1. Descarga el ZIP de la [última versión](https://github.com/anxo0/DS5Control/releases/latest).
-2. Descomprímelo en la carpeta que quieras.
-3. Ejecuta `DS5Control.exe`.
+En la [última versión](https://github.com/anxo0/DS5Control/releases/latest) hay dos opciones:
+
+- **Instalador:** descarga `DS5Control-x.y.z-instalador.exe`, ejecútalo y busca DS5Control en el menú Inicio. No pide permisos de administrador.
+- **Portable:** descarga `DS5Control-x.y.z-win-x64.zip`, descomprímelo en la carpeta que quieras y ejecuta `DS5Control.exe`.
+
+Las dos se actualizan solas al abrirse. Windows puede avisar de que el programa no está firmado: pulsa "Más información" y "Ejecutar de todas formas".
 
 ## Requisitos
 
 - Windows 10 u 11 de 64 bits.
-- [.NET 8 Desktop Runtime x64](https://dotnet.microsoft.com/download/dotnet/8.0).
-- [ViGEmBus](https://github.com/nefarius/ViGEmBus/releases).
+- [ViGEmBus](https://github.com/nefarius/ViGEmBus/releases), para emular mandos.
 - Runtime de WebView2, incluido en Windows 11.
 - Recomendado: [HidHide](https://github.com/nefarius/HidHide/releases), para que los juegos no reciban el mando dos veces.
 

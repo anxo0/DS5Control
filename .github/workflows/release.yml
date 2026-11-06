@@ -1,8 +1,11 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Etiqueta de una release ya creada, por ejemplo v0.2.0
+        required: true
 
 permissions:
   contents: write
@@ -13,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ github.event.release.tag_name }}
+        ref: ${{ inputs.tag }}
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
@@ -23,7 +26,7 @@ jobs:
     - name: Version
       shell: bash
       run: |
-        TAG=${{ github.event.release.tag_name }}
+        TAG=${{ inputs.tag }}
         echo "VERSION=${TAG#v}" >> $GITHUB_ENV
     - name: Interface
       working-directory: ui
@@ -35,14 +38,20 @@ jobs:
     - name: Publish
       run: >
         dotnet publish DS5Control\DS5Control.csproj -c Release -p:Platform=x64 -r win-x64
-        --self-contained false -p:Version=${{ env.VERSION }} -p:AssemblyVersion=${{ env.VERSION }}
-        -p:FileVersion=${{ env.VERSION }} -o publicar
+        --self-contained true -p:Version=${{ env.VERSION }} -p:AssemblyVersion=${{ env.VERSION }}
+        -p:FileVersion=${{ env.VERSION }} -p:DebugType=none -o publicar
     # The program updates itself from the asset that ends in -win-x64.zip.
-    - name: Package
+    - name: Portable
       run: |
         Copy-Item COPYING, README.md, ui\THIRD_PARTY.md publicar
         Compress-Archive publicar\* DS5Control-${{ env.VERSION }}-win-x64.zip
+    - name: Installer
+      run: |
+        choco install innosetup --no-progress -y
+        & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DVersion=${{ env.VERSION }} "/DOrigen=$PWD\publicar" "/O$PWD" installer\ds5control.iss
     - name: Upload
-      run: gh release upload ${{ github.event.release.tag_name }} DS5Control-${{ env.VERSION }}-win-x64.zip
+      run: >
+        gh release upload ${{ inputs.tag }} --clobber
+        DS5Control-${{ env.VERSION }}-win-x64.zip DS5Control-${{ env.VERSION }}-instalador.exe
       env:
         GITHUB_TOKEN: ${{ github.TOKEN }}
