@@ -26,7 +26,6 @@ using System.Xml.Serialization;
 using DS4Windows;
 using DS4Windows.InputDevices;
 using DS4Windows.StickModifiers;
-using DS4WinWPF.DS4Forms.ViewModels;
 using static DS4Windows.Mouse;
 
 namespace DS4WinWPF.DS4Control.DTOXml

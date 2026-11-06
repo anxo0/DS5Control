@@ -20,7 +20,6 @@ using DS4Windows.DS4Control;
 using DS4Windows.InputDevices;
 using DS4Windows.StickModifiers;
 using DS4WinWPF.DS4Control.DTOXml;
-using DS4WinWPF.DS4Forms.ViewModels;
 using Sensorit.Base;
 using System;
 using System.Collections.Generic;
@@ -45,7 +44,6 @@ using DS4WinWPF.ApiDTO;
 using WpfScreenHelper;
 using static DS4Windows.Mouse;
 using static DS4Windows.Util;
-using LightbarMacro = DS4WinWPF.DS4Forms.ViewModels.LightbarMacro;
 
 namespace DS4Windows
 {
@@ -3292,8 +3290,8 @@ namespace DS4Windows
 
     public class Changelog
     {
-        public const string GITHUB_RELEASES_API_URI = "https://api.github.com/repos/schmaldeo/DS4Windows/releases";
-        public const string GITHUB_LATEST_RELEASE_API_URI = "https://api.github.com/repos/schmaldeo/DS4Windows/releases/latest";
+        public const string GITHUB_RELEASES_API_URI = "https://api.github.com/repos/anxo0/ds4_anxo0/releases";
+        public const string GITHUB_LATEST_RELEASE_API_URI = "https://api.github.com/repos/anxo0/ds4_anxo0/releases/latest";
 
         private static bool? _newerVersionAvailable = null;
         private static Version _latestVersion;
@@ -3316,7 +3314,7 @@ namespace DS4Windows
                 return (bool)_newerVersionAvailable;
             }
 
-            var request = App.requestClient.GetAsync(GITHUB_LATEST_RELEASE_API_URI);
+            var request = SharedHttpClient.Instance.GetAsync(GITHUB_LATEST_RELEASE_API_URI);
             request.Wait();
             if (request.Result.IsSuccessStatusCode)
             {
@@ -3348,7 +3346,7 @@ namespace DS4Windows
 
             if (!Version.TryParse(Global.exeversion, out var currentVersion)) return dict;
 
-            var request = await App.requestClient.GetAsync(GITHUB_RELEASES_API_URI);
+            var request = await SharedHttpClient.Instance.GetAsync(GITHUB_RELEASES_API_URI);
             var releases = await request.Content.ReadFromJsonAsync<GithubRelease[]>();
 
             foreach (var release in releases)

@@ -29,7 +29,6 @@ using static DS4Windows.Global;
 using System.Drawing; // Point struct
 using Sensorit.Base;
 using DS4WinWPF.DS4Control;
-using DS4WinWPF.DS4Forms.ViewModels;
 using ThreadState = System.Threading.ThreadState;
 
 namespace DS4Windows
@@ -6375,9 +6374,16 @@ namespace DS4Windows
         // Calculate and return the angle of the controller as -180...0...+180 value.
         private static Int32 CalculateControllerAngle(int gyroAccelX, int gyroAccelZ, DS4Device controller)
         {
+            return CalculateControllerAngle(gyroAccelX, gyroAccelZ, controller.wheelCenterPoint,
+                controller.wheelCircleCenterPointRight, controller.wheelCircleCenterPointLeft);
+        }
+
+        public static Int32 CalculateControllerAngle(int gyroAccelX, int gyroAccelZ, Point wheelCenterPoint,
+            Point wheelCircleCenterPointRight, Point wheelCircleCenterPointLeft)
+        {
             Int32 result;
 
-            if (gyroAccelX == controller.wheelCenterPoint.X && Math.Abs(gyroAccelZ - controller.wheelCenterPoint.Y) <= 1)
+            if (gyroAccelX == wheelCenterPoint.X && Math.Abs(gyroAccelZ - wheelCenterPoint.Y) <= 1)
             {
                 // When the current gyro position is "close enough" the wheel center point then no need to go through the hassle of calculating an angle
                 result = 0;
@@ -6389,23 +6395,24 @@ namespace DS4Windows
                 Point vectorAB;
                 Point vectorCD;
 
-                if (gyroAccelX >= controller.wheelCenterPoint.X)
+                if (gyroAccelX >= wheelCenterPoint.X)
                 {
                     // "DS4 gyro wheel" tilted to right
-                    vectorAB = new Point(controller.wheelCenterPoint.X - controller.wheelCircleCenterPointRight.X, controller.wheelCenterPoint.Y - controller.wheelCircleCenterPointRight.Y);
-                    vectorCD = new Point(gyroAccelX - controller.wheelCircleCenterPointRight.X, gyroAccelZ - controller.wheelCircleCenterPointRight.Y);
+                    vectorAB = new Point(wheelCenterPoint.X - wheelCircleCenterPointRight.X, wheelCenterPoint.Y - wheelCircleCenterPointRight.Y);
+                    vectorCD = new Point(gyroAccelX - wheelCircleCenterPointRight.X, gyroAccelZ - wheelCircleCenterPointRight.Y);
                 }
                 else
                 {
                     // "DS4 gyro wheel" tilted to left
-                    vectorAB = new Point(controller.wheelCenterPoint.X - controller.wheelCircleCenterPointLeft.X, controller.wheelCenterPoint.Y - controller.wheelCircleCenterPointLeft.Y);
-                    vectorCD = new Point(gyroAccelX - controller.wheelCircleCenterPointLeft.X, gyroAccelZ - controller.wheelCircleCenterPointLeft.Y);
+                    vectorAB = new Point(wheelCenterPoint.X - wheelCircleCenterPointLeft.X, wheelCenterPoint.Y - wheelCircleCenterPointLeft.Y);
+                    vectorCD = new Point(gyroAccelX - wheelCircleCenterPointLeft.X, gyroAccelZ - wheelCircleCenterPointLeft.Y);
                 }
 
-                // Calculate dot product and magnitude of vectors (center vector and the current tilt vector)
-                double dotProduct = vectorAB.X * vectorCD.X + vectorAB.Y * vectorCD.Y;
-                double magAB = Math.Sqrt(vectorAB.X * vectorAB.X + vectorAB.Y * vectorAB.Y);
-                double magCD = Math.Sqrt(vectorCD.X * vectorCD.X + vectorCD.Y * vectorCD.Y);
+                // Calculate dot product and magnitude of vectors (center vector and the current tilt vector).
+                // Use double math so large sensor values cannot overflow the int products
+                double dotProduct = (double)vectorAB.X * vectorCD.X + (double)vectorAB.Y * vectorCD.Y;
+                double magAB = Math.Sqrt((double)vectorAB.X * vectorAB.X + (double)vectorAB.Y * vectorAB.Y);
+                double magCD = Math.Sqrt((double)vectorCD.X * vectorCD.X + (double)vectorCD.Y * vectorCD.Y);
 
                 // Calculate angle between vectors and convert radian to degrees
                 if (magAB == 0 || magCD == 0)
@@ -6414,7 +6421,8 @@ namespace DS4Windows
                 }
                 else
                 {
-                    double angle = Math.Acos(dotProduct / (magAB * magCD));
+                    // Rounding can push the cosine of (anti)parallel vectors just outside of -1...1 and Acos would return NaN
+                    double angle = Math.Acos(Math.Clamp(dotProduct / (magAB * magCD), -1.0, 1.0));
                     result = Convert.ToInt32(Global.Clamp(
                             -180.0 * C_WHEEL_ANGLE_PRECISION,
                             Math.Round((angle * (180.0 / Math.PI)), 1) * C_WHEEL_ANGLE_PRECISION,
@@ -6423,7 +6431,7 @@ namespace DS4Windows
                 }
 
                 // Left turn is -180..0 and right turn 0..180 degrees
-                if (gyroAccelX < controller.wheelCenterPoint.X) result = -result;
+                if (gyroAccelX < wheelCenterPoint.X) result = -result;
             }
 
             return result;

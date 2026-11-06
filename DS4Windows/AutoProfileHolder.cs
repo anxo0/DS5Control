@@ -23,7 +23,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Data;
 using System.Xml;
 using System.Xml.Serialization;
 using DS4Windows;
@@ -36,6 +35,8 @@ namespace DS4WinWPF
         private object _colLockobj = new object();
         private ObservableCollection<AutoProfileEntity> autoProfileColl;
         public ObservableCollection<AutoProfileEntity> AutoProfileColl { get => autoProfileColl; }
+        /// <summary>Lock an interface must use to bind <see cref="AutoProfileColl"/> from other threads.</summary>
+        public object CollectionLock { get => _colLockobj; }
         //public Dictionary<string, AutoProfileEntity> AutoProfileDict { get => autoProfileDict; }
 
         //private Dictionary<string, AutoProfileEntity> autoProfileDict;
@@ -45,8 +46,6 @@ namespace DS4WinWPF
             autoProfileColl = new ObservableCollection<AutoProfileEntity>();
             //autoProfileDict = new Dictionary<string, AutoProfileEntity>();
             Load();
-
-            BindingOperations.EnableCollectionSynchronization(autoProfileColl, _colLockobj);
         }
 
         private void Load()

@@ -82,12 +82,6 @@ namespace DS4WinWPF.DS4Forms
 
         public bool IsInitialShow { get; set; }
 
-        public static List<ProcessPriorityClass> ProcessPriorityClasses =
-        [
-            ProcessPriorityClass.Normal, ProcessPriorityClass.AboveNormal,
-            ProcessPriorityClass.High, ProcessPriorityClass.RealTime
-        ];
-
         public MainWindow(ArgumentParser parser)
         {
             InitializeComponent();
@@ -102,7 +96,7 @@ namespace DS4WinWPF.DS4Forms
             //logListView.ItemsSource = logvm.LogItems;
             logListView.DataContext = logvm;
             lastMsgLb.DataContext = lastLogMsg;
-            ProcessPriorityComboBox.ItemsSource = ProcessPriorityClasses;
+            ProcessPriorityComboBox.ItemsSource = ProcessPriorityOptions.Classes;
 
             profileListHolder.Refresh();
             profilesListBox.ItemsSource = profileListHolder.ProfileListCol;
@@ -274,7 +268,7 @@ namespace DS4WinWPF.DS4Forms
                         if (!string.IsNullOrEmpty(newUpdaterVersion))
                         {
                             Util.StartProcessHelper(
-                                $"https://github.com/schmaldeo/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
+                                $"https://github.com/anxo0/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
                         }
                     });
                 }
@@ -336,7 +330,7 @@ namespace DS4WinWPF.DS4Forms
                             MessageBox.Show(Properties.Resources.PleaseDownloadUpdater);
                             if (!string.IsNullOrEmpty(newUpdaterVersion))
                             {
-                                Util.StartProcessHelper($"https://github.com/schmaldeo/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
+                                Util.StartProcessHelper($"https://github.com/anxo0/DS4Updater/releases/tag/v{newUpdaterVersion}/{mainWinVM.updaterExe}");
                             }
                         });
                     }
@@ -1050,7 +1044,7 @@ Suspend support not enabled.", true);
 
             if (!Global.firstRun)
             {
-                WindowPlacementHelper.ApplyPlacement(this, startMinimized);
+                WindowPlacementHelper.ApplyPlacement(new WindowInteropHelper(this).Handle, startMinimized);
             }
 
             HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
@@ -1628,7 +1622,7 @@ Suspend support not enabled.", true);
         {
             if (WindowState != WindowState.Minimized && preserveSize && !IsInitialShow)
             {
-                var result = WindowPlacementHelper.GetPlacement(this);
+                var result = WindowPlacementHelper.GetPlacement(new WindowInteropHelper(this).Handle);
                 Global.FormWidth = result.Right - result.Left;
                 Global.FormHeight = result.Bottom - result.Top;
             }
@@ -1636,7 +1630,7 @@ Suspend support not enabled.", true);
 
         private void MainDS4Window_LocationChanged(object sender, EventArgs e)
         {
-            var result = WindowPlacementHelper.GetPlacement(this);
+            var result = WindowPlacementHelper.GetPlacement(new WindowInteropHelper(this).Handle);
             Global.FormLocationX = result.Left;
             Global.FormLocationY = result.Top;
         }
@@ -1839,7 +1833,7 @@ Suspend support not enabled.", true);
             {
                 MessageBox.Show(Strings.RealTimeNoAdmin);
                 selectedPriority = ProcessPriorityClass.High;
-                settingsWrapVM.ProcessPriorityIndex = ProcessPriorityClasses.IndexOf(ProcessPriorityClass.High);
+                settingsWrapVM.ProcessPriorityIndex = ProcessPriorityOptions.Classes.IndexOf(ProcessPriorityClass.High);
             }
             process.PriorityClass = selectedPriority;
         }

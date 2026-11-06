@@ -31,7 +31,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
-using DS4WinWPF.DS4Forms;
 using static DS4Windows.Global;
 
 namespace DS4Windows
@@ -79,6 +78,9 @@ namespace DS4Windows
         Thread tempThread;
         Thread tempBusThread;
         Thread eventDispatchThread;
+        // Not interface code: System.Windows.Threading.Dispatcher (WindowsBase) is used here only as
+        // the ordered work queue of the "ControlService Events" thread. It has no window behind it.
+        // HID discovery and hotplug run on this thread and depend on that ordering.
         Dispatcher eventDispatcher;
         public bool suspending;
 
@@ -102,6 +104,9 @@ namespace DS4Windows
         //public event EventHandler HotplugFinished;
         public delegate void HotplugControllerHandler(ControlService sender, DS4Device device, int index);
         public event HotplugControllerHandler HotplugController;
+        public delegate void MuteButtonPressedHandler(ControlService sender, DS4Device device, int index);
+        /// <summary>Raised on the input thread of the device: handlers must return at once.</summary>
+        public event MuteButtonPressedHandler MuteButtonPressed;
 
         private byte[][] udpOutBuffers = new byte[UdpServer.NUMBER_SLOTS][]
         {
@@ -1728,7 +1733,7 @@ namespace DS4Windows
             ServiceStarted?.Invoke(this, EventArgs.Empty);
             RunningChanged?.Invoke(this, EventArgs.Empty);
             using var process = Process.GetCurrentProcess();
-            process.PriorityClass = MainWindow.ProcessPriorityClasses[Global.ProcessPriority];
+            process.PriorityClass = ProcessPriorityOptions.Classes[Global.ProcessPriority];
             return true;
         }
 
@@ -2518,6 +2523,7 @@ namespace DS4Windows
                 if (removingStatus)
                 {
                     CurrentState[ind].Battery = PreviousState[ind].Battery = 0; // Reset for the next connection's initial status change.
+                    muteButtonEdges[ind].Reset();
                     if (!useDInputOnly[ind])
                     {
                         UnplugOutDev(ind, device);
@@ -2591,6 +2597,7 @@ namespace DS4Windows
         private byte[] currentBattery = new byte[MAX_DS4_CONTROLLER_COUNT] { 0, 0, 0, 0, 0, 0, 0, 0 };
         private bool[] charging = new bool[MAX_DS4_CONTROLLER_COUNT] { false, false, false, false, false, false, false, false };
         private string[] tempStrings = new string[MAX_DS4_CONTROLLER_COUNT] { string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty };
+        private DS4Windows.Api.ButtonEdgeDetector[] muteButtonEdges = new DS4Windows.Api.ButtonEdgeDetector[MAX_DS4_CONTROLLER_COUNT];
 
         // Called every time a new input report has arrived
         protected void On_Report(DS4Device device, EventArgs e, int ind)
@@ -2639,6 +2646,11 @@ namespace DS4Windows
                     // Need to copy state object info for use in UDP server
                     cState.CopyTo(CurrentState[ind]);
                     tempControlState = CurrentState[ind];
+                }
+
+                if (muteButtonEdges[ind].Update(cState.Mute))
+                {
+                    MuteButtonPressed?.Invoke(this, device, ind);
                 }
 
                 DS4State pState = device.getPreviousStateRef();

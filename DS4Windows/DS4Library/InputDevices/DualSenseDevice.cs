@@ -463,7 +463,7 @@ namespace DS4Windows.InputDevices
                 //    ds4Output.Start();
                 //}
 
-                ds4Input = new Thread(ReadInput);
+                ds4Input = new Thread(() => RunInputThread(ReadInput));
                 ds4Input.Priority = ThreadPriority.AboveNormal;
                 ds4Input.Name = "DualSense Input thread: " + Mac;
                 ds4Input.IsBackground = true;

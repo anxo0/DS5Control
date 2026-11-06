@@ -60,7 +60,11 @@ namespace DS4WinWPF
 
         private Thread controlThread;
         public static DS4Windows.ControlService rootHub;
-        public static HttpClient requestClient;
+        public static HttpClient requestClient
+        {
+            get => DS4Windows.SharedHttpClient.Instance;
+            set => DS4Windows.SharedHttpClient.Instance = value;
+        }
         private bool skipSave;
         private bool runShutdown;
         private bool exitApp;

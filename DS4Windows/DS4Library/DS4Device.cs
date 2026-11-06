@@ -864,7 +864,7 @@ namespace DS4Windows
                     ds4Output.Start();
                 }
 
-                ds4Input = new Thread(performDs4Input);
+                ds4Input = new Thread(() => RunInputThread(performDs4Input));
                 ds4Input.Priority = ThreadPriority.AboveNormal;
                 ds4Input.Name = "DS4 Input thread: " + Mac;
                 ds4Input.IsBackground = true;
@@ -1020,6 +1020,59 @@ namespace DS4Windows
         private const int CRC32_NUM_ATTEMPTS = 10;
         private const int SONYWA_FEATURE_REPORT_LENGTH = 64;
         protected uint HamSeed = 2351727372;
+
+        /// <summary>
+        /// Entry point of the input thread. An exception that leaves the input loop would
+        /// terminate the process, so contain it here and drop only this controller. The try
+        /// block is entered once per thread and adds no cost per input report
+        /// </summary>
+        /// <param name="inputLoop">Input loop of the device</param>
+        protected void RunInputThread(Action inputLoop)
+        {
+            try
+            {
+                inputLoop();
+            }
+            catch (Exception ex)
+            {
+                HandleInputThreadException(ex);
+            }
+        }
+
+        private void HandleInputThreadException(Exception ex)
+        {
+            exitInputThread = true;
+            readWaitEv.Reset();
+            LogInputThreadError($"{Mac} input thread failed. Disconnecting the controller: {ex}");
+            RunInputThreadCleanup(StopOutputUpdate);
+            isDisconnecting = true;
+            RunInputThreadCleanup(RunRemoval);
+            timeoutExecuted = true;
+        }
+
+        private void RunInputThreadCleanup(Action cleanupStep)
+        {
+            try
+            {
+                cleanupStep();
+            }
+            catch (Exception ex)
+            {
+                LogInputThreadError($"{Mac} failed to clean up after an input thread error: {ex}");
+            }
+        }
+
+        private static void LogInputThreadError(string message)
+        {
+            try
+            {
+                AppLogger.LogToGui(message, true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{message}{Environment.NewLine}Logging failed: {ex}");
+            }
+        }
 
         protected unsafe void performDs4Input()
         {
@@ -1490,8 +1543,8 @@ namespace DS4Windows
                         }
                     }
 
-                    if (fireReport && Report != null)
-                        Report(this, EventArgs.Empty);
+                    if (fireReport)
+                        Report?.Invoke(this, EventArgs.Empty);
 
                     sendOutputReport(syncWriteReport, forceWrite);
                     forceWrite = false;
@@ -2002,7 +2055,7 @@ namespace DS4Windows
             return Mac;
         }
 
-        protected void RunRemoval()
+        protected virtual void RunRemoval()
         {
             Removal?.Invoke(this, EventArgs.Empty);
         }

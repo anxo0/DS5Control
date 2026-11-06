@@ -457,7 +457,7 @@ namespace DS4Windows
                 if (calibrationDone)
                     applyCalibs(ref currentYaw, ref currentPitch, ref currentRoll, ref AccelX, ref AccelY, ref AccelZ);
 
-                var triggerActive = App.rootHub.touchPad[device].IsGyroTriggerActive(GyroOutMode.Controls);
+                var triggerActive = Program.rootHub.touchPad[device].IsGyroTriggerActive(GyroOutMode.Controls);
                 if (Global.UseDs3PitchRollSim && triggerActive)
                 {
                     _simulatePitchRoll.PushSample(AccelX, AccelY, AccelZ, state.totalMicroSec);

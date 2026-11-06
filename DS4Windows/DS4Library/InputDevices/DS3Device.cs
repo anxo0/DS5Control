@@ -88,7 +88,7 @@ namespace DS4Windows.InputDevices
 
             if (ds4Input == null)
             {
-                ds4Input = new Thread(ReadInput);
+                ds4Input = new Thread(() => RunInputThread(ReadInput));
                 ds4Input.Priority = ThreadPriority.AboveNormal;
                 ds4Input.Name = "DS3 Input thread: " + Mac;
                 ds4Input.IsBackground = true;

@@ -78,6 +78,8 @@ namespace DS4WinWPF.DS4Forms
                 addProgramsBtn.ContextMenu.Items.Remove(steamMenuItem);
 
             autoProfileHolder = new AutoProfileHolder();
+            BindingOperations.EnableCollectionSynchronization(autoProfileHolder.AutoProfileColl,
+                autoProfileHolder.CollectionLock);
 
             int currentRowCount = autoProfilesGrid.RowDefinitions.Count;
             if (currentRowCount > DS4Windows.ControlService.CURRENT_DS4_CONTROLLER_LIMIT)

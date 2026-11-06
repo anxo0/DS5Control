@@ -26,7 +26,7 @@
 		<Company>schmaldeo</Company>
 		<PackageProjectUrl>https://schmaldeo.github.io/DS4WindowsDocs</PackageProjectUrl>
 		<PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.txt</PackageLicenseUrl>
-		<RepositoryUrl>https://github.com/schmaldeo/DS4Windows</RepositoryUrl>
+		<RepositoryUrl>https://github.com/anxo0/ds4_anxo0</RepositoryUrl>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

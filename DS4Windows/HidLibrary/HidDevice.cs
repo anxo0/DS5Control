@@ -34,6 +34,7 @@ namespace DS4Windows
         private bool isOpen;
         private bool isExclusive;
         private const string BLANK_SERIAL = "00:00:00:00:00:00";
+        private const int WAIT_TIMEOUT = 258;
 
         internal HidDevice(string devicePath, string description = null, string parentPath = null)
         {
@@ -171,15 +172,27 @@ namespace DS4Windows
 
             var ov = new NativeOverlapped { EventHandle = wait.SafeWaitHandle.DangerousGetHandle() };
 
-            if (PInvoke.ReadFile(SafeReadHandle, inputBuffer, null, &ov))
-                return ReadStatus.Success;
+            // The kernel keeps writing to the buffer and to ov until the read completes, so the
+            // buffer must stay pinned for the whole operation, not only during the ReadFile call.
+            // Otherwise a compacting GC moves it and the report overwrites whatever is there next.
+            fixed (byte* pinnedBuffer = inputBuffer)
+            {
+                if (PInvoke.ReadFile(SafeReadHandle, inputBuffer, null, &ov))
+                    return ReadStatus.Success;
 
-            if (Marshal.GetLastWin32Error() != (uint)WIN32_ERROR.ERROR_IO_PENDING) return ReadStatus.ReadError;
+                if (Marshal.GetLastWin32Error() != (uint)WIN32_ERROR.ERROR_IO_PENDING) return ReadStatus.ReadError;
 
-            if (!PInvoke.GetOverlappedResultEx(SafeReadHandle, ov, out _, timeout, true))
-                return ReadStatus.ReadError;
+                if (PInvoke.GetOverlappedResultEx(SafeReadHandle, ov, out _, timeout, false))
+                    return ReadStatus.Success;
 
-            return ReadStatus.Success;
+                if (Marshal.GetLastWin32Error() != WAIT_TIMEOUT) return ReadStatus.ReadError;
+
+                // Still pending: this frame and the pin can't go away until the kernel lets go of them.
+                NativeMethods.CancelIoEx(SafeReadHandle.DangerousGetHandle(), (IntPtr)(&ov));
+                return PInvoke.GetOverlappedResult(SafeReadHandle, ov, out _, true)
+                    ? ReadStatus.Success
+                    : ReadStatus.WaitTimedOut;
+            }
         }
 
         public bool WriteOutputReportViaControl(byte[] outputBuffer)
@@ -195,15 +208,16 @@ namespace DS4Windows
                 using AutoResetEvent wait = new(false);
                 var ov = new NativeOverlapped { EventHandle = wait.SafeWaitHandle.DangerousGetHandle() };
 
-                if (PInvoke.WriteFile(SafeReadHandle, outputBuffer, null, &ov))
-                    return true;
+                // Same as in ReadFile: the pin has to outlive the pending write.
+                fixed (byte* pinnedBuffer = outputBuffer)
+                {
+                    if (PInvoke.WriteFile(SafeReadHandle, outputBuffer, null, &ov))
+                        return true;
 
-                if (Marshal.GetLastWin32Error() != (uint)WIN32_ERROR.ERROR_IO_PENDING) return false;
+                    if (Marshal.GetLastWin32Error() != (uint)WIN32_ERROR.ERROR_IO_PENDING) return false;
 
-                if (!PInvoke.GetOverlappedResult(SafeReadHandle, ov, out _, true))
-                    return false;
-
-                return true;
+                    return PInvoke.GetOverlappedResult(SafeReadHandle, ov, out _, true);
+                }
         }
 
         private SafeFileHandle OpenHandle(string devicePathName, bool isExclusive, bool enumerate)

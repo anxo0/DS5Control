@@ -18,7 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
-using System.Windows.Documents;
 using System.Xml;
 using System.Xml.Serialization;
 using DS4Windows;

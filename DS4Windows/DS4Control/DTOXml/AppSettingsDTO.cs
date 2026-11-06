@@ -239,10 +239,12 @@ namespace DS4WinWPF.DS4Control.DTOXml
         [XmlElement("LastChecked")]
         public string LastCheckString
         {
-            get => LastChecked.ToString("MM/dd/yyyy HH:mm:ss");
+            get => LastChecked.ToString("MM/dd/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
             set
             {
-                if (DateTime.TryParse(value, out DateTime temp))
+                // The value is always written month first, whatever the system culture is
+                if (DateTime.TryParse(value, System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out DateTime temp))
                 {
                     LastChecked = temp;
                 }

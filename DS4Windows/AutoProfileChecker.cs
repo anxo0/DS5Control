@@ -142,7 +142,7 @@ namespace DS4WinWPF
                     if (turnOffDS4WinApp)
                     {
                         turnOffTemp = true;
-                        if (App.rootHub.running)
+                        if (Program.rootHub.running)
                         {
                             if (autoProfileDebugLogLevel > 0)
                                 DS4Windows.AppLogger.LogToGui($"DEBUG: Auto-Profile. Turning DS4Windows temporarily off", false, true);
@@ -158,7 +158,7 @@ namespace DS4WinWPF
                     if (turnOffTemp && DS4Windows.Global.AutoProfileRevertDefaultProfile)
                     {
                         turnOffTemp = false;
-                        if (!App.rootHub.running)
+                        if (!Program.rootHub.running)
                         {
                             if (autoProfileDebugLogLevel > 0)
                                 DS4Windows.AppLogger.LogToGui($"DEBUG: Auto-Profile. Turning DS4Windows on before reverting to default profile", false, true);
@@ -289,7 +289,7 @@ namespace DS4WinWPF
         private void SetAndWaitServiceStatus(bool serviceRunningStatus)
         {
             // Start or Stop the service only if it is not already in the requested state
-            if (App.rootHub.running != serviceRunningStatus)
+            if (Program.rootHub.running != serviceRunningStatus)
             {
                 RequestServiceChange?.Invoke(this, serviceRunningStatus);
 
@@ -297,7 +297,7 @@ namespace DS4WinWPF
                 // LoadProfile call fails if a new profile is loaded while DS4Win service is still in stopped state (ie the loaded temp profile doesn't do anything).
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                while (App.rootHub.running != serviceRunningStatus && sw.Elapsed.TotalSeconds < 10)
+                while (Program.rootHub.running != serviceRunningStatus && sw.Elapsed.TotalSeconds < 10)
                 {
                     Thread.SpinWait(1000);
                 }

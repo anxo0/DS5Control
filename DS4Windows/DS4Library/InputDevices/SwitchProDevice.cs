@@ -319,7 +319,7 @@ namespace DS4Windows.InputDevices
             else if (ds4Input == null)
             {
                 // Device is open. Create Reader Input thread
-                ds4Input = new Thread(ReadInput);
+                ds4Input = new Thread(() => RunInputThread(ReadInput));
                 ds4Input.IsBackground = true;
                 ds4Input.Priority = ThreadPriority.AboveNormal;
                 ds4Input.Name = "Switch Pro Reader Thread";
@@ -329,6 +329,12 @@ namespace DS4Windows.InputDevices
 
         protected override void StopOutputUpdate()
         {
+        }
+
+        protected override void RunRemoval()
+        {
+            // Removal is overridden here, the base class would raise its own unused event
+            Removal?.Invoke(this, EventArgs.Empty);
         }
 
         protected unsafe void ReadInput()
