@@ -158,7 +158,7 @@ export interface EstadoApp {
   ventanaVisible: boolean
   perfiles: string[]
   registro: EntradaRegistro[]
-  servicios: { vigemBus: boolean; hidHide: boolean }
+  servicios: { vigemBus: boolean; hidHide: boolean; instalandoVigem: boolean }
 }
 
 export type Comando =
@@ -172,6 +172,7 @@ export type Comando =
   | { tipo: 'probarGatillos'; mandoId: string }
   | { tipo: 'abrirConMute'; activo: boolean }
   | { tipo: 'ocultar' }
+  | { tipo: 'instalarVigem' }
   | { tipo: 'pedirDiagnostico' }
   | { tipo: 'telemetria'; activo: boolean }
   | { tipo: 'pedirGenerales' }

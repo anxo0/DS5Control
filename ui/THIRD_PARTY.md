@@ -1,5 +1,11 @@
 # Avisos de terceros
 
+## ViGEmBus
+
+`drivers/ViGEmBus_1.22.0_x64_x86_arm64.exe` es el instalador oficial sin modificar de
+[ViGEmBus](https://github.com/nefarius/ViGEmBus), de Nefarius Software Solutions e.U.,
+con licencia BSD de 3 cláusulas. El texto está en `drivers/ViGEmBus-LICENSE.txt`.
+
 ## Dibujo del mando DualSense
 
 `src/assets/mandos/dualsense.svg` procede de `design/dualsense.svg` del proyecto

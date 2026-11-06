@@ -37,7 +37,8 @@ function estadoInicial(): EstadoApp {
       { hora: '18:00:37', texto: 'Mando virtual conectado', aviso: false },
     ],
     ventanaVisible: true,
-    servicios: { vigemBus: true, hidHide: true },
+    // ?sinvigem enseña el aviso de controlador que falta.
+    servicios: { vigemBus: !location.search.includes('sinvigem'), hidHide: true, instalandoVigem: false },
   }
 }
 

@@ -24,6 +24,7 @@ import { GestorFoco } from './nav/gestorFoco'
 import { escucharGamepad, escucharTeclado } from './nav/entrada'
 import type { Salidas } from './nav/entrada'
 import { modeloDe } from './mandos/modelos'
+import AvisoControlador from './componentes/AvisoControlador.vue'
 import BarraSuperior from './componentes/BarraSuperior.vue'
 import NavSecciones from './componentes/NavSecciones.vue'
 import PanelMando from './componentes/PanelMando.vue'
@@ -125,6 +126,7 @@ watch([estadoApp, seccion, pestana], () => nextTick(() => gestor?.asegurarFoco()
 <template>
   <div ref="raiz" class="app">
     <BarraSuperior />
+    <AvisoControlador />
     <div class="cuerpo">
       <NavSecciones />
       <template v-if="seccion === 'mando'">

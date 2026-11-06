@@ -15,9 +15,9 @@
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<EnableNETAnalyzers>false</EnableNETAnalyzers>
 		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<AssemblyVersion>0.2.0</AssemblyVersion>
-		<FileVersion>0.2.0</FileVersion>
-		<Version>0.2.0</Version>
+		<AssemblyVersion>0.2.1</AssemblyVersion>
+		<FileVersion>0.2.1</FileVersion>
+		<Version>0.2.1</Version>
 		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
 		<Platform Condition=" '$(Platform)' == '' ">x64</Platform>
 		<Copyright>Copyright © Scarlet.Crush Productions 2012, 2013; InhexSTER, HecticSeptic, electrobrains 2013, 2014; Jays2Kings 2013, 2014, 2015, 2016; Ryochan7 2017-2023, schmaldeo 2024</Copyright>
@@ -319,5 +319,9 @@
 	<ItemGroup Condition="Exists('..\ui\dist\index.html')">
 		<Content Include="Resources\Logo\*.ico" Link="iconos\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
 		<Content Include="..\ui\dist\**\*" Link="ui\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+	<!-- Ships with the program so a clean PC can install it without internet. -->
+	<ItemGroup>
+		<Content Include="Drivers\*.*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Link="drivers\%(Filename)%(Extension)" />
 	</ItemGroup>
 </Project>

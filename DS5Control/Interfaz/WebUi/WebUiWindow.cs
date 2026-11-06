@@ -62,6 +62,7 @@ namespace DS5ControlApp.Interfaz.WebUi
         private string[] profiles = Array.Empty<string>();
         private bool pageReady;
         private bool telemetry;
+        private bool installingViGEm;
         private bool openWithMute;
         private string lastState = string.Empty;
 
@@ -335,6 +336,9 @@ namespace DS5ControlApp.Interfaz.WebUi
         {
             switch (kind)
             {
+                case "instalarVigem":
+                    InstallViGEm();
+                    return true;
                 case "telemetria":
                     telemetry = command.GetProperty("activo").GetBoolean();
                     return true;
@@ -406,6 +410,21 @@ namespace DS5ControlApp.Interfaz.WebUi
                 object result = new DS5Control.InputDevices.DualSenseDiagnostics(sense).Read();
                 Dispatcher.BeginInvoke(() => PostMessage(new { tipo = "diagnostico", datos = result }));
             });
+        }
+
+        private async void InstallViGEm()
+        {
+            if (installingViGEm) return;
+
+            installingViGEm = true;
+            try
+            {
+                if (await DriverSetup.InstallViGEmAsync()) host.RestartService();
+            }
+            finally
+            {
+                installingViGEm = false;
+            }
         }
 
         private void SendGeneral() => PostMessage(new { tipo = "generales", secciones = general.Describe() });
@@ -738,7 +757,8 @@ namespace DS5ControlApp.Interfaz.WebUi
                     registro = logEntries,
                     servicios = new
                     {
-                        vigemBus = Global.IsViGEmBusInstalled(),
+                        vigemBus = Global.IsRunningSupportedViGEmBus(),
+                        instalandoVigem = installingViGEm,
                         hidHide = Global.hidHideInstalled,
                     },
                 },

@@ -11,7 +11,6 @@ namespace DS5ControlApp.Interfaz.WebUi
     /// <summary>Application wide settings, in the same shape as <see cref="ProfileOptions"/>.</summary>
     internal sealed class GeneralOptions
     {
-        private const string ViGEmPage = "https://github.com/nefarius/ViGEmBus/releases/latest";
         private const string HidHidePage = "https://github.com/nefarius/HidHide/releases/latest";
 
         private static readonly ProcessPriorityClass[] Priorities =
@@ -74,7 +73,7 @@ namespace DS5ControlApp.Interfaz.WebUi
                     {
                         if (!await host.UpdateAsync()) AppLogger.LogToGui("Tienes la última versión.", false);
                     }),
-                    Button("vigem", "Descargar ViGEmBus", () => Util.StartProcessHelper(ViGEmPage)),
+                    Button("vigem", "Instalar ViGEmBus", () => _ = DriverSetup.InstallViGEmAsync()),
                     Button("hidhide", "Descargar HidHide", () => Util.StartProcessHelper(HidHidePage)),
                 },
             };
