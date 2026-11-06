@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import ds4 from '../assets/logo/ds5control-ds4.svg'
+import clasico from '../assets/logo/ds5control-clasico.svg'
 import azul from '../assets/logo/ds5control-azul.svg'
 import fuego from '../assets/logo/ds5control-fuego.svg'
 import menta from '../assets/logo/ds5control-menta.svg'
@@ -8,7 +8,7 @@ export const PALETAS = [
   { id: 'fuego', nombre: 'Fuego', logo: fuego },
   { id: 'azul', nombre: 'Azul', logo: azul },
   { id: 'menta', nombre: 'Menta', logo: menta },
-  { id: 'ds4', nombre: 'DS4 (Legacy)', logo: ds4 },
+  { id: 'clasico', nombre: 'Clásico', logo: clasico },
 ] as const
 
 export type Paleta = (typeof PALETAS)[number]['id']

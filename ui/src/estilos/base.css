@@ -78,13 +78,14 @@ button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-/* El foco manda sobre cualquier otro estado y siempre se ve. */
+/* El foco manda sobre cualquier otro estado y siempre se ve. Va por dentro del control
+   para no pisar a los vecinos, que suelen estar a pocos píxeles. */
 button:focus-visible,
 input:focus-visible,
 [data-foco-activo] button:focus,
 [data-foco-activo] input:focus {
   outline: 3px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: -3px;
 }
 
 button:not(:focus-visible),

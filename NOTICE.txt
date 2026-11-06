@@ -1,6 +1,6 @@
 This project includes the source code of some third party projects. This file
 will attempt to document some third party source code that is used in the
-DS4Windows source code and state the original source.
+DS5Control source code, derived from DS4Windows, and state the original source.
 
 Crc32:
 https://github.com/dariogriffo/Crc32

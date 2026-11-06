@@ -329,6 +329,6 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 
-!DS4Windows/libs/x64/
-!DS4Windows/libs/x86/
+!DS5Control/libs/x64/
+!DS5Control/libs/x86/
 

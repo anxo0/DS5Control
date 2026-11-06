@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="MenuFondo" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="MenuTexto" Color="#16233A" />
+    <SolidColorBrush x:Key="MenuResalte" Color="#F2F4F7" />
+    <SolidColorBrush x:Key="MenuLinea" Color="#DDE3EC" />
+
+    <Style TargetType="{x:Type ContextMenu}">
+        <Setter Property="HasDropShadow" Value="False" />
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContextMenu}">
+                    <Border MinWidth="190" Padding="6" CornerRadius="10" BorderThickness="1"
+                            Background="{DynamicResource MenuFondo}" BorderBrush="{DynamicResource MenuLinea}">
+                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type Separator}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Separator}">
+                    <Rectangle Height="1" Margin="8,4" Fill="{DynamicResource MenuLinea}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type MenuItem}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{DynamicResource MenuTexto}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type MenuItem}">
+                    <Grid>
+                        <Border x:Name="Fondo" Padding="12,8" CornerRadius="6" Background="Transparent">
+                            <DockPanel>
+                                <Path x:Name="Flecha" DockPanel.Dock="Right" Margin="16,0,0,0" VerticalAlignment="Center"
+                                      Data="M0,0 L4,4 L0,8" Stroke="{DynamicResource MenuTexto}" StrokeThickness="1.5" />
+                                <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" />
+                            </DockPanel>
+                        </Border>
+                        <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="8" AllowsTransparency="True"
+                               Focusable="False" IsOpen="{TemplateBinding IsSubmenuOpen}">
+                            <Border MinWidth="170" Padding="6" CornerRadius="10" BorderThickness="1"
+                                    Background="{DynamicResource MenuFondo}" BorderBrush="{DynamicResource MenuLinea}">
+                                <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasItems" Value="False">
+                            <Setter TargetName="Flecha" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Fondo" Property="Background" Value="{DynamicResource MenuResalte}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

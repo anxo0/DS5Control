@@ -20,7 +20,10 @@ import { modeloDe } from '../mandos/modelos'
 import ControlNivel from './ControlNivel.vue'
 import { coloresGuardados, guardarColor } from '../estado/colores'
 import InterruptorFila from './InterruptorFila.vue'
+import IconoMando from './IconoMando.vue'
 import SelectorColor from './SelectorColor.vue'
+import VistaDatos from './VistaDatos.vue'
+import VistaSticks from './VistaSticks.vue'
 
 /** `curva` dibuja la resistencia del gatillo a lo largo de su recorrido. */
 const EFECTOS: { id: EfectoGatillo; nombre: string; detalle: string; curva: string }[] = [
@@ -53,6 +56,8 @@ const pestanas = computed(() => {
   if (mando.value && modeloDe(mando.value.tipo).gatillosAdaptativos) {
     lista.push({ id: 'gatillos', nombre: 'Gatillos' })
   }
+  lista.push({ id: 'sticks', nombre: 'Sticks' })
+  lista.push({ id: 'datos', nombre: 'Datos' })
   return lista
 })
 
@@ -223,7 +228,7 @@ const colorNivelBrillo = computed(() => {
       </section>
 
       <section
-        v-else
+        v-else-if="pestana === 'gatillos'"
         id="panel-gatillos"
         role="tabpanel"
         aria-labelledby="pestana-gatillos"
@@ -241,7 +246,7 @@ const colorNivelBrillo = computed(() => {
             :data-foco-inicial="i === 0 ? '' : undefined"
             @click="gatilloActivo = g.id"
           >
-            <span class="lado-nombre">{{ g.nombre }}</span>
+            <span class="lado-nombre"><IconoMando :control="g.nombre" /></span>
             <span class="lado-efecto">{{ efectoDe(g.clave) }}</span>
             <span class="recorrido" aria-hidden="true">
               <span :style="{ transform: `scaleX(${recorrido(g.id)})` }" />
@@ -266,6 +271,28 @@ const colorNivelBrillo = computed(() => {
           </button>
         </div>
         <p class="pista">Aprieta {{ gatilloElegido.nombre }} en el mando para notarlo.</p>
+      </section>
+
+      <section
+        v-else-if="pestana === 'datos'"
+        id="panel-datos"
+        role="tabpanel"
+        aria-labelledby="pestana-datos"
+        class="panel"
+        data-atras="[role='tab'][aria-selected='true']"
+      >
+        <VistaDatos />
+      </section>
+
+      <section
+        v-else
+        id="panel-sticks"
+        role="tabpanel"
+        aria-labelledby="pestana-sticks"
+        class="panel"
+        data-atras="[role='tab'][aria-selected='true']"
+      >
+        <VistaSticks />
       </section>
     </template>
   </aside>
@@ -370,14 +397,6 @@ h3 {
 
 .color.activo {
   box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px var(--ink);
-}
-
-.color:focus-visible {
-  outline-offset: 7px;
-}
-
-[data-foco-activo] .color:focus {
-  outline-offset: 7px;
 }
 
 .color:disabled,

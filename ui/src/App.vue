@@ -4,8 +4,14 @@ import { tema } from './estado/tema'
 import { defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
 import type { Pestana } from './estado/app'
 import {
+  acciones,
+  archivoElegido,
+  autoPerfiles,
+  generales,
   conectado,
   estadoApp,
+  grupoActivo,
+  grupos,
   mando,
   ocultar,
   pestana,
@@ -21,8 +27,12 @@ import BarraSuperior from './componentes/BarraSuperior.vue'
 import NavSecciones from './componentes/NavSecciones.vue'
 import PanelMando from './componentes/PanelMando.vue'
 import PanelAjustesMando from './componentes/PanelAjustesMando.vue'
+import SeccionAcciones from './componentes/SeccionAcciones.vue'
 import SeccionAjustes from './componentes/SeccionAjustes.vue'
-import SeccionPendiente from './componentes/SeccionPendiente.vue'
+import SeccionAvanzado from './componentes/SeccionAvanzado.vue'
+import SeccionBotones from './componentes/SeccionBotones.vue'
+import SeccionPerfiles from './componentes/SeccionPerfiles.vue'
+import SeccionRegistro from './componentes/SeccionRegistro.vue'
 import PiePagina from './componentes/PiePagina.vue'
 import VentanaOculta from './componentes/VentanaOculta.vue'
 
@@ -35,10 +45,18 @@ const raiz = ref<HTMLElement>()
 let gestor: GestorFoco | undefined
 
 const cambiarPestana = async (delta: 1 | -1) => {
+  if (seccion.value === 'avanzado' && grupos.value.length) {
+    const lista = grupos.value
+    const i = lista.findIndex((g) => g.id === grupoActivo.value)
+    grupoActivo.value = lista[(i + delta + lista.length) % lista.length]!.id
+    await nextTick()
+    gestor?.asegurarFoco()
+    return
+  }
   if (seccion.value !== 'mando' || !conectado.value || !mando.value) return
   const lista: Pestana[] = modeloDe(mando.value.tipo).gatillosAdaptativos
-    ? ['luz', 'vibracion', 'gatillos']
-    : ['luz', 'vibracion']
+    ? ['luz', 'vibracion', 'gatillos', 'sticks', 'datos']
+    : ['luz', 'vibracion', 'sticks', 'datos']
   const enPanel = !!document.activeElement?.closest('[role="tabpanel"]')
   const enPestanas = !!document.activeElement?.closest('[role="tablist"]')
   const i = lista.indexOf(pestana.value)
@@ -78,6 +96,11 @@ onMounted(() => {
 
   puente.iniciar({
     alEstado: recibirEstado,
+    alOpciones: (lista) => { grupos.value = lista },
+    alAcciones: (lista) => { acciones.value = lista },
+    alGenerales: (lista) => { generales.value = lista },
+    alAutoPerfiles: (lista) => { autoPerfiles.value = lista },
+    alArchivo: (ruta) => { archivoElegido.value = ruta },
     alMute: () => {
       // Al volver del segundo plano, la ventana debe recuperar el foco de entrada.
       window.focus()
@@ -106,7 +129,11 @@ watch([estadoApp, seccion, pestana], () => nextTick(() => gestor?.asegurarFoco()
         <PanelAjustesMando />
       </template>
       <SeccionAjustes v-else-if="seccion === 'ajustes'" />
-      <SeccionPendiente v-else :seccion="seccion" />
+      <SeccionBotones v-else-if="seccion === 'botones'" />
+      <SeccionPerfiles v-else-if="seccion === 'perfiles'" />
+      <SeccionAcciones v-else-if="seccion === 'acciones'" />
+      <SeccionAvanzado v-else-if="seccion === 'avanzado'" />
+      <SeccionRegistro v-else />
     </div>
     <PiePagina />
     <VentanaOculta v-if="!estadoApp.ventanaVisible" />
@@ -116,7 +143,8 @@ watch([estadoApp, seccion, pestana], () => nextTick(() => gestor?.asegurarFoco()
 
 <style scoped>
 .app {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: var(--ground);
   color: var(--ink);
   display: flex;
@@ -125,10 +153,17 @@ watch([estadoApp, seccion, pestana], () => nextTick(() => gestor?.asegurarFoco()
 
 .cuerpo {
   display: flex;
-  flex-wrap: wrap;
   gap: 12px;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
+  min-height: 0;
   padding: 0 12px 12px;
+}
+
+/* Cada panel desplaza lo suyo: la barra lateral no se mueve con él. */
+.cuerpo > * {
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
 }
 </style>

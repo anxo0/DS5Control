@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { cambiarAbrirConMute, cambiarEmulacion, conectado, estadoApp, mando } from '../estado/app'
+import { onMounted } from 'vue'
+import { cambiarAbrirConMute, cambiarEmulacion, cambiarGeneral, cargarGenerales, conectado, estadoApp, generales, mando } from '../estado/app'
 import { PALETAS, cambiarPaleta, paleta } from '../estado/paleta'
 import { cambiarTema, tema } from '../estado/tema'
 import InterruptorFila from './InterruptorFila.vue'
+import ListaAjustes from './ListaAjustes.vue'
 
 const EMULACIONES = [
   { id: 'xbox', nombre: 'Xbox 360', detalle: 'La opción más compatible' },
   { id: 'ds4', nombre: 'DualShock 4', detalle: 'Muestra botones de PlayStation' },
+  { id: 'nativo', nombre: 'DualSense real', detalle: 'Gatillos y vibración del juego. Con cable' },
 ] as const
+
+onMounted(cargarGenerales)
 
 function fijarTema(valor: 'claro' | 'oscuro') {
   if (tema.value !== valor) cambiarTema()
@@ -23,7 +28,7 @@ function fijarTema(valor: 'claro' | 'oscuro') {
         <h2>Mando en los juegos</h2>
         <p>Cómo ven los juegos tu mando.</p>
       </div>
-      <div class="opciones dos">
+      <div class="opciones tres">
         <button
           v-for="(e, i) in EMULACIONES"
           :key="e.id"
@@ -90,6 +95,7 @@ function fijarTema(valor: 'claro' | 'oscuro') {
     </section>
 
     <p class="creditos">Iconos de botones por Zacksly (CC BY 3.0, zacksly.itch.io).</p>
+    <ListaAjustes class="generales" :secciones="generales" @cambiar="cambiarGeneral" />
   </main>
 </template>
 
@@ -137,7 +143,8 @@ h2 {
   max-width: 640px;
 }
 
-.dos {
+.dos,
+.tres {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 

@@ -1,4 +1,4 @@
-import type { ControlMando, EstadoApp, EstadoMando, Eventos, Comando, Puente } from './tipos'
+import type { AccionEspecial, AjusteAvanzado, ControlMando, EstadoApp, EstadoMando, Eventos, Comando, GrupoAvanzado, Puente } from './tipos'
 
 function estadoInicial(): EstadoApp {
   return {
@@ -14,6 +14,8 @@ function estadoInicial(): EstadoApp {
         emulando: 'Xbox 360',
         luzActual: '#1F4FE0',
         pulsados: [],
+        perfil: 'Default',
+        mapeo: [],
         sticks: { izq: { x: 0, y: 0 }, der: { x: 0, y: 0 } },
         gatillos: { l2: 0, r2: 0 },
         ajustes: {
@@ -29,6 +31,11 @@ function estadoInicial(): EstadoApp {
       },
     ],
     abrirConMute: true,
+    perfiles: ['Default', 'Carreras'],
+    registro: [
+      { hora: '18:00:36', texto: 'Mando encontrado (Bluetooth)', aviso: false },
+      { hora: '18:00:37', texto: 'Mando virtual conectado', aviso: false },
+    ],
     ventanaVisible: true,
     servicios: { vigemBus: true, hidHide: true },
   }
@@ -41,6 +48,40 @@ function colorSegunBateria(bateria: number): string {
     Math.round(a + (b - a) * t).toString(16).padStart(2, '0')
   return `#${canal(0xe8, 0x00)}${canal(0x25, 0xb8)}${canal(0x4f, 0x5e)}`.toUpperCase()
 }
+
+const ajuste = (id: string, nombre: string, tipo: AjusteAvanzado['tipo'], valor: AjusteAvanzado['valor'], extra: Partial<AjusteAvanzado> = {}): AjusteAvanzado => ({
+  id, nombre, tipo, valor, min: 0, max: 1, paso: 0.01, porcentaje: false, opciones: null, ...extra,
+})
+
+let acciones: AccionEspecial[] = []
+
+const opciones: GrupoAvanzado[] = [
+  {
+    id: 'sticks',
+    nombre: 'Sticks',
+    secciones: [
+      {
+        nombre: 'Stick izquierdo',
+        ajustes: [
+          ajuste('LSDeadZone', 'Zona muerta', 'numero', 0.1, { porcentaje: true }),
+          ajuste('LSSquareStick', 'Recorrido cuadrado', 'interruptor', false),
+          ajuste('LSOutputCurveIndex', 'Curva de respuesta', 'opciones', 0, { opciones: ['Lineal', 'Cuadrática', 'Personalizada'] }),
+          ajuste('LSCustomCurve', 'Curva', 'curva', '0.25, 0.10, 0.75, 0.90'),
+        ],
+      },
+    ],
+  },
+  {
+    id: 'giroscopio',
+    nombre: 'Giroscopio',
+    secciones: [
+      {
+        nombre: 'Ratón con giroscopio',
+        ajustes: [ajuste('gyroRaton', 'Se activa con', 'botones', [], { opciones: ['Cruz', 'Círculo', 'L1', 'R1'] })],
+      },
+    ],
+  },
+]
 
 export function crearPuenteSimulado(): Puente {
   let estado = estadoInicial()
@@ -110,6 +151,56 @@ export function crearPuenteSimulado(): Puente {
             m.ajustes.emulacion = comando.valor
             m.emulando = comando.valor === 'ds4' ? 'DualShock 4' : 'Xbox 360'
           })
+          break
+        case 'perfil':
+          conMando(comando.mandoId, (m) => { m.perfil = comando.nombre })
+          break
+        case 'nuevoPerfil':
+          estado.perfiles = [...estado.perfiles, comando.nombre]
+          break
+        case 'borrarPerfil':
+          estado.perfiles = estado.perfiles.filter((p) => p !== comando.nombre)
+          break
+        case 'mapear':
+          conMando(comando.mandoId, (m) => {
+            m.mapeo = m.mapeo.filter((b) => b.control !== comando.control)
+            m.mapeo.push({ control: comando.control, salida: comando.salida })
+          })
+          break
+        case 'pedirGenerales':
+          eventos?.alGenerales([{ nombre: 'Inicio', ajustes: [ajuste('inicioWindows', 'Abrir al iniciar Windows', 'interruptor', false)] }])
+          break
+        case 'pedirAuto':
+          eventos?.alAutoPerfiles([])
+          break
+        case 'pedirAcciones':
+          eventos?.alAcciones(structuredClone(acciones))
+          break
+        case 'guardarAccion':
+          acciones = acciones.filter((a) => a.nombre !== comando.original)
+          acciones.push({ ...comando, tipo: comando.tipoAccion, activa: true })
+          eventos?.alAcciones(structuredClone(acciones))
+          break
+        case 'borrarAccion':
+          acciones = acciones.filter((a) => a.nombre !== comando.nombre)
+          eventos?.alAcciones(structuredClone(acciones))
+          break
+        case 'activarAccion':
+          acciones = acciones.map((a) => (a.nombre === comando.nombre ? { ...a, activa: comando.activa } : a))
+          eventos?.alAcciones(structuredClone(acciones))
+          break
+        case 'pedirOpciones':
+          eventos?.alOpciones(structuredClone(opciones))
+          break
+        case 'opcion':
+          for (const g of opciones) {
+            for (const s of g.secciones) {
+              for (const a of s.ajustes) {
+                if (a.id === comando.id) a.valor = comando.valor
+              }
+            }
+          }
+          eventos?.alOpciones(structuredClone(opciones))
           break
         case 'arcoiris':
           conMando(comando.mandoId, (m) => { m.ajustes.arcoiris = comando.activo })

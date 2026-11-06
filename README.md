@@ -44,7 +44,7 @@ cd ui
 npm install
 npm run build
 cd ..
-dotnet build DS4WindowsWPF.sln -c Debug -p:Platform=x64
+dotnet build DS5Control.sln -c Debug -p:Platform=x64
 ```
 
 ## Créditos

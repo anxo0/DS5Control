@@ -4,7 +4,20 @@ import type { ControlMando, EfectoGatillo, EstadoMando } from '../bridge'
 import { ajustesLocales, estadoApp, prueba } from '../estado/app'
 import { modeloDe } from '../mandos/modelos'
 
-const props = defineProps<{ mando: EstadoMando | null; conectado: boolean }>()
+const props = defineProps<{
+  mando: EstadoMando | null
+  conectado: boolean
+  /** Sin rótulos alrededor, para pantallas que explican el mando por su cuenta. */
+  limpio?: boolean
+  /** Botón del dibujo marcado como elegido; su presencia hace pulsable el mando. */
+  seleccion?: string
+}>()
+const emit = defineEmits<{ elegir: [id: string] }>()
+
+function alPulsar(e: MouseEvent) {
+  const id = (e.target as Element).closest('[id]')?.id
+  if (id) emit('elegir', id.replace(/-(simbolo|border|icon)$/, '').replace(/group$/, ''))
+}
 
 /** Lo que se desplaza la seta del stick dentro de su aro, en unidades del dibujo. */
 const RECORRIDO_STICK = 28
@@ -30,7 +43,8 @@ const descripcion = computed(() => {
 
 const resaltados = computed<ControlMando[]>(() => {
   const pulsados = props.conectado ? (props.mando?.pulsados ?? []) : []
-  return prueba.value === 'gatillos' ? [...pulsados, 'l2', 'r2'] : pulsados
+  const lista = prueba.value === 'gatillos' ? ([...pulsados, 'l2', 'r2'] as ControlMando[]) : pulsados
+  return props.seleccion ? [...lista, props.seleccion as ControlMando] : lista
 })
 
 // Posiciones directas sobre el SVG: cambian decenas de veces por segundo.
@@ -46,7 +60,7 @@ watch(
     const llenar = (id: string, valor = 0) => {
       const el = buscar(id)
       if (!el) return
-      el.style.fill = valor > 0 ? 'var(--accent)' : ''
+      el.style.fill = valor > 0 ? 'var(--accent)' : 'none'
       el.style.fillOpacity = valor > 0 ? String(valor) : ''
     }
     mover('l3', activo ? sticks?.izq.x : 0, activo ? sticks?.izq.y : 0)
@@ -75,12 +89,12 @@ watch(
 <template>
   <div
     class="dibujo"
-    :class="{ apagado: !conectado, vibrando: prueba === 'vibracion' }"
+    :class="{ apagado: !conectado, vibrando: prueba === 'vibracion', pulsable: seleccion }"
     :style="{ aspectRatio: modelo.proporcion }"
   >
     <svg :viewBox="modelo.viewBox" role="img" :aria-label="descripcion">
       <g class="mando">
-        <g ref="lienzo" class="trazo" v-html="modelo.dibujo" />
+        <g ref="lienzo" class="trazo" @click="alPulsar" v-html="modelo.dibujo" />
         <path class="luz-fondo" :class="{ blanca: luz === '#FFFFFF' }" :d="modelo.barraLuz" />
         <path
           v-if="luz"
@@ -89,7 +103,7 @@ watch(
           :style="{ stroke: luz, opacity: opacidadLuz }"
         />
       </g>
-      <template v-if="mando && ajustes">
+      <template v-if="mando && ajustes && !limpio">
         <g class="guias">
           <path v-for="g in modelo.guias" :key="g" :d="g" />
         </g>
@@ -205,6 +219,10 @@ svg {
   to {
     transform: translateX(3px);
   }
+}
+.pulsable .trazo :deep([id]) {
+  cursor: pointer;
+  pointer-events: all;
 }
 </style>
 

@@ -1,6 +1,6 @@
 ## Pull Requests
 
-Pull requests for DS4Windows are welcome. Before making a pull request, please
+Pull requests for DS5Control are welcome. Before making a pull request, please
 test your changes to ensure that the changes made do not negatively affect
 the performance of other parts of the application. Some consideration will
 be made during code review to try to tweak the changes in order to improve

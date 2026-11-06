@@ -1,9 +1,9 @@
 import { computed, ref, shallowRef } from 'vue'
 import { crearPuente } from '../bridge'
-import type { AjustesMando, Comando, EfectoGatillo, EstadoApp, EstadoMando, Gatillo } from '../bridge'
+import type { Emulacion, AccionEspecial, AccionNueva, AjusteAvanzado, AjustesMando, AutoPerfil, SeccionAvanzada, Comando, EfectoGatillo, EstadoApp, EstadoMando, Gatillo, GrupoAvanzado } from '../bridge'
 
-export type Seccion = 'mando' | 'botones' | 'perfiles' | 'registro' | 'ajustes'
-export type Pestana = 'luz' | 'vibracion' | 'gatillos'
+export type Seccion = 'mando' | 'botones' | 'perfiles' | 'acciones' | 'avanzado' | 'registro' | 'ajustes'
+export type Pestana = 'luz' | 'vibracion' | 'gatillos' | 'sticks' | 'datos'
 export type Prueba = 'vibracion' | 'gatillos'
 
 /** Por debajo de esto se avisa de batería baja. */
@@ -18,12 +18,20 @@ export const estadoApp = shallowRef<EstadoApp>({
   mandos: [],
   abrirConMute: true,
   ventanaVisible: true,
+  perfiles: [],
+  registro: [],
   servicios: { vigemBus: true, hidHide: true },
 })
 export const yaHuboMando = ref(false)
 export const seccion = ref<Seccion>('mando')
 export const pestana = ref<Pestana>('luz')
 export const prueba = ref<Prueba | null>(null)
+export const grupos = shallowRef<GrupoAvanzado[]>([])
+export const grupoActivo = ref('sticks')
+export const acciones = shallowRef<AccionEspecial[]>([])
+export const archivoElegido = ref('')
+export const generales = shallowRef<SeccionAvanzada[]>([])
+export const autoPerfiles = shallowRef<AutoPerfil[]>([])
 
 export const ajustesLocales = shallowRef<AjustesMando | null>(null)
 let ultimoCambio = -Infinity
@@ -106,8 +114,69 @@ export function probar(tipo: Prueba) {
   temporizadorPrueba = setTimeout(() => (prueba.value = null), DURACION_PRUEBA_MS)
 }
 
-export const cambiarEmulacion = (valor: 'xbox' | 'ds4') =>
+export const cambiarEmulacion = (valor: Emulacion) =>
   ajustar({ emulacion: valor }, { tipo: 'emulacion', mandoId: idMando(), valor })
+
+export const cargarOpciones = () => {
+  if (mando.value) puente.enviar({ tipo: 'pedirOpciones', mandoId: mando.value.id })
+}
+
+export function cambiarOpcion(id: string, valor: AjusteAvanzado['valor']) {
+  // Se pinta al momento: la respuesta del host llega unos milisegundos después.
+  grupos.value = grupos.value.map((g) => ({
+    ...g,
+    secciones: g.secciones.map((s) => ({
+      ...s,
+      ajustes: s.ajustes.map((a) => (a.id === id ? { ...a, valor } : a)),
+    })),
+  }))
+  puente.enviar({ tipo: 'opcion', mandoId: idMando(), id, valor })
+}
+
+export const pedirTelemetria = (activo: boolean) => puente.enviar({ tipo: 'telemetria', activo })
+
+export const cargarGenerales = () => puente.enviar({ tipo: 'pedirGenerales' })
+export const cambiarGeneral = (id: string, valor: AjusteAvanzado['valor']) =>
+  puente.enviar({ tipo: 'general', id, valor })
+
+export const cargarAutoPerfiles = () => puente.enviar({ tipo: 'pedirAuto' })
+export const anadirAutoPerfil = () => puente.enviar({ tipo: 'autoAnadir' })
+export const cambiarAutoPerfil = (ruta: string, perfil: string) =>
+  puente.enviar({ tipo: 'autoPerfil', ruta, perfil })
+export const quitarAutoPerfil = (ruta: string) => puente.enviar({ tipo: 'autoQuitar', ruta })
+
+export const cargarAcciones = () => {
+  if (mando.value) puente.enviar({ tipo: 'pedirAcciones', mandoId: mando.value.id })
+}
+
+export function guardarAccion({ tipo, ...resto }: AccionNueva) {
+  puente.enviar({ ...resto, mandoId: idMando(), tipo: 'guardarAccion', tipoAccion: tipo })
+}
+
+export const borrarAccion = (nombre: string) =>
+  puente.enviar({ tipo: 'borrarAccion', mandoId: idMando(), nombre })
+
+export const activarAccion = (nombre: string, activa: boolean) =>
+  puente.enviar({ tipo: 'activarAccion', mandoId: idMando(), nombre, activa })
+
+export const elegirPrograma = () => puente.enviar({ tipo: 'elegirPrograma', mandoId: idMando() })
+
+export const asignarTecla = (control: string, tecla: number) =>
+  puente.enviar({ tipo: 'mapearTecla', mandoId: idMando(), control, tecla })
+
+export const asignarMacro = (control: string, pasos: number[]) =>
+  puente.enviar({ tipo: 'mapearMacro', mandoId: idMando(), control, pasos })
+
+export const usarPerfil = (nombre: string) =>
+  puente.enviar({ tipo: 'perfil', mandoId: idMando(), nombre })
+
+export const crearPerfil = (nombre: string) =>
+  puente.enviar({ tipo: 'nuevoPerfil', mandoId: mando.value?.id ?? '', nombre })
+
+export const borrarPerfil = (nombre: string) => puente.enviar({ tipo: 'borrarPerfil', nombre })
+
+export const asignarBoton = (control: string, salida: string | null) =>
+  puente.enviar({ tipo: 'mapear', mandoId: idMando(), control, salida })
 
 export const cambiarAbrirConMute = (activo: boolean) =>
   puente.enviar({ tipo: 'abrirConMute', activo })

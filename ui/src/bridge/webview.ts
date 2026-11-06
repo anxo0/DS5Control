@@ -15,6 +15,7 @@ declare global {
 const INTERVALO_MS = 50
 
 function clavesContinuas(comando: Comando): string | null {
+  if (comando.tipo === 'opcion') return `opcion:${comando.id}`
   if (comando.tipo === 'brillo' || comando.tipo === 'vibracion' || comando.tipo === 'luz') {
     return `${comando.tipo}:${comando.mandoId}`
   }
@@ -55,6 +56,21 @@ export function crearPuenteWebView(canal: CanalWebView): Puente {
         switch (mensaje?.tipo) {
           case 'estado':
             eventos.alEstado(mensaje.estado)
+            break
+          case 'opciones':
+            eventos.alOpciones(mensaje.grupos)
+            break
+          case 'acciones':
+            eventos.alAcciones(mensaje.acciones)
+            break
+          case 'archivo':
+            eventos.alArchivo(mensaje.ruta)
+            break
+          case 'generales':
+            eventos.alGenerales(mensaje.secciones)
+            break
+          case 'autoPerfiles':
+            eventos.alAutoPerfiles(mensaje.lista)
             break
           case 'mute':
             eventos.alMute()
