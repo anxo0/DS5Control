@@ -15,7 +15,7 @@ declare global {
 const INTERVALO_MS = 50
 
 function clavesContinuas(comando: Comando): string | null {
-  if (comando.tipo === 'brillo' || comando.tipo === 'vibracion') {
+  if (comando.tipo === 'brillo' || comando.tipo === 'vibracion' || comando.tipo === 'luz') {
     return `${comando.tipo}:${comando.mandoId}`
   }
   return null

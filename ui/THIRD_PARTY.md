@@ -35,3 +35,10 @@ SOFTWARE.
 
 La fuente Figtree se sirve en local con el paquete `@fontsource-variable/figtree`,
 con licencia SIL Open Font License 1.1.
+
+## Iconos de botones
+
+`src/assets/iconos/` contiene archivos de "PS5 Button Icons and Controls", de Zacksly
+(https://zacksly.itch.io), con licencia CC BY 3.0
+(https://creativecommons.org/licenses/by/3.0/). Los SVG no se han modificado: la
+interfaz los usa como máscara para aplicarles el color del tema.

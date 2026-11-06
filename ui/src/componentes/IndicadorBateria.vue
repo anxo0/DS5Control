@@ -99,13 +99,24 @@ const etiqueta = computed(() => {
 }
 
 .cargando .carga {
+  position: relative;
+  overflow: hidden;
   background: var(--accent);
-  animation: latido 1.6s ease-in-out infinite;
 }
 
-@keyframes latido {
-  50% {
-    opacity: 0.55;
+/* Un destello recorre la parte llena mientras entra corriente. */
+.cargando .carga::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent);
+  transform: translateX(-100%);
+  animation: destello 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes destello {
+  to {
+    transform: translateX(100%);
   }
 }
 </style>

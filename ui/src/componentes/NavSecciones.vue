@@ -2,12 +2,33 @@
 import { seccion } from '../estado/app'
 import type { Seccion } from '../estado/app'
 
-const SECCIONES: { id: Seccion; nombre: string }[] = [
-  { id: 'mando', nombre: 'Mando' },
-  { id: 'botones', nombre: 'Botones' },
-  { id: 'perfiles', nombre: 'Perfiles' },
-  { id: 'registro', nombre: 'Registro' },
-  { id: 'ajustes', nombre: 'Ajustes' },
+/** Trazos propios sobre una rejilla de 20 x 20. */
+const SECCIONES: { id: Seccion; nombre: string; icono: string }[] = [
+  {
+    id: 'mando',
+    nombre: 'Mando',
+    icono: 'M6 5h8c2 0 3 1.500 3.500 4l.8 4.500c.3 2-.9 3-2 3-1 0-1.600-.7-2.300-2l-.8-1.500H6.800L6 15c-.7 1.300-1.300 2-2.300 2-1.100 0-2.300-1-2-3L2.500 9C3 6.500 4 5 6 5Z M6.500 8v3 M5 9.500h3 M13.500 9.500h.01',
+  },
+  {
+    id: 'botones',
+    nombre: 'Botones',
+    icono: 'M10 2.500a2.500 2.500 0 1 1 0 5 2.500 2.500 0 0 1 0-5Z M10 12.500a2.500 2.500 0 1 1 0 5 2.500 2.500 0 0 1 0-5Z M5 7.500a2.500 2.500 0 1 1 0 5 2.500 2.500 0 0 1 0-5Z M15 7.500a2.500 2.500 0 1 1 0 5 2.500 2.500 0 0 1 0-5Z',
+  },
+  {
+    id: 'perfiles',
+    nombre: 'Perfiles',
+    icono: 'M10 2.500 17.500 6.500 10 10.500 2.500 6.500Z M2.500 10 10 14 17.500 10 M2.500 13.500 10 17.500 17.500 13.500',
+  },
+  {
+    id: 'registro',
+    nombre: 'Registro',
+    icono: 'M4.500 2.500h11v15h-11Z M7.500 6.500h5 M7.500 10h5 M7.500 13.500h3',
+  },
+  {
+    id: 'ajustes',
+    nombre: 'Ajustes',
+    icono: 'M3 6h6 M13 6h4 M3 14h3 M10 14h7 M11 3.500v5 M8 11.500v5',
+  },
 ]
 </script>
 
@@ -21,6 +42,7 @@ const SECCIONES: { id: Seccion; nombre: string }[] = [
       :aria-current="seccion === s.id ? 'page' : undefined"
       @click="seccion = s.id"
     >
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path :d="s.icono" /></svg>
       {{ s.nombre }}
     </button>
   </nav>
@@ -28,13 +50,25 @@ const SECCIONES: { id: Seccion; nombre: string }[] = [
 
 <style scoped>
 .nav {
-  flex: 0 0 104px;
+  flex: 0 0 136px;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
+.seccion svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .seccion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   min-height: 48px;
   text-align: left;
   padding: 0 12px;

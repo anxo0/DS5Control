@@ -12,12 +12,22 @@ export type ControlMando =
   | 'l1' | 'r1' | 'l2' | 'r2' | 'l3' | 'r3'
   | 'create' | 'options' | 'ps' | 'touchpad' | 'mute'
 
+/** De -1 a 1. Positivo es derecha y abajo, como en el dibujo. */
+export interface PosicionStick {
+  x: number
+  y: number
+}
+
 export interface AjustesMando {
   /** Color elegido, en hexadecimal. */
   luz: string
   /** 5 a 100. */
   brillo: number
   luzSegunBateria: boolean
+  /** La luz recorre todos los colores. */
+  arcoiris: boolean
+  /** Mando virtual que ven los juegos. */
+  emulacion: 'xbox' | 'ds4'
   /** 0 a 100. */
   vibracion: number
   gatilloL2: EfectoGatillo
@@ -38,6 +48,9 @@ export interface EstadoMando {
   /** Color real de la barra: difiere de `ajustes.luz` si manda la batería. */
   luzActual: string
   pulsados: ControlMando[]
+  sticks: { izq: PosicionStick; der: PosicionStick }
+  /** Recorrido de cada gatillo, de 0 a 1. */
+  gatillos: { l2: number; r2: number }
   ajustes: AjustesMando
 }
 
@@ -52,12 +65,17 @@ export type Comando =
   | { tipo: 'luz'; mandoId: string; color: string }
   | { tipo: 'brillo'; mandoId: string; valor: number }
   | { tipo: 'luzSegunBateria'; mandoId: string; activo: boolean }
+  | { tipo: 'arcoiris'; mandoId: string; activo: boolean }
   | { tipo: 'vibracion'; mandoId: string; fuerza: number }
   | { tipo: 'probarVibracion'; mandoId: string }
   | { tipo: 'gatillo'; mandoId: string; gatillo: Gatillo; efecto: EfectoGatillo }
   | { tipo: 'probarGatillos'; mandoId: string }
   | { tipo: 'abrirConMute'; activo: boolean }
   | { tipo: 'ocultar' }
+  | { tipo: 'ventana'; accion: 'minimizar' | 'maximizar' }
+  | { tipo: 'tema'; valor: 'claro' | 'oscuro' }
+  | { tipo: 'paleta'; valor: string }
+  | { tipo: 'emulacion'; mandoId: string; valor: 'xbox' | 'ds4' }
 
 export type AccionNavegacion =
   | 'arriba' | 'abajo' | 'izquierda' | 'derecha'

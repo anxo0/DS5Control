@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { paleta } from './estado/paleta'
+import { tema } from './estado/tema'
 import { defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
 import type { Pestana } from './estado/app'
 import {
@@ -83,7 +85,12 @@ onMounted(() => {
     },
     alNavegar: (accion) => salidas.accion(accion),
   })
+  puente.enviar({ tipo: 'tema', valor: tema.value })
+  puente.enviar({ tipo: 'paleta', valor: paleta.value })
 })
+
+watch(tema, (valor) => puente.enviar({ tipo: 'tema', valor }))
+watch(paleta, (valor) => puente.enviar({ tipo: 'paleta', valor }))
 
 // Un cambio de estado puede retirar el control que tenía el foco.
 watch([estadoApp, seccion, pestana], () => nextTick(() => gestor?.asegurarFoco()), { flush: 'post' })

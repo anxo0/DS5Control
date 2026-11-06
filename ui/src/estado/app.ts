@@ -62,14 +62,26 @@ const idMando = () => mando.value?.id ?? ''
 export const elegirLuz = (color: string) => {
   // Elegir un color a mano deja de seguir a la batería.
   if (ajustesLocales.value?.luzSegunBateria) cambiarLuzSegunBateria(false)
+  if (ajustesLocales.value?.arcoiris) cambiarArcoiris(false)
   ajustar({ luz: color }, { tipo: 'luz', mandoId: idMando(), color })
 }
 
 export const cambiarBrillo = (valor: number) =>
   ajustar({ brillo: valor }, { tipo: 'brillo', mandoId: idMando(), valor })
 
-export const cambiarLuzSegunBateria = (activo: boolean) =>
+export const cambiarLuzSegunBateria = (activo: boolean) => {
+  if (activo && ajustesLocales.value?.arcoiris) {
+    ajustar({ arcoiris: false }, { tipo: 'arcoiris', mandoId: idMando(), activo: false })
+  }
   ajustar({ luzSegunBateria: activo }, { tipo: 'luzSegunBateria', mandoId: idMando(), activo })
+}
+
+export const cambiarArcoiris = (activo: boolean) => {
+  if (activo && ajustesLocales.value?.luzSegunBateria) {
+    ajustar({ luzSegunBateria: false }, { tipo: 'luzSegunBateria', mandoId: idMando(), activo: false })
+  }
+  ajustar({ arcoiris: activo }, { tipo: 'arcoiris', mandoId: idMando(), activo })
+}
 
 export const cambiarVibracion = (fuerza: number) =>
   ajustar({ vibracion: fuerza }, { tipo: 'vibracion', mandoId: idMando(), fuerza })
@@ -94,7 +106,16 @@ export function probar(tipo: Prueba) {
   temporizadorPrueba = setTimeout(() => (prueba.value = null), DURACION_PRUEBA_MS)
 }
 
+export const cambiarEmulacion = (valor: 'xbox' | 'ds4') =>
+  ajustar({ emulacion: valor }, { tipo: 'emulacion', mandoId: idMando(), valor })
+
 export const cambiarAbrirConMute = (activo: boolean) =>
   puente.enviar({ tipo: 'abrirConMute', activo })
 
 export const ocultar = () => puente.enviar({ tipo: 'ocultar' })
+
+/** Dentro de la app, la ventana no tiene barra del sistema: los botones son nuestros. */
+export const enVentana = puente.entrada === 'host'
+
+export const controlarVentana = (accion: 'minimizar' | 'maximizar') =>
+  puente.enviar({ tipo: 'ventana', accion })

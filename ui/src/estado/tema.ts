@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 export type Tema = 'claro' | 'oscuro'
 
@@ -13,7 +13,6 @@ function leerTema(): Tema {
 }
 
 export const tema = ref<Tema>(leerTema())
-export const etiquetaTema = computed(() => (tema.value === 'claro' ? 'Modo oscuro' : 'Modo claro'))
 
 export function cambiarTema() {
   tema.value = tema.value === 'claro' ? 'oscuro' : 'claro'

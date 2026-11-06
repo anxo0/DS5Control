@@ -14,10 +14,14 @@ function estadoInicial(): EstadoApp {
         emulando: 'Xbox 360',
         luzActual: '#1F4FE0',
         pulsados: [],
+        sticks: { izq: { x: 0, y: 0 }, der: { x: 0, y: 0 } },
+        gatillos: { l2: 0, r2: 0 },
         ajustes: {
           luz: '#1F4FE0',
           brillo: 80,
           luzSegunBateria: false,
+          arcoiris: false,
+          emulacion: 'xbox',
           vibracion: 70,
           gatilloL2: 'rigido',
           gatilloR2: 'pulso',
@@ -100,6 +104,15 @@ export function crearPuenteSimulado(): Puente {
           break
         case 'luzSegunBateria':
           conMando(comando.mandoId, (m) => { m.ajustes.luzSegunBateria = comando.activo })
+          break
+        case 'emulacion':
+          conMando(comando.mandoId, (m) => {
+            m.ajustes.emulacion = comando.valor
+            m.emulando = comando.valor === 'ds4' ? 'DualShock 4' : 'Xbox 360'
+          })
+          break
+        case 'arcoiris':
+          conMando(comando.mandoId, (m) => { m.ajustes.arcoiris = comando.activo })
           break
         case 'vibracion':
           conMando(comando.mandoId, (m) => { m.ajustes.vibracion = comando.fuerza })

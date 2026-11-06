@@ -6,6 +6,9 @@ import { modeloDe } from '../mandos/modelos'
 
 const props = defineProps<{ mando: EstadoMando | null; conectado: boolean }>()
 
+/** Lo que se desplaza la seta del stick dentro de su aro, en unidades del dibujo. */
+const RECORRIDO_STICK = 28
+
 const EFECTOS: Record<EfectoGatillo, string> = {
   ninguno: 'Ninguno',
   clicCompleto: 'Clic completo',
@@ -29,6 +32,30 @@ const resaltados = computed<ControlMando[]>(() => {
   const pulsados = props.conectado ? (props.mando?.pulsados ?? []) : []
   return prueba.value === 'gatillos' ? [...pulsados, 'l2', 'r2'] : pulsados
 })
+
+// Posiciones directas sobre el SVG: cambian decenas de veces por segundo.
+watch(
+  [() => props.mando?.sticks, () => props.mando?.gatillos, () => props.conectado, lienzo],
+  ([sticks, gatillos, activo, g]) => {
+    if (!g) return
+    const buscar = (id: string) => g.querySelector<SVGElement>(`[id="${id}"]`)
+    const mover = (id: string, x = 0, y = 0) => {
+      const el = buscar(id)
+      if (el) el.style.transform = `translate(${x * RECORRIDO_STICK}px, ${y * RECORRIDO_STICK}px)`
+    }
+    const llenar = (id: string, valor = 0) => {
+      const el = buscar(id)
+      if (!el) return
+      el.style.fill = valor > 0 ? 'var(--accent)' : ''
+      el.style.fillOpacity = valor > 0 ? String(valor) : ''
+    }
+    mover('l3', activo ? sticks?.izq.x : 0, activo ? sticks?.izq.y : 0)
+    mover('r3', activo ? sticks?.der.x : 0, activo ? sticks?.der.y : 0)
+    llenar('l2', activo ? gatillos?.l2 : 0)
+    llenar('r2', activo ? gatillos?.r2 : 0)
+  },
+  { flush: 'post' },
+)
 
 let anteriores: Element[] = []
 watch(
