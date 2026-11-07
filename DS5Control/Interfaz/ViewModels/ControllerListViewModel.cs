@@ -270,40 +270,6 @@ namespace DS5ControlApp.Interfaz.ViewModels
         }
         public event EventHandler SelectedIndexChanged;
 
-        public string StatusSource
-        {
-            get
-            {
-                string imgName = (string)App.Current.FindResource(device.ConnectionType == ConnectionType.USB ? "UsbImg" : "BtImg");
-                string source = $"{Global.RESOURCES_PREFIX}/{imgName}";
-                return source;
-            }
-        }
-
-        public string ExclusiveSource
-        {
-            get
-            {
-                string imgName = (string)App.Current.FindResource("CancelImg");
-                string source = $"{Global.RESOURCES_PREFIX}/{imgName}";
-                switch(device.CurrentExclusiveStatus)
-                {
-                    case DS5Device.ExclusiveStatus.Exclusive:
-                        imgName = (string)App.Current.FindResource("CheckedImg");
-                        source = $"{Global.RESOURCES_PREFIX}/{imgName}";
-                        break;
-                    case DS5Device.ExclusiveStatus.HidHideAffected:
-                    case DS5Device.ExclusiveStatus.HidGuardAffected:
-                        imgName = (string)App.Current.FindResource("KeyImageImg");
-                        source = $"{Global.RESOURCES_PREFIX}/{imgName}";
-                        break;
-                    default:
-                        break;
-                }
-
-                return source;
-            }
-        }
 
         public bool LinkedProfile
         {

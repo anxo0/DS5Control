@@ -332,3 +332,5 @@ ASALocalRun/
 !DS5Control/libs/x64/
 !DS5Control/libs/x86/
 
+# Archivo de trabajo del logo
+assets/logo/tocado_por_mi.psd

@@ -421,41 +421,11 @@ namespace DS5ControlApp.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
-        /// </summary>
-        public static System.Drawing.Icon DS4 {
-            get {
-                object obj = ResourceManager.GetObject("DS4", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to DS5Control Update Available!.
         /// </summary>
         public static string DS5Update {
             get {
                 return ResourceManager.GetString("DS5Update", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
-        /// </summary>
-        public static System.Drawing.Icon DS5W {
-            get {
-                object obj = ResourceManager.GetObject("DS5W", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
-        /// </summary>
-        public static System.Drawing.Icon DS5W___White {
-            get {
-                object obj = ResourceManager.GetObject("DS5W___White", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
             }
         }
         

@@ -232,20 +232,11 @@
     <value>Down</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="DS4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DS4.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="DS5Update" xml:space="preserve">
     <value>DS5Control Update Available!</value>
   </data>
-  <data name="DS5W" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DS5W.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="DS5WindowsCannotEditHere" xml:space="preserve">
     <value>DS5Control cannot edit settings here, This will now close</value>
-  </data>
-  <data name="DS5W___White" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\DS5W - White.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="EditProfile" xml:space="preserve">
     <value>Edit</value>

@@ -71,15 +71,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="BezierCurveEditor\build.js">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="BezierCurveEditor\index.html">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="H.NotifyIcon.Wpf" Version="2.0.74" />
 		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
 		  <PrivateAssets>all</PrivateAssets>
@@ -111,14 +102,6 @@
 
 		<None Include="Resources\DS5W - Black.ico" />
 		<None Include="Resources\rainbowCCrop.png" />
-		<None Include="Resources\rainbowC.png" />
-		<None Include="Resources\DS4 lightbar.png" />
-		<None Include="Resources\keydown.png" />
-		<None Include="Resources\clock.png" />
-		<None Include="Resources\mouse.png" />
-		<None Include="Resources\size.png" />
-		<None Include="Resources\rainbow.png" />
-		<None Include="Resources\USB.png" />
 
 		<None Include="Resources\0.ico" />
 		<None Include="Resources\10.ico" />
@@ -132,15 +115,7 @@
 		<None Include="Resources\90.ico" />
 		<None Include="Resources\100.ico" />
 
-		<None Include="Resources\BT.png" />
-		<None Include="Resources\cancel.png" />
-		<None Include="Resources\checked.png" />
-		<None Include="Resources\copy.png" />
 		<None Include="Resources\DS5W - White.ico" />
-		<None Include="Resources\DS5W.ico" />
-		<None Include="Resources\edit.png" />
-		<None Include="Resources\delete.png" />
-		<None Include="Resources\import.png" />
 
 	</ItemGroup>
 
@@ -148,14 +123,6 @@
 
 		<Resource Include="Resources\DS5W - Black.ico" />
 		<Resource Include="Resources\rainbowCCrop.png" />
-		<Resource Include="Resources\rainbowC.png" />
-		<Resource Include="Resources\DS4 lightbar.png" />
-		<Resource Include="Resources\keydown.png" />
-		<Resource Include="Resources\clock.png" />
-		<Resource Include="Resources\mouse.png" />
-		<Resource Include="Resources\size.png" />
-		<Resource Include="Resources\rainbow.png" />
-		<Resource Include="Resources\USB.png" />
 
 		<Resource Include="Resources\0.ico" />
 		<Resource Include="Resources\10.ico" />
@@ -169,16 +136,8 @@
 		<Resource Include="Resources\90.ico" />
 		<Resource Include="Resources\100.ico" />
 
-		<Resource Include="Resources\BT.png" />
-		<Resource Include="Resources\cancel.png" />
-		<Resource Include="Resources\checked.png" />
-		<Resource Include="Resources\copy.png" />
 		<Resource Include="Resources\DS5W - White.ico" />
-		<Resource Include="Resources\DS5W.ico" />
 		<Resource Include="Resources\Logo\*.ico" />
-		<Resource Include="Resources\edit.png" />
-		<Resource Include="Resources\delete.png" />
-		<Resource Include="Resources\import.png" />
 
 	</ItemGroup>
 
@@ -233,9 +192,6 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Remove="extras\" />
-	</ItemGroup>
 	<ItemGroup Condition="Exists('..\ui\dist\index.html')">
 		<Content Include="Resources\Logo\*.ico" Link="iconos\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
 		<Content Include="..\ui\dist\**\*" Link="ui\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />

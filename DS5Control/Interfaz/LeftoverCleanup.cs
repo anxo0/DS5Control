@@ -13,11 +13,12 @@ namespace DS5ControlApp.Interfaz
     {
         private const string ResourceSuffix = ".resources.dll";
 
-        private static readonly string[] OldLibraries =
+        private static readonly string[] OldFiles =
         {
             "DotNetProjects.Wpf.Extended.Toolkit.dll", "HttpProgress.dll", "ICSharpCode.AvalonEdit.dll",
             "MdXaml.Plugins.dll", "MdXaml.dll", "Ookii.Dialogs.Wpf.dll", "WPFLocalizeExtension.dll",
             "XAMLMarkupExtensions.dll",
+            @"BezierCurveEditor\build.js", @"BezierCurveEditor\index.html",
         };
 
         private static readonly string[] OldLanguages =
@@ -30,10 +31,17 @@ namespace DS5ControlApp.Interfaz
         public static int Run(string folder)
         {
             int removed = 0;
-            foreach (string name in OldLibraries)
+            foreach (string name in OldFiles)
             {
                 string file = Path.Combine(folder, name);
                 if (Delete(() => File.Delete(file), File.Exists(file))) removed++;
+            }
+
+            string editor = Path.Combine(folder, "BezierCurveEditor");
+            if (Directory.Exists(editor) && !Directory.EnumerateFileSystemEntries(editor).Any()
+                && Delete(() => Directory.Delete(editor), true))
+            {
+                removed++;
             }
 
             foreach (string name in OldLanguages)

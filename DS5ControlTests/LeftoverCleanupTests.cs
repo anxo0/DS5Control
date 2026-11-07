@@ -35,6 +35,26 @@ public class LeftoverCleanupTests
     }
 
     [TestMethod]
+    public void RemovesTheOldCurveEditor()
+    {
+        string folder = Folder();
+        Write(folder, @"BezierCurveEditor\build.js", @"BezierCurveEditor\index.html");
+
+        Assert.AreEqual(3, LeftoverCleanup.Run(folder));
+        Assert.IsFalse(Directory.Exists(Path.Combine(folder, "BezierCurveEditor")));
+    }
+
+    [TestMethod]
+    public void KeepsOldEditorFolderWithFilesOfTheUser()
+    {
+        string folder = Folder();
+        Write(folder, @"BezierCurveEditor\index.html", @"BezierCurveEditor\mis notas.txt");
+
+        Assert.AreEqual(1, LeftoverCleanup.Run(folder));
+        Assert.IsTrue(File.Exists(Path.Combine(folder, @"BezierCurveEditor\mis notas.txt")));
+    }
+
+    [TestMethod]
     public void KeepsWhatTheProgramStillUses()
     {
         string folder = Folder();
