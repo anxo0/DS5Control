@@ -118,7 +118,12 @@ namespace DS5ControlApp.Interfaz.WebUi
                 GlassFrameThickness = new Thickness(0),
                 UseAeroCaptionButtons = false,
             });
-            StateChanged += (_, _) => UpdateFrame();
+            StateChanged += (_, _) =>
+            {
+                UpdateFrame();
+                // Minimizing from Windows too: the program lives in the tray, not the taskbar.
+                if (WindowState == WindowState.Minimized) Hide();
+            };
             UpdateFrame();
             RestorePlacement();
             placement.Tick += (_, _) => SavePlacement();
@@ -239,7 +244,7 @@ namespace DS5ControlApp.Interfaz.WebUi
             {
                 if (command.GetProperty("accion").GetString() == "minimizar")
                 {
-                    WindowState = WindowState.Minimized;
+                    Hide();
                 }
                 else
                 {

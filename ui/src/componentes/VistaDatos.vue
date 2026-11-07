@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { mando } from '../estado/app'
+import { diagnostico, mando } from '../estado/app'
 
 /** Tope de las barras: los giros rápidos pasan de aquí y las barras simplemente se llenan. */
 const MAX_GIRO = 20000
@@ -9,6 +9,29 @@ const ANCHO_PANEL = 1920
 const ALTO_PANEL = 1080
 
 const datos = computed(() => mando.value?.datos ?? null)
+
+/**
+ * El mando no mide su capacidad real, así que esto es una orientación. Las horas por carga y
+ * los límites de ciclos son supuestos habituales en baterías de litio, no datos de Sony.
+ */
+const HORAS_POR_CARGA = 3
+const CICLOS_A_VIGILAR = 300
+const CICLOS_DESGASTE = 500
+const ERRORES_DE_CARGA = ['Voltaje', 'Temperatura', 'Circuito de carga (PMIC)']
+
+const salud = computed(() => {
+  const uso = diagnostico.value?.uso
+  if (!uso) return null
+  const ciclos = Math.round(uso.carga / 3600 / HORAS_POR_CARGA)
+  const errores = uso.errores
+    .filter((e) => ERRORES_DE_CARGA.includes(e.nombre))
+    .reduce((s, e) => s + e.valor, 0)
+  if (errores > 0) return { texto: 'Revisar', motivo: `${errores} errores de carga registrados` }
+  const motivo = `unas ${ciclos} cargas completas equivalentes`
+  if (ciclos >= CICLOS_DESGASTE) return { texto: 'Desgastada', motivo }
+  if (ciclos >= CICLOS_A_VIGILAR) return { texto: 'A vigilar', motivo }
+  return { texto: 'Buena', motivo: `sin errores de carga y ${motivo}` }
+})
 
 const ESTADOS: Record<number, string> = {
   0: 'Descargando',
@@ -32,10 +55,8 @@ const fmt = (v: number) => (Math.abs(v) >= 100 ? Math.round(v) : v.toFixed(2))
 <template>
   <div v-if="datos" class="vista">
     <section>
-      <h3>Carga actual: {{ mando?.bateria ?? 0 }} %</h3>
-      <div class="bateria" role="img" :aria-label="`Carga ${mando?.bateria ?? 0} por ciento`">
-        <span v-for="i in 10" :key="i" :class="{ lleno: i <= datos.bateria.nivel }" />
-      </div>
+      <h3>Salud de la batería: {{ salud?.texto ?? '...' }}</h3>
+      <p v-if="salud">Estimación: {{ salud.motivo }}.</p>
       <p :class="{ alerta: datos.bateria.estado >= 10 }">
         {{ ESTADOS[datos.bateria.estado] ?? 'Estado desconocido' }}
       </p>
@@ -102,22 +123,6 @@ p {
 .alerta {
   color: var(--aviso);
   font-weight: 600;
-}
-
-.bateria {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 3px;
-}
-
-.bateria span {
-  height: 16px;
-  border-radius: 3px;
-  background: var(--linea);
-}
-
-.bateria .lleno {
-  background: var(--accent);
 }
 
 svg {
