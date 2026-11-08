@@ -6,6 +6,12 @@
 [ViGEmBus](https://github.com/nefarius/ViGEmBus), de Nefarius Software Solutions e.U.,
 con licencia BSD de 3 cláusulas. El texto está en `drivers/ViGEmBus-LICENSE.txt`.
 
+## HidHide
+
+`drivers/HidHide_1.5.230_x64.exe` es el instalador oficial sin modificar de
+[HidHide](https://github.com/nefarius/HidHide), de Nefarius Software Solutions e.U.,
+con licencia MIT. El texto está en `drivers/HidHide-LICENSE.txt`.
+
 ## Dibujo del mando DualSense
 
 `src/assets/mandos/dualsense.svg` procede de `design/dualsense.svg` del proyecto

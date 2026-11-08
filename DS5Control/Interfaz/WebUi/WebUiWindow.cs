@@ -75,6 +75,8 @@ namespace DS5ControlApp.Interfaz.WebUi
         private bool revealPending;
         private bool controlWithController;
         private bool installingViGEm;
+        private bool installingHidHide;
+        private bool hidHideOffered;
         private bool openWithMute;
         private string lastState = string.Empty;
 
@@ -390,6 +392,13 @@ namespace DS5ControlApp.Interfaz.WebUi
                 case "instalarVigem":
                     InstallViGEm();
                     return true;
+                case "instalarHidHide":
+                    InstallHidHide();
+                    return true;
+                case "rechazarHidHide":
+                    hidHideOffered = true;
+                    WriteInterfaceSettings();
+                    return true;
                 case "telemetria":
                     telemetry = command.GetProperty("activo").GetBoolean();
                     return true;
@@ -461,6 +470,23 @@ namespace DS5ControlApp.Interfaz.WebUi
                 object result = new DS5Control.InputDevices.DualSenseDiagnostics(sense).Read();
                 Dispatcher.BeginInvoke(() => PostMessage(new { tipo = "diagnostico", datos = result }));
             });
+        }
+
+        private async void InstallHidHide()
+        {
+            if (installingHidHide) return;
+
+            installingHidHide = true;
+            hidHideOffered = true;
+            WriteInterfaceSettings();
+            try
+            {
+                await DriverSetup.InstallHidHideAsync();
+            }
+            finally
+            {
+                installingHidHide = false;
+            }
         }
 
         private async void InstallViGEm()
@@ -826,6 +852,8 @@ namespace DS5ControlApp.Interfaz.WebUi
                         vigemBus = Global.IsRunningSupportedViGEmBus(),
                         instalandoVigem = installingViGEm,
                         hidHide = Global.hidHideInstalled,
+                        instalandoHidHide = installingHidHide,
+                        ofrecerHidHide = !Global.hidHideInstalled && !hidHideOffered,
                     },
                 },
             });
@@ -1073,6 +1101,7 @@ namespace DS5ControlApp.Interfaz.WebUi
             string[] lines = File.Exists(path) ? File.ReadAllLines(path) : Array.Empty<string>();
             openWithMute = !lines.Contains("abrirConMute=false");
             controlWithController = lines.Contains("controlConMando=true");
+            hidHideOffered = lines.Contains("hidHideOfrecido=true");
         }
 
         private void WriteInterfaceSettings()
@@ -1081,6 +1110,7 @@ namespace DS5ControlApp.Interfaz.WebUi
             {
                 $"abrirConMute={(openWithMute ? "true" : "false")}",
                 $"controlConMando={(controlWithController ? "true" : "false")}",
+                $"hidHideOfrecido={(hidHideOffered ? "true" : "false")}",
             });
         }
     }

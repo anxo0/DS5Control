@@ -128,7 +128,7 @@ namespace DS5ControlApp.Motor
                 //int error = Marshal.GetLastWin32Error();
                 Marshal.Copy(buffer, dataBuffer, 0, requiredBytes);
                 string tempstring = Encoding.Unicode.GetString(dataBuffer).TrimEnd(char.MinValue);
-                instances = tempstring.Split(char.MinValue).ToList();
+                instances = tempstring.Split(char.MinValue, StringSplitOptions.RemoveEmptyEntries).ToList();
 
                 Marshal.FreeHGlobal(buffer);
             }
@@ -193,7 +193,7 @@ namespace DS5ControlApp.Motor
                 //int error = Marshal.GetLastWin32Error();
                 Marshal.Copy(buffer, dataBuffer, 0, requiredBytes);
                 string tempstring = Encoding.Unicode.GetString(dataBuffer).TrimEnd(char.MinValue);
-                instances = tempstring.Split(char.MinValue).ToList();
+                instances = tempstring.Split(char.MinValue, StringSplitOptions.RemoveEmptyEntries).ToList();
 
                 Marshal.FreeHGlobal(buffer);
             }

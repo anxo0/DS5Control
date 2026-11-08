@@ -227,8 +227,13 @@ namespace DS5ControlApp.Interfaz
             await serviceTask;
         }
 
+        /// <summary>Follows connections and mode changes; HidHide is only called when something changed.</summary>
+        private readonly System.Windows.Threading.DispatcherTimer hidHideSync = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+
         private void SetupEvents()
         {
+            hidHideSync.Tick += (_, _) => HidHideControl.Apply(HidHideControl.EmulatedControllers());
+            hidHideSync.Start();
             App.rootHub.ServiceStarted += ControlServiceStarted;
             App.rootHub.PreServiceStop += PrepareForServiceStop;
             conLvViewModel.ControllerCol.CollectionChanged += ControllerCol_CollectionChanged;
@@ -305,6 +310,9 @@ Suspend support not enabled.", true);
 
         protected override void OnClosed(EventArgs e)
         {
+            hidHideSync.Stop();
+            // The controller has to be visible again for every program once DS5Control is gone.
+            HidHideControl.Apply(Array.Empty<string>());
             hotkeysTimer.Stop();
             autoProfilesTimer.Stop();
             Util.UnregisterNotify(regHandle);

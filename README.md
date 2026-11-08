@@ -29,9 +29,9 @@ Las dos se actualizan solas al abrirse. Windows puede avisar de que el programa 
 ## Requisitos
 
 - Windows 10 u 11 de 64 bits.
-- ViGEmBus, para emular mandos. Viene incluido: lo ofrece el instalador y, si falta, la propia app.
+- ViGEmBus, para emular mandos. Viene incluido y el instalador lo instala si falta.
 - Runtime de WebView2, incluido en Windows 11.
-- Recomendado: [HidHide](https://github.com/nefarius/HidHide/releases), para que los juegos no reciban el mando dos veces.
+- Recomendado: [HidHide](https://github.com/nefarius/HidHide), para que los juegos no reciban el mando dos veces. Viene incluido: la app lo ofrece al abrirla por primera vez y también está en Ajustes.
 
 ## Estado
 

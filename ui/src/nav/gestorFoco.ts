@@ -65,7 +65,7 @@ export class GestorFoco {
   asegurarFoco() {
     if (this.actual()) return
     const destino =
-      this.raiz.querySelector<HTMLElement>('[data-foco-inicial]:not(:disabled)') ??
+      this.ambito().querySelector<HTMLElement>('[data-foco-inicial]:not(:disabled)') ??
       this.raiz.querySelector<HTMLElement>(`[role="tabpanel"] :is(${ENFOCABLES})`) ??
       this.raiz.querySelector<HTMLElement>('[aria-current="page"]')
     destino?.focus()
@@ -91,8 +91,13 @@ export class GestorFoco {
     return width > 0 && height > 0
   }
 
+  /** Con un diálogo abierto, el foco no sale de él. */
+  private ambito(): HTMLElement {
+    return this.raiz.querySelector<HTMLElement>('dialog[open]') ?? this.raiz
+  }
+
   private candidatos() {
-    return [...this.raiz.querySelectorAll<HTMLElement>(ENFOCABLES)].filter(
+    return [...this.ambito().querySelectorAll<HTMLElement>(ENFOCABLES)].filter(
       (el) => this.visible(el) && !el.closest('[data-sin-foco]'),
     )
   }
@@ -133,6 +138,12 @@ export class GestorFoco {
   }
 
   private atras(actual: HTMLElement) {
+    // Círculo en un diálogo es lo mismo que Escape: pide cerrarlo.
+    const dialogo = actual.closest('dialog')
+    if (dialogo) {
+      dialogo.dispatchEvent(new Event('cancel', { cancelable: true }))
+      return
+    }
     const destino = actual.closest<HTMLElement>('[data-atras]')?.dataset.atras
     const elemento = destino ? this.raiz.querySelector<HTMLElement>(destino) : null
     if (elemento && elemento !== actual) elemento.focus()

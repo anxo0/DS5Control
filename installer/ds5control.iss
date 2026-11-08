@@ -53,7 +53,7 @@ Source: "{#Origen}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs cre
 Name: "{autoprograms}\DS5Control"; Filename: "{app}\DS5Control.exe"
 
 [Run]
-Filename: "{app}\drivers\ViGEmBus_1.22.0_x64_x86_arm64.exe"; Description: "Instalar ViGEmBus (necesario para emular mandos)"; Verb: runas; Flags: shellexec waituntilterminated postinstall skipifsilent; Check: FaltaViGEmBus
+Filename: "{app}\drivers\ViGEmBus_1.22.0_x64_x86_arm64.exe"; StatusMsg: "Instalando ViGEmBus, necesario para emular mandos..."; Verb: runas; Flags: shellexec waituntilterminated; Check: FaltaViGEmBus
 Filename: "{app}\DS5Control.exe"; Description: "Abrir DS5Control"; Flags: nowait postinstall skipifsilent
 
 [Code]

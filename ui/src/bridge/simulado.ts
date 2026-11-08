@@ -39,7 +39,14 @@ function estadoInicial(): EstadoApp {
     ],
     ventanaVisible: true,
     // ?sinvigem enseña el aviso de controlador que falta.
-    servicios: { vigemBus: !location.search.includes('sinvigem'), hidHide: true, instalandoVigem: false },
+    // ?sinhidhide ensena la oferta de HidHide del primer arranque.
+    servicios: {
+      vigemBus: !location.search.includes('sinvigem'),
+      hidHide: !location.search.includes('sinhidhide'),
+      instalandoVigem: false,
+      instalandoHidHide: false,
+      ofrecerHidHide: location.search.includes('sinhidhide'),
+    },
   }
 }
 

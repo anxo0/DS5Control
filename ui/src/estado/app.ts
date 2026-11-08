@@ -21,7 +21,7 @@ export const estadoApp = shallowRef<EstadoApp>({
   ventanaVisible: true,
   perfiles: [],
   registro: [],
-  servicios: { vigemBus: true, hidHide: true, instalandoVigem: false },
+  servicios: { vigemBus: true, hidHide: true, instalandoVigem: false, instalandoHidHide: false, ofrecerHidHide: false },
 })
 export const yaHuboMando = ref(false)
 export const seccion = ref<Seccion>('mando')
@@ -157,6 +157,8 @@ export function cambiarOpcion(id: string, valor: AjusteAvanzado['valor']) {
 }
 
 export const instalarVigem = () => puente.enviar({ tipo: 'instalarVigem' })
+export const instalarHidHide = () => puente.enviar({ tipo: 'instalarHidHide' })
+export const rechazarHidHide = () => puente.enviar({ tipo: 'rechazarHidHide' })
 export const pedirDiagnostico = () => puente.enviar({ tipo: 'pedirDiagnostico' })
 export const pedirTelemetria = (activo: boolean) => puente.enviar({ tipo: 'telemetria', activo })
 
