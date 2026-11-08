@@ -35,7 +35,7 @@ Las dos se actualizan solas al abrirse. Windows puede avisar de que el programa 
 
 ## Estado
 
-Esta es una versión temprana, probada con un DualSense por Bluetooth. Botones, Perfiles y Registro aún no están disponibles en la interfaz nueva. La interfaz anterior sigue disponible con `DS5Control.exe -uiantigua`.
+Esta es una versión temprana, probada con un DualSense por Bluetooth y por cable.
 
 Algunos sistemas antitrampas pueden reaccionar a los mandos emulados. Úsalo con precaución en juegos en línea.
 

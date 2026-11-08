@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{ etiqueta: string; activo: boolean; desactivado?: boolean }>()
+defineProps<{ etiqueta: string; activo: boolean; desactivado?: boolean; detalle?: string }>()
 defineEmits<{ cambiar: [activo: boolean] }>()
 </script>
 
@@ -11,7 +11,10 @@ defineEmits<{ cambiar: [activo: boolean] }>()
     :disabled="desactivado"
     @click="$emit('cambiar', !activo)"
   >
-    {{ etiqueta }}
+    <span class="texto">
+      {{ etiqueta }}
+      <span v-if="detalle" class="detalle">{{ detalle }}</span>
+    </span>
     <span aria-hidden="true" class="pista" :class="{ activo }"><span class="bola" /></span>
   </button>
 </template>
@@ -26,6 +29,20 @@ defineEmits<{ cambiar: [activo: boolean] }>()
   min-height: 48px;
   font-weight: 600;
   text-align: left;
+}
+
+.texto {
+  display: grid;
+  gap: 2px;
+  padding: 6px 0;
+}
+
+.detalle {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-wrap: pretty;
 }
 
 .fila:disabled {

@@ -43,26 +43,26 @@ namespace DS5ControlApp.Interfaz.WebUi
                 },
                 new[]
                 {
-                    Toggle("exclusivo", "Ocultar el mando real a los juegos", () => settings.HideDS5Controller, v =>
+                    Toggle("exclusivo", "Modo exclusivo (solo con cable)", () => settings.HideDS5Controller, v =>
                     {
                         settings.HideDS5Controller = v;
                         host.RestartService();
-                    }),
+                    }, "DS5Control se queda el mando para él solo. Con HidHide no hace falta."),
                     Toggle("gestos", "Cambiar de perfil deslizando en el panel", () => Global.SwipeProfiles, v =>
                     {
                         Global.SwipeProfiles = v;
                         host.SetHotkeysEnabled(v);
-                    }),
+                    }, "Desliza el dedo en el panel táctil para pasar al perfil anterior o al siguiente."),
                     Toggle("osc", "Servidor OSC", () => settings.UseOSCServer, v =>
                     {
                         settings.UseOSCServer = v;
                         App.rootHub.ChangeOSCListenerStatus(v);
-                    }),
+                    }, "Deja que otros programas de tu red controlen DS5Control, como TouchOSC o apps de realidad virtual."),
                     Toggle("udp", "Servidor de movimiento (emuladores)", () => settings.UseUDPServer, v =>
                     {
                         settings.UseUDPServer = v;
                         ChangeUdp(v);
-                    }),
+                    }, "Envía el giroscopio a emuladores como Cemu, Ryujinx o Dolphin para los controles por movimiento."),
                 },
                 new[]
                 {
@@ -94,6 +94,7 @@ namespace DS5ControlApp.Interfaz.WebUi
                     porcentaje = false,
                     opciones = item.Choices,
                     valor = item.Read?.Invoke(),
+                    ayuda = item.Help,
                 }).ToArray(),
             }).ToArray();
         }
@@ -126,9 +127,9 @@ namespace DS5ControlApp.Interfaz.WebUi
             else App.rootHub.ChangeMotionEventStatus(true);
         }
 
-        private static Item Toggle(string id, string name, Func<bool> read, Action<bool> write)
+        private static Item Toggle(string id, string name, Func<bool> read, Action<bool> write, string help = null)
         {
-            return new Item(id, name, "interruptor", null, () => read(), value => write(value.GetBoolean()));
+            return new Item(id, name, "interruptor", null, () => read(), value => write(value.GetBoolean()), help);
         }
 
         private static Item Options(string id, string name, string[] choices, Func<int> read, Action<int> write)
@@ -141,6 +142,6 @@ namespace DS5ControlApp.Interfaz.WebUi
             return new Item(id, name, "accion", null, null, _ => run());
         }
 
-        private sealed record Item(string Id, string Name, string Kind, string[] Choices, Func<object> Read, Action<JsonElement> Write);
+        private sealed record Item(string Id, string Name, string Kind, string[] Choices, Func<object> Read, Action<JsonElement> Write, string Help = null);
     }
 }

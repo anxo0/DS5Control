@@ -99,8 +99,8 @@ function fijarTema(valor: 'claro' | 'oscuro') {
       </div>
     </section>
 
-    <p class="creditos">Iconos de botones por Zacksly (CC BY 3.0, zacksly.itch.io).</p>
     <ListaAjustes class="generales" :secciones="generales" @cambiar="cambiarGeneral" />
+    <p class="creditos">Iconos de botones por Zacksly (CC BY 3.0, zacksly.itch.io).</p>
   </main>
 </template>
 
@@ -206,9 +206,13 @@ h2 {
   text-align: center;
 }
 
+.generales {
+  margin-top: 24px;
+}
+
 .creditos {
   margin-top: auto;
-  padding-top: 16px;
+  padding-top: 32px;
   font-size: 13px;
   color: var(--muted);
 }

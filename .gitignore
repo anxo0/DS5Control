@@ -334,3 +334,7 @@ ASALocalRun/
 
 # Archivo de trabajo del logo
 assets/logo/tocado_por_mi.psd
+
+# Installer images, rendered at release time by installer/diseno/construir.ps1
+installer/piezas/
+installer/diseno/construido/

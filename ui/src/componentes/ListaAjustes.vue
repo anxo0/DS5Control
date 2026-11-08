@@ -48,6 +48,7 @@ function alternarBoton(ajuste: AjusteAvanzado, indice: number) {
           <InterruptorFila
             v-if="a.tipo === 'interruptor'"
             :etiqueta="a.nombre"
+            :detalle="a.ayuda ?? undefined"
             :activo="a.valor as boolean"
             @cambiar="emit('cambiar', a.id, $event)"
           />

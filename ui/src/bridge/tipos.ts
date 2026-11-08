@@ -117,6 +117,8 @@ export interface AjusteAvanzado {
   porcentaje: boolean
   opciones: string[] | null
   valor: boolean | number | string | number[] | null
+  /** Una línea que explica qué hace, para los ajustes que no se entienden por el nombre. */
+  ayuda?: string | null
 }
 
 export interface SeccionAvanzada {
