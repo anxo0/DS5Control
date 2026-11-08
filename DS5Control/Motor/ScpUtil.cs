@@ -1973,6 +1973,12 @@ namespace DS5Control
         public static ButtonMouseInfo[] ButtonMouseInfos => m_Config.buttonMouseInfos;
         public static ButtonAbsMouseInfo[] ButtonAbsMouseInfos => m_Config.buttonAbsMouseInfos;
 
+        /// <summary>Anything unknown keeps the stick working: a disabled stick has to be chosen on purpose.</summary>
+        public static StickMode ParseStickMode(string text)
+        {
+            return Enum.TryParse(text, true, out StickMode mode) && Enum.IsDefined(mode) ? mode : StickMode.Controls;
+        }
+
         public static byte[] RumbleBoost => m_Config.rumble;
         public static byte getRumbleBoost(int index)
         {
@@ -6958,10 +6964,10 @@ namespace DS5Control
                 try { Item = m_Xdoc.SelectSingleNode("/" + rootname + "/RSAntiSnapbackTimeout"); int.TryParse(Item.InnerText, out rsAntiSnapbackInfo[device].timeout); }
                 catch { rsAntiSnapbackInfo[device].timeout = StickAntiSnapbackInfo.DEFAULT_TIMEOUT; missingSetting = true; }
 
-                try { Item = m_Xdoc.SelectSingleNode("/" + rootname + "/LSOutputMode"); Enum.TryParse(Item.InnerText, out lsOutputSettings[device].mode); }
+                try { Item = m_Xdoc.SelectSingleNode("/" + rootname + "/LSOutputMode"); lsOutputSettings[device].mode = Global.ParseStickMode(Item.InnerText); }
                 catch { missingSetting = true; }
 
-                try { Item = m_Xdoc.SelectSingleNode("/" + rootname + "/RSOutputMode"); Enum.TryParse(Item.InnerText, out rsOutputSettings[device].mode); }
+                try { Item = m_Xdoc.SelectSingleNode("/" + rootname + "/RSOutputMode"); rsOutputSettings[device].mode = Global.ParseStickMode(Item.InnerText); }
                 catch { missingSetting = true; }
 
                 XmlNode xmlLSOutputSettingsElement =

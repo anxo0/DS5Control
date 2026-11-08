@@ -125,7 +125,7 @@ namespace DS5ControlApp.Interfaz.WebUi
                     Number($"{p}Rotation", "Rotación (grados)", -180, 180, 1),
                     Number($"{p}Fuzz", "Filtro de temblor", 0, 100, 1),
                     Choice($"{p}OutputCurveIndex", "Curva de respuesta", Curves),
-                    Choice($"{p}OutputIndex", "Función", "Ninguna", "Normal", "Flick stick")),
+                    Choice($"{p}OutputIndex", "Función", "Desactivado", "Normal", "Flick stick")),
                 new Section($"{name}: curva personalizada", Curve($"{p}CustomCurve", "Curva")) { When = ($"{p}CustomCurveSelected", 1) },
                 new Section($"{name}: flick stick",
                     Number($"{p}FlickRWC", "Giro completo (centímetros)", 1, 200, 1),
