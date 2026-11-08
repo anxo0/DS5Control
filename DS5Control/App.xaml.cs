@@ -69,7 +69,7 @@ namespace DS5ControlApp
         private bool exitApp;
         private Thread testThread;
         private bool exitComThread = false;
-        private const string SingleAppComEventName = "{a52b5b20-d9ee-4f32-8518-307fa14aa0c6}";
+        private const string SingleAppComEventName = "{733c5012-df8c-45d2-87c1-83e832ad6486}";
         private EventWaitHandle threadComEvent = null;
         private Timer collectTimer;
         private static LoggerHolder logHolder;
@@ -144,7 +144,7 @@ namespace DS5ControlApp
             CreateControlService(parser);
             RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
 
-            MoveOldSettings();
+            ImportOldSettings();
             DS5Control.Global.FindConfigLocation();
             bool firstRun = DS5Control.Global.firstRun;
 
@@ -661,22 +661,11 @@ namespace DS5ControlApp
             catch (CultureNotFoundException) { /* Skip setting culture that we cannot set */ }
         }
 
-        /// <summary>Brings the settings of the versions that still used the old folder name.</summary>
-        private static void MoveOldSettings()
+        /// <summary>Copies the settings of DS4Windows on the first start, leaving its folder as it was.</summary>
+        private static void ImportOldSettings()
         {
             string old = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DS4Windows");
-            string current = DS5Control.Global.appDataPpath;
-            if (!Directory.Exists(old) || Directory.Exists(current)) return;
-
-            try
-            {
-                Directory.Move(old, current);
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                MessageBox.Show($"No se pudieron mover los ajustes a {current}: {exception.Message}",
-                    "DS5Control", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+            DS5ControlApp.Interfaz.OldSettingsImport.Run(old, DS5Control.Global.appDataPpath);
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)

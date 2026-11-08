@@ -7,6 +7,8 @@ import {
   cambiarBrillo,
   cambiarLuzSegunBateria,
   cambiarVibracion,
+  duracionPrueba,
+  pararVibracion,
   conectado,
   elegirEfecto,
   elegirLuz,
@@ -229,6 +231,19 @@ const colorNivelBrillo = computed(() => {
         <button class="probar" :disabled="bloqueado" @click="probar('vibracion')">
           {{ prueba === 'vibracion' ? 'Probando...' : 'Probar en el mando' }}
         </button>
+        <div class="tiempos">
+          <button
+            v-for="segundos in [3, 10]"
+            :key="segundos"
+            class="probar"
+            :class="{ activo: duracionPrueba === segundos * 1000 }"
+            :disabled="bloqueado"
+            :aria-label="duracionPrueba === segundos * 1000 ? 'Parar la vibración' : `Vibrar ${segundos} segundos`"
+            @click="duracionPrueba === segundos * 1000 ? pararVibracion() : probar('vibracion', segundos * 1000)"
+          >
+            {{ duracionPrueba === segundos * 1000 ? 'Parar' : `${segundos} s` }}
+          </button>
+        </div>
       </section>
 
       <section
@@ -517,6 +532,23 @@ h3 {
 
 .probar:hover:not(:disabled) {
   background: var(--linea);
+}
+
+.tiempos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tiempos .probar {
+  min-height: 44px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tiempos .activo,
+.tiempos .activo:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--ground);
 }
 
 .nota.real {

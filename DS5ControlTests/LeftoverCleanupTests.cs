@@ -55,6 +55,17 @@ public class LeftoverCleanupTests
     }
 
     [TestMethod]
+    public void NeverTouchesAFolderWithDS4Windows()
+    {
+        string folder = Folder();
+        Write(folder, "DS4Windows.exe", "MdXaml.dll", @"fr\DS4Windows.resources.dll");
+
+        Assert.AreEqual(0, LeftoverCleanup.Run(folder));
+        Assert.IsTrue(File.Exists(Path.Combine(folder, "MdXaml.dll")));
+        Assert.IsTrue(Directory.Exists(Path.Combine(folder, "fr")));
+    }
+
+    [TestMethod]
     public void KeepsWhatTheProgramStillUses()
     {
         string folder = Folder();

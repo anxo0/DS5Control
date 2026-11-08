@@ -1976,14 +1976,6 @@ namespace DS5Control
         public static byte[] RumbleBoost => m_Config.rumble;
         public static byte getRumbleBoost(int index)
         {
-            if (Program.rootHub.DS5Controllers[index] is DualSenseDevice)
-            {
-                if (!UseGenericRumbleStrRescaleForDualSenses[index])
-                {
-                    return 100;
-                }
-
-            }
             return m_Config.rumble[index];
         }
 

@@ -209,7 +209,7 @@ svg {
 }
 
 .vibrando .mando {
-  animation: vibrar 90ms linear 10 alternate;
+  animation: vibrar 90ms linear infinite alternate;
 }
 
 @keyframes vibrar {

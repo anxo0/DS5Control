@@ -168,7 +168,7 @@ export type Comando =
   | { tipo: 'luzSegunBateria'; mandoId: string; activo: boolean }
   | { tipo: 'arcoiris'; mandoId: string; activo: boolean }
   | { tipo: 'vibracion'; mandoId: string; fuerza: number }
-  | { tipo: 'probarVibracion'; mandoId: string }
+  | { tipo: 'probarVibracion'; mandoId: string; duracionMs: number }
   | { tipo: 'gatillo'; mandoId: string; gatillo: Gatillo; efecto: EfectoGatillo }
   | { tipo: 'probarGatillos'; mandoId: string }
   | { tipo: 'abrirConMute'; activo: boolean }

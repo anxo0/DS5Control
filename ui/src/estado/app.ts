@@ -27,6 +27,8 @@ export const yaHuboMando = ref(false)
 export const seccion = ref<Seccion>('mando')
 export const pestana = ref<Pestana>('luz')
 export const prueba = ref<Prueba | null>(null)
+/** Duración de la vibración de prueba en marcha, para saber qué botón la detiene. */
+export const duracionPrueba = ref<number | null>(null)
 export const grupos = shallowRef<GrupoAvanzado[]>([])
 export const grupoActivo = ref('sticks')
 export const acciones = shallowRef<AccionEspecial[]>([])
@@ -112,14 +114,27 @@ export const elegirEfecto = (gatillo: Gatillo, efecto: EfectoGatillo) =>
 
 let temporizadorPrueba: ReturnType<typeof setTimeout> | undefined
 
-export function probar(tipo: Prueba) {
-  puente.enviar({
-    tipo: tipo === 'vibracion' ? 'probarVibracion' : 'probarGatillos',
-    mandoId: idMando(),
-  })
-  prueba.value = tipo
+function terminarPrueba() {
   clearTimeout(temporizadorPrueba)
-  temporizadorPrueba = setTimeout(() => (prueba.value = null), DURACION_PRUEBA_MS)
+  prueba.value = null
+  duracionPrueba.value = null
+}
+
+export function probar(tipo: Prueba, duracionMs = DURACION_PRUEBA_MS) {
+  puente.enviar(
+    tipo === 'vibracion'
+      ? { tipo: 'probarVibracion', mandoId: idMando(), duracionMs }
+      : { tipo: 'probarGatillos', mandoId: idMando() },
+  )
+  clearTimeout(temporizadorPrueba)
+  prueba.value = tipo
+  duracionPrueba.value = duracionMs
+  temporizadorPrueba = setTimeout(terminarPrueba, duracionMs)
+}
+
+export function pararVibracion() {
+  puente.enviar({ tipo: 'probarVibracion', mandoId: idMando(), duracionMs: 0 })
+  terminarPrueba()
 }
 
 export const cambiarEmulacion = (valor: Emulacion) =>

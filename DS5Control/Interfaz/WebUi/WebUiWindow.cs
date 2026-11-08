@@ -32,7 +32,8 @@ namespace DS5ControlApp.Interfaz.WebUi
         private const string SettingsFile = "InterfazWeb.txt";
         private const string PlacementFile = "Ventana.txt";
         private const double RainbowSeconds = 4.0;
-        private const byte TestRumble = 200;
+        private const int TestRumble = 255;
+        private const int MaxRumbleTestMs = 10000;
         private const double FrameThickness = 5;
         /// <summary>Fast enough for the controller to feel direct when moving around the page.</summary>
         private const int ActivePollMs = 33;
@@ -59,6 +60,8 @@ namespace DS5ControlApp.Interfaz.WebUi
         private CoreWebView2Environment environment;
         private WebView2 web;
         private readonly Border frame = new Border();
+        private readonly DispatcherTimer rumbleTest = new DispatcherTimer();
+        private DS5Device rumbleTestDevice;
         private readonly DispatcherTimer poll = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
         private readonly DispatcherTimer save = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         private readonly DispatcherTimer placement = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
@@ -118,6 +121,7 @@ namespace DS5ControlApp.Interfaz.WebUi
                 GlassFrameThickness = new Thickness(0),
                 UseAeroCaptionButtons = false,
             });
+            rumbleTest.Tick += (_, _) => StopRumbleTest();
             StateChanged += (_, _) =>
             {
                 UpdateFrame();
@@ -310,6 +314,7 @@ namespace DS5ControlApp.Interfaz.WebUi
                     break;
                 case "vibracion":
                     service.SetRumbleStrength(slot, command.GetProperty("fuerza").GetInt32());
+                    if (rumbleTest.IsEnabled && rumbleTestDevice == control.DS5Controllers[slot]) ApplyTestRumble(slot);
                     break;
                 case "emulacion":
                     ChangeOutput(slot, command.GetProperty("valor").GetString());
@@ -361,7 +366,7 @@ namespace DS5ControlApp.Interfaz.WebUi
                     SendOptions(slot);
                     break;
                 case "probarVibracion":
-                    TestRumbleMotors(slot);
+                    TestRumbleMotors(slot, command.GetProperty("duracionMs").GetInt32());
                     return;
                 case "gatillo":
                     ControllerTrigger trigger = command.GetProperty("gatillo").GetString() == "l2"
@@ -690,20 +695,28 @@ namespace DS5ControlApp.Interfaz.WebUi
                 : new Thickness(FrameThickness);
         }
 
-        private void TestRumbleMotors(int slot)
+        private void TestRumbleMotors(int slot, int milliseconds)
         {
-            DS5Device device = control.DS5Controllers[slot];
-            if (device == null) return;
+            StopRumbleTest();
+            rumbleTestDevice = control.DS5Controllers[slot];
+            if (rumbleTestDevice == null || milliseconds <= 0) return;
 
+            ApplyTestRumble(slot);
+            rumbleTest.Interval = TimeSpan.FromMilliseconds(Math.Min(milliseconds, MaxRumbleTestMs));
+            rumbleTest.Start();
+        }
+
+        private void ApplyTestRumble(int slot)
+        {
             byte force = (byte)Math.Min(255, TestRumble * Global.RumbleBoost[slot] / 100);
-            device.setRumble(force, force);
-            var stop = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(600) };
-            stop.Tick += (_, _) =>
-            {
-                stop.Stop();
-                device.setRumble(0, 0);
-            };
-            stop.Start();
+            rumbleTestDevice.setRumble(force, force);
+        }
+
+        private void StopRumbleTest()
+        {
+            rumbleTest.Stop();
+            rumbleTestDevice?.setRumble(0, 0);
+            rumbleTestDevice = null;
         }
 
         private void SavePending()

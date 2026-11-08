@@ -30,6 +30,9 @@ namespace DS5ControlApp.Interfaz
         /// <summary>Returns how many files and folders were removed.</summary>
         public static int Run(string folder)
         {
+            // These names are also files of DS4Windows itself: never clean a folder it lives in.
+            if (File.Exists(Path.Combine(folder, "DS4Windows.exe"))) return 0;
+
             int removed = 0;
             foreach (string name in OldFiles)
             {
