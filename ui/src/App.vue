@@ -26,6 +26,7 @@ import type { Salidas } from './nav/entrada'
 import { modeloDe } from './mandos/modelos'
 import AvisoControlador from './componentes/AvisoControlador.vue'
 import OfertaHidHide from './componentes/OfertaHidHide.vue'
+import AvisoActualizacion from './componentes/AvisoActualizacion.vue'
 import BarraSuperior from './componentes/BarraSuperior.vue'
 import NavSecciones from './componentes/NavSecciones.vue'
 import PanelMando from './componentes/PanelMando.vue'
@@ -46,6 +47,8 @@ const PanelDepuracion =
     : null
 
 const raiz = ref<HTMLElement>()
+/** Versión a la que se está actualizando: la ventana avisa antes de cerrarse. */
+const actualizando = ref<string | null>(null)
 let gestor: GestorFoco | undefined
 
 const cambiarPestana = async (delta: 1 | -1) => {
@@ -112,6 +115,8 @@ onMounted(() => {
       gestor?.mostrarFoco(estadoApp.value.controlConMando)
     },
     alNavegar: (accion) => salidas.accion(accion),
+    alDesplazar: (dy) => { if (estadoApp.value.ventanaVisible) gestor?.desplazar(dy) },
+    alActualizando: (version) => { actualizando.value = version },
   })
   puente.enviar({ tipo: 'tema', valor: tema.value })
   puente.enviar({ tipo: 'paleta', valor: paleta.value })
@@ -130,6 +135,7 @@ watch([estadoApp, seccion, pestana], () => nextTick(() => gestor?.asegurarFoco()
     <BarraSuperior />
     <AvisoControlador />
     <OfertaHidHide />
+    <AvisoActualizacion :version="actualizando" />
     <div class="cuerpo">
       <NavSecciones />
       <template v-if="seccion === 'mando'">

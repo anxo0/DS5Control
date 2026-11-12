@@ -152,4 +152,57 @@ public class AppUpdaterTests
         while (!File.Exists(opened) && stopwatch.ElapsedMilliseconds < 5000) await Task.Delay(50);
         Assert.IsTrue(File.Exists(opened), "The new program must be opened");
     }
+
+    [TestMethod]
+    public async Task InstallReopensInTheTrayWhenTheWindowWasHidden()
+    {
+        string work = TempFolder();
+        string newFiles = Directory.CreateDirectory(Path.Combine(work, "nueva")).FullName;
+        string target = TempFolder();
+        string opened = Path.Combine(target, "abierto.txt");
+        File.WriteAllText(Path.Combine(newFiles, "lanzar.cmd"), $"@echo %1> \"{opened}\"");
+
+        using Process running = Process.Start(new ProcessStartInfo("cmd", "/c exit") { CreateNoWindow = true, UseShellExecute = false });
+        running.WaitForExit();
+        using Process install = AppUpdater.StartInstall(newFiles, target, running.Id, "lanzar.cmd", toTray: true);
+
+        Assert.IsTrue(install.WaitForExit(30000));
+        var stopwatch = Stopwatch.StartNew();
+        while (!File.Exists(opened) && stopwatch.ElapsedMilliseconds < 5000) await Task.Delay(50);
+        Assert.AreEqual("-m", File.ReadAllText(opened).Trim());
+    }
+
+    [TestMethod]
+    public void UpdateNoticeIsShownOnceByTheNewVersion()
+    {
+        string folder = Directory.CreateTempSubdirectory("ds5test-").FullName;
+        try
+        {
+            AppUpdater.SaveNotice(folder, new Version(0, 2, 8));
+
+            Assert.AreEqual(new Version(0, 2, 8), AppUpdater.TakeNotice(folder, new Version(0, 2, 8, 0)));
+            Assert.IsNull(AppUpdater.TakeNotice(folder, new Version(0, 2, 8)));
+        }
+        finally
+        {
+            Directory.Delete(folder, true);
+        }
+    }
+
+    [TestMethod]
+    public void UpdateNoticeIsDroppedWhenTheUpdateDidNotApply()
+    {
+        string folder = Directory.CreateTempSubdirectory("ds5test-").FullName;
+        try
+        {
+            AppUpdater.SaveNotice(folder, new Version(0, 2, 8));
+
+            Assert.IsNull(AppUpdater.TakeNotice(folder, new Version(0, 2, 7)));
+            Assert.IsFalse(File.Exists(Path.Combine(folder, "Actualizacion.txt")));
+        }
+        finally
+        {
+            Directory.Delete(folder, true);
+        }
+    }
 }

@@ -29,6 +29,7 @@ namespace DS5ControlApp.Interfaz.WebUi
     public sealed class WebUiWindow : Window
     {
         private const string VirtualHost = "app.interfaz";
+        private const double ScrollDeadZone = 0.25;
         private const string SettingsFile = "InterfazWeb.txt";
         private const string PlacementFile = "Ventana.txt";
         private const double RainbowSeconds = 4.0;
@@ -73,6 +74,7 @@ namespace DS5ControlApp.Interfaz.WebUi
         private bool pageReady;
         private bool telemetry;
         private bool revealPending;
+        private bool activatedOnStart;
         private bool controlWithController;
         private bool installingViGEm;
         private bool installingHidHide;
@@ -98,6 +100,8 @@ namespace DS5ControlApp.Interfaz.WebUi
             host.OpenInterface = Reveal;
             host.Closed += (_, _) => SavePending();
             host.IsInterfaceActive = () => IsActive;
+            host.IsInterfaceVisible = () => IsVisible;
+            host.AnnounceUpdate = AnnounceUpdateAsync;
             PaletteChanged += host.SetAppIcon;
             ThemeChanged += host.SetTrayMenuTheme;
             service = new ControllerService(control);
@@ -223,6 +227,15 @@ namespace DS5ControlApp.Interfaz.WebUi
                         revealPending = false;
                         web?.Focus();
                         PostMessage(new { tipo = "mute" });
+                    }
+                    else if (!activatedOnStart && IsVisible && WindowState != WindowState.Minimized)
+                    {
+                        // Opened from a shortcut, the window can come up behind the one that was in
+                        // front, and the controller only drives it while it is the active window.
+                        activatedOnStart = true;
+                        BringToForeground();
+                        Activate();
+                        web?.Focus();
                     }
                 }
                 else if (kind == "comando")
@@ -778,6 +791,16 @@ namespace DS5ControlApp.Interfaz.WebUi
             Reveal();
         }
 
+        /// <summary>Long enough to read the notice before the window closes.</summary>
+        private const int UpdateNoticeMs = 2500;
+
+        private async Task AnnounceUpdateAsync(Version version)
+        {
+            if (!IsVisible || !pageReady) return;
+            PostMessage(new { tipo = "actualizando", version = version.ToString(3) });
+            await Task.Delay(UpdateNoticeMs);
+        }
+
         /// <summary>Brings the window to the front with the input focus on the page.</summary>
         public void Reveal()
         {
@@ -883,6 +906,10 @@ namespace DS5ControlApp.Interfaz.WebUi
             NavigateOnPress("atras", input.Circle);
             NavigateOnPress("pestanaAnterior", input.L1);
             NavigateOnPress("pestanaSiguiente", input.R1);
+
+            // The right stick scrolls whatever is on screen, faster the further it is pushed.
+            double push = (input.RY - 128) / 127.0;
+            if (Math.Abs(push) > ScrollDeadZone) PostMessage(new { tipo = "desplazar", dy = push });
         }
 
         private void NavigateOnPress(string action, bool pressed)

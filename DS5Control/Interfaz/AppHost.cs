@@ -66,6 +66,11 @@ namespace DS5ControlApp.Interfaz
         /// <summary>Whether the user is looking at the interface, so no notification is needed.</summary>
         public Func<bool> IsInterfaceActive { get; set; } = () => false;
 
+        public Func<bool> IsInterfaceVisible { get; set; } = () => false;
+
+        /// <summary>Tells the open window an update is about to close it; done when it has been seen.</summary>
+        public Func<Version, Task> AnnounceUpdate { get; set; } = _ => Task.CompletedTask;
+
         private bool InterfaceActive => IsInterfaceActive();
 
         /// <summary>Brings the interface to the front.</summary>
@@ -152,6 +157,14 @@ namespace DS5ControlApp.Interfaz
                 Util.LogAssistBackgroundTask(startup);
             }
 
+            Version updated = AppUpdater.TakeNotice(Global.appdatapath, typeof(AppHost).Assembly.GetName().Version);
+            if (updated != null)
+            {
+                string message = $"DS5Control se ha actualizado a la versión {Short(updated)}.";
+                AppLogger.LogToGui(message, false);
+                ShowUpdateNotification(message);
+            }
+
             if (Global.CheckWhen > 0)
             {
                 Task updates = Task.Delay(UpdateCheckDelay).ContinueWith(_ => UpdateAsync()).Unwrap();
@@ -184,9 +197,19 @@ namespace DS5ControlApp.Interfaz
                     return true;
                 }
 
-                AppLogger.LogToGui($"Actualizando a la versión {update.Version}...", false);
                 string files = await AppUpdater.DownloadAsync(client, update);
-                using Process install = AppUpdater.StartInstall(files, Global.exedirpath, Environment.ProcessId);
+
+                // Closing and reopening on its own looks like a crash unless it is said first.
+                string version = Short(update.Version);
+                AppLogger.LogToGui($"Actualizando a la versión {version}...", false);
+                bool visible = await Dispatcher.InvokeAsync(() => IsInterfaceVisible());
+                await Dispatcher.InvokeAsync(() => ShowUpdateNotification(
+                    $"Actualizando a la versión {version}. DS5Control se cerrará y volverá a abrirse solo en unos segundos."));
+                await await Dispatcher.InvokeAsync(() => AnnounceUpdate(update.Version));
+
+                AppUpdater.SaveNotice(Global.appdatapath, update.Version);
+                using Process install = AppUpdater.StartInstall(files, Global.exedirpath, Environment.ProcessId,
+                    toTray: !visible);
 
                 await Dispatcher.InvokeAsync(Close);
                 return true;
@@ -198,6 +221,14 @@ namespace DS5ControlApp.Interfaz
                 return true;
             }
 #endif
+        }
+
+        private static string Short(Version version) => version.ToString(3);
+
+        /// <summary>Shown whatever the notification setting: the user has to know why the program closes.</summary>
+        private void ShowUpdateNotification(string message)
+        {
+            notifyIcon?.ShowNotification(TrayIconViewModel.ballonTitle, message, H.NotifyIcon.Core.NotificationIcon.Info);
         }
 
         public async void RestartService()

@@ -5,6 +5,8 @@ type Direccion = 'arriba' | 'abajo' | 'izquierda' | 'derecha'
 const ENFOCABLES = 'button:not(:disabled), input:not(:disabled), a[href]'
 /** Penaliza el desvío lateral: se prefiere lo alineado aunque esté más lejos. */
 const PESO_DESVIO = 3
+/** Píxeles por sondeo con el stick a fondo: unos 1000 por segundo. */
+const PASO_SCROLL = 34
 
 export interface OpcionesFoco {
   /** Círculo sin ningún sitio al que volver dentro de la pantalla. */
@@ -64,11 +66,36 @@ export class GestorFoco {
   /** Recoloca el foco si el elemento activo ha desaparecido o se ha desactivado. */
   asegurarFoco() {
     if (this.actual()) return
+    // Solo lo que se ve: un diálogo cerrado sigue en la página y no puede recibir el foco.
+    const primero = (selector: string) =>
+      [...this.ambito().querySelectorAll<HTMLElement>(selector)].find((el) => this.visible(el))
     const destino =
-      this.ambito().querySelector<HTMLElement>('[data-foco-inicial]:not(:disabled)') ??
-      this.raiz.querySelector<HTMLElement>(`[role="tabpanel"] :is(${ENFOCABLES})`) ??
-      this.raiz.querySelector<HTMLElement>('[aria-current="page"]')
+      primero('[data-foco-inicial]:not(:disabled)') ??
+      primero(`[role="tabpanel"] :is(${ENFOCABLES})`) ??
+      primero('[aria-current="page"]') ??
+      this.candidatos()[0]
     destino?.focus()
+  }
+
+  /**
+   * Mueve el scroll de la zona donde está el foco; si esa no tiene, el de la zona con scroll
+   * más grande de la pantalla. `dy` va de -1 a 1 y llega unas 30 veces por segundo.
+   */
+  desplazar(dy: number) {
+    const conScroll = (el: Element) => {
+      const estilo = getComputedStyle(el).overflowY
+      return (estilo === 'auto' || estilo === 'scroll') && el.scrollHeight > el.clientHeight + 1
+    }
+    let zona: Element | null = document.activeElement
+    while (zona && zona !== document.body && !conScroll(zona)) zona = zona.parentElement
+    if (!zona || zona === document.body) {
+      zona =
+        [...this.ambito().querySelectorAll('*')]
+          .filter(conScroll)
+          .sort((a, b) => b.clientHeight * b.clientWidth - a.clientHeight * a.clientWidth)[0] ?? null
+    }
+    // Al cuadrado: fino cerca del centro y rápido con el stick a fondo.
+    zona?.scrollBy({ top: Math.sign(dy) * dy * dy * PASO_SCROLL })
   }
 
   /** Lleva el foco al primer control de `selector`, si existe. */

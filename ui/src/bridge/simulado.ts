@@ -128,6 +128,7 @@ export function crearPuenteSimulado(): Puente {
     depuracion: {
       pulsar,
       mute,
+      actualizar: () => eventos?.alActualizando('0.2.9'),
       fijarBateria: (valor) => conMando(undefined, (m) => { m.bateria = valor }),
       fijarCargando: (activo) => conMando(undefined, (m) => { m.cargando = activo }),
       fijarConectado: (activo) => conMando(undefined, (m) => { m.conectado = activo }),

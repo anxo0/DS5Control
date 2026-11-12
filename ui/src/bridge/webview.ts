@@ -81,6 +81,12 @@ export function crearPuenteWebView(canal: CanalWebView): Puente {
           case 'navegacion':
             eventos.alNavegar(mensaje.accion)
             break
+          case 'desplazar':
+            eventos.alDesplazar(mensaje.dy)
+            break
+          case 'actualizando':
+            eventos.alActualizando(mensaje.version)
+            break
         }
       })
       enviarMensaje({ tipo: 'listo' })

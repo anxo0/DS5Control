@@ -92,7 +92,7 @@ input {
   outline-offset: 3px;
 }
 
-:global([data-foco-activo]) .nivel:has(input:focus) {
+:global([data-foco-activo] .nivel:has(input:focus)) {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
 }

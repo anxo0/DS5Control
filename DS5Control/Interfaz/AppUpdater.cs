@@ -28,14 +28,16 @@ namespace DS5ControlApp.Interfaz
         private const string WorkFolderName = "DS5Control-actualizacion";
 
         private const string InstallScript = """
-            param([int]$Proceso, [string]$Origen, [string]$Destino, [string]$Programa)
+            param([int]$Proceso, [string]$Origen, [string]$Destino, [string]$Programa, [switch]$Bandeja)
             Wait-Process -Id $Proceso -Timeout 60 -ErrorAction SilentlyContinue
             for ($intento = 0; $intento -lt 10; $intento++) {
                 robocopy $Origen $Destino /E /IS /IT /R:2 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
                 if ($LASTEXITCODE -lt 8) { break }
                 Start-Sleep -Seconds 1
             }
-            Start-Process -FilePath (Join-Path $Destino $Programa) -WorkingDirectory $Destino
+            $argumentos = @{ FilePath = (Join-Path $Destino $Programa); WorkingDirectory = $Destino }
+            if ($Bandeja) { $argumentos.ArgumentList = '-m' }
+            Start-Process @argumentos
             """;
 
         /// <summary>
@@ -116,8 +118,12 @@ namespace DS5ControlApp.Interfaz
             }
         }
 
-        /// <summary>Starts the script. The caller must exit for it to go on.</summary>
-        public static Process StartInstall(string newFiles, string target, int processId, string program = ProgramFile)
+        /// <summary>
+        /// Starts the script. The caller must exit for it to go on. <paramref name="toTray"/> reopens
+        /// the program in the tray, so it does not cover a game the user was playing.
+        /// </summary>
+        public static Process StartInstall(string newFiles, string target, int processId, string program = ProgramFile,
+            bool toTray = false)
         {
             string script = Path.Combine(Directory.GetParent(newFiles)!.FullName, "instalar.ps1");
             File.WriteAllText(script, InstallScript);
@@ -135,7 +141,42 @@ namespace DS5ControlApp.Interfaz
             {
                 start.ArgumentList.Add(argument);
             }
+            if (toTray) start.ArgumentList.Add("-Bandeja");
             return Process.Start(start);
+        }
+
+        private const string NoticeFile = "Actualizacion.txt";
+
+        /// <summary>
+        /// Left before closing, so the program that opens next can say the update went through:
+        /// otherwise closing and opening by itself looks like a crash.
+        /// </summary>
+        public static void SaveNotice(string settingsFolder, Version version)
+        {
+            try
+            {
+                File.WriteAllText(Path.Combine(settingsFolder, NoticeFile), version.ToString());
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+            }
+        }
+
+        /// <summary>The version an update moved to, once, if this program is that version.</summary>
+        public static Version TakeNotice(string settingsFolder, Version current)
+        {
+            string file = Path.Combine(settingsFolder, NoticeFile);
+            try
+            {
+                if (!File.Exists(file)) return null;
+                string text = File.ReadAllText(file).Trim();
+                File.Delete(file);
+                return Version.TryParse(text, out Version version) && Normalize(version) == Normalize(current) ? version : null;
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                return null;
+            }
         }
 
         /// <summary>1.2 and 1.2.0 are the same version, but <see cref="Version"/> orders them apart.</summary>

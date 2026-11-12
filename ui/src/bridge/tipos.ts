@@ -232,6 +232,8 @@ export type MensajeEntrante =
   | { tipo: 'archivo'; ruta: string }
   | { tipo: 'opciones'; grupos: GrupoAvanzado[] }
   | { tipo: 'navegacion'; accion: AccionNavegacion }
+  | { tipo: 'desplazar'; dy: number }
+  | { tipo: 'actualizando'; version: string }
 
 export interface Eventos {
   alEstado(estado: EstadoApp): void
@@ -243,6 +245,10 @@ export interface Eventos {
   alArchivo(ruta: string): void
   alOpciones(grupos: GrupoAvanzado[]): void
   alNavegar(accion: AccionNavegacion): void
+  /** Stick derecho: de -1 (arriba) a 1 (abajo), una vez por sondeo mientras se empuja. */
+  alDesplazar(dy: number): void
+  /** Hay una versión nueva descargada: la ventana se cerrará en unos segundos. */
+  alActualizando(version: string): void
 }
 
 /** Controles que solo existen fuera del host, para probar la interfaz. */
@@ -254,6 +260,7 @@ export interface Depuracion {
   fijarConectado(activo: boolean): void
   quitarMandos(): void
   restablecer(): void
+  actualizar(): void
 }
 
 export interface Puente {

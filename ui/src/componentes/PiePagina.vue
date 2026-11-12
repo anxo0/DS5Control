@@ -5,7 +5,7 @@ import cruz from '../assets/iconos/Cross.svg'
 import cruceta from '../assets/iconos/D-Pad.svg'
 import l1 from '../assets/iconos/L1.svg'
 import r1 from '../assets/iconos/R1.svg'
-import { estadoApp } from '../estado/app'
+import { estadoApp, mando } from '../estado/app'
 
 /** Cada icono se pinta como máscara para que tome el color del tema. */
 const AYUDAS = [
@@ -15,9 +15,18 @@ const AYUDAS = [
   { iconos: [{ src: cruceta, nombre: 'Cruceta' }], texto: 'Moverse y ajustar' },
 ]
 
+/** Lo que ven los juegos ahora mismo, para saberlo de un vistazo. */
+const emulacion = computed(() => {
+  const m = mando.value
+  if (!m?.conectado) return null
+  if (m.emulando) return `Emulando ${m.emulando}`
+  return `${m.tipo === 'dualshock4' ? 'DualShock 4' : 'DualSense'} real, sin emular`
+})
+
 const servicios = computed(() => {
   const { vigemBus, hidHide } = estadoApp.value.servicios
-  return `ViGEmBus ${vigemBus ? 'instalado' : 'no instalado'} · HidHide ${hidHide ? 'activo' : 'inactivo'}`
+  const texto = `ViGEmBus ${vigemBus ? 'instalado' : 'no instalado'} · HidHide ${hidHide ? 'activo' : 'inactivo'}`
+  return emulacion.value ? `${emulacion.value} · ${texto}` : texto
 })
 </script>
 

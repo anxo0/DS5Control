@@ -1412,8 +1412,12 @@ namespace DS5Control
 
         public static void FindConfigLocation()
         {
-            bool programFolderAutoProfilesExists = File.Exists(Path.Combine(exedirpath, "Auto Profiles.xml"));
-            bool appDataAutoProfilesExists = File.Exists(Path.Combine(appDataPpath, "Auto Profiles.xml"));
+            // A clean install never writes "Auto Profiles.xml", so it alone made every start look
+            // like the first one: the default profile was written again and the user's choices lost.
+            static bool HasSettings(string folder) =>
+                File.Exists(Path.Combine(folder, "Auto Profiles.xml")) || File.Exists(Path.Combine(folder, "Profiles.xml"));
+            bool programFolderAutoProfilesExists = HasSettings(exedirpath);
+            bool appDataAutoProfilesExists = HasSettings(appDataPpath);
             //bool localAppDataAutoProfilesExists = File.Exists(Path.Combine(localAppDataPpath, "Auto Profiles.xml"));
             //bool systemAppConfigExists = appDataAutoProfilesExists || localAppDataAutoProfilesExists;
             bool systemAppConfigExists = appDataAutoProfilesExists;

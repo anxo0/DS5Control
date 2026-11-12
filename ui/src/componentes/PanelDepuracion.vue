@@ -19,6 +19,7 @@ const d = puente.depuracion!
       </button>
       <button @click="d.quitarMandos()">Sin mando</button>
       <button @click="d.restablecer()">Restablecer</button>
+      <button @click="d.actualizar()">Aviso de actualización</button>
     </div>
     <button class="abrir" :aria-expanded="abierto" @click="abierto = !abierto">Depuración</button>
   </div>
