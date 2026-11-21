@@ -10,7 +10,7 @@
 # Las líneas "dato" son las insignias de arriba del mapa.
 
 dato fase 6 de 9
-dato bloque 2 de 3
+dato bloque 3 de 3
 dato estados 8313136+1711528+489008
 
 # Motor de mapeo (fase 5)
@@ -49,7 +49,7 @@ ProfileList.cs                       perfiles  pendiente
 Mandos/InputDevices/JoyConDevice.cs  fuera     pendiente
 Mandos/InputDevices/SwitchProDevice.cs fuera   pendiente
 Mandos/InputDevices/DS3Device.cs     fuera     pendiente
-Mandos/InputDevices/DualSenseDiagnostics.cs mando pendiente
+Mandos/InputDevices/DualSenseDiagnostics.cs mando 90
 Mandos/InputDevices/DualSenseDevice.cs mando   90
 Mandos/InputDevices/TriggerEffects.cs mando    hecho
 Mandos/InputDevices/InputDeviceFactory.cs mando 50
@@ -77,7 +77,7 @@ Translations/*                       fuera     pendiente
 Properties/*                         fuera     pendiente
 
 # La app (fase 6)
-Motor/ControlService.cs              app       50
+Motor/ControlService.cs              app       60
 Motor/Api/LightLevel.cs              app       hecho
 Motor/Api/ControllerService.cs       app       70
 Motor/Api/ControllerMapping.cs       app       70
@@ -87,9 +87,11 @@ AutoProfileChecker.cs                app       90
 AutoProfileHolder.cs                 app       90
 Interfaz/WebUi/AutoProfilesPanel.cs  app       hecho
 Interfaz/AppUpdater.cs               app       85
-Interfaz/WebUi/WebUiWindow.cs        app       75
+Interfaz/WebUi/WebUiWindow.cs        app       85
 Interfaz/WebUi/ProfileOptions.cs     app       95
-Interfaz/WebUi/GeneralOptions.cs     app       80
+Interfaz/WebUi/GeneralOptions.cs     app       90
 Interfaz/WebUi/ActionsPanel.cs       app       hecho
-Interfaz/AppHost.cs                  app       35
+Interfaz/AppHost.cs                  app       60
+Interfaz/DriverSetup.cs              app       hecho
+Motor/UdpServer.cs                   app       90
 *                                    app       pendiente
