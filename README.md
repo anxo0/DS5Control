@@ -39,6 +39,14 @@ Esta es una versión temprana, probada con un DualSense por Bluetooth y por cabl
 
 Algunos sistemas antitrampas pueden reaccionar a los mandos emulados. Úsalo con precaución en juegos en línea.
 
+### Mudanza a Rust
+
+DS5Control se está pasando de C# a Rust pieza a pieza, sin dejar de funcionar. Cada cuadrado verde es código que ya tiene su versión en Rust y da exactamente el mismo resultado que en C#.
+
+<p align="center">
+  <img src="tools/estado-rust/estado.svg" alt="Mapa del estado de la mudanza a Rust" width="100%">
+</p>
+
 ## Compilar
 
 ```bash

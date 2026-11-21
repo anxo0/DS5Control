@@ -1,0 +1,81 @@
+# Qué parte de cada archivo de C# (DS5Control/) tiene ya su equivalente en Rust, comprobado con
+# las pruebas de equivalencia. Lo lee estado.py para dibujar el mapa.
+#
+# Cada línea: <patrón> <pieza> <estado>
+#   - patrón: ruta dentro de DS5Control/, con * como comodín. Gana la primera línea que encaje.
+#   - pieza: mapeo, perfiles, mando, virtual, app o fuera.
+#   - estado: hecho (100), pendiente (0) o un porcentaje de 0 a 100.
+# Lo que va a "fuera" no se muda (decidido en la fase 0) y no cuenta en el porcentaje.
+#
+# Las líneas "dato" son las insignias de arriba del mapa.
+
+dato fase 5 de 9
+dato bloque 5 de 5
+dato estados 8313136+1711528+489008
+
+# Motor de mapeo (fase 5)
+Motor/Mapping.cs                     mapeo     97
+Motor/Mouse.cs                       mapeo     hecho
+Motor/MouseCursor.cs                 mapeo     hecho
+Motor/MouseWheel.cs                  mapeo     hecho
+Motor/FakeTrackball.cs               mapeo     hecho
+Motor/StickOutCurve.cs               mapeo     hecho
+Motor/DS5StateFieldMapping.cs        mapeo     hecho
+Motor/DeltaAccelSettings.cs          mapeo     hecho
+Motor/Debouncer.cs                   mapeo     hecho
+Motor/DS5LightBar.cs                 mapeo     hecho
+Motor/LightbarMacro.cs               mapeo     hecho
+Motor/ITouchpadBehaviour.cs          mapeo     hecho
+OneEuroFilter.cs                     mapeo     hecho
+BezierCurveEditor/*                  mapeo     hecho
+Motor/OutputKBM/SendInput*           mapeo     40
+Motor/OutputKBM/VirtualKBM*          mapeo     40
+Motor/OutputKBM/Faker*               fuera     pendiente
+Motor/MacroParser.cs                 fuera     pendiente
+
+# Perfiles y ajustes (fase 2)
+Motor/DTOXml/JoyCon*                 fuera     pendiente
+Motor/DTOXml/SwitchPro*              fuera     pendiente
+Motor/DTOXml/OutputSlotPersistDTO.cs perfiles  pendiente
+Motor/DTOXml/*                       perfiles  hecho
+Motor/ProfileMigration.cs            perfiles  hecho
+Motor/ProfilePropGroups.cs           perfiles  90
+Motor/PresetOption.cs                perfiles  pendiente
+Motor/ScpUtil.cs                     perfiles  60
+ProfileEntity.cs                     perfiles  pendiente
+ProfileList.cs                       perfiles  pendiente
+
+# Mando físico (fase 3)
+Mandos/InputDevices/JoyConDevice.cs  fuera     pendiente
+Mandos/InputDevices/SwitchProDevice.cs fuera   pendiente
+Mandos/InputDevices/DS3Device.cs     fuera     pendiente
+Mandos/InputDevices/DualSenseDiagnostics.cs mando pendiente
+Mandos/InputDevices/DualSenseDevice.cs mando   90
+Mandos/InputDevices/TriggerEffects.cs mando    hecho
+Mandos/InputDevices/InputDeviceFactory.cs mando 50
+Mandos/DS5Device.cs                  mando     60
+Mandos/DS5Devices.cs                 mando     80
+Mandos/*                             mando     hecho
+HidLibrary/*                         mando     hecho
+
+# Mando virtual y HidHide (fase 4)
+Motor/Xbox360OutDevice.cs            virtual   hecho
+Motor/DS4OutDevices/DS4OutDeviceExt.cs virtual hecho
+Motor/DS4OutDevices/*                virtual   50
+Motor/DS4OutDevice.cs                virtual   hecho
+Motor/OutputDevice.cs                virtual   hecho
+Motor/HidHideAPIDevice.cs            virtual   hecho
+Motor/OutputSlotManager.cs           virtual   20
+Motor/OutSlotDevice.cs               virtual   20
+Motor/OutputSlotPersist.cs           virtual   pendiente
+Motor/ControllerSlotManager.cs       virtual   pendiente
+VJoyFeeder/*                         fuera     pendiente
+
+# Lo que no se muda: la interfaz WPF antigua, lo generado y lo experimental
+Interfaz/ViewModels/*                fuera     pendiente
+Translations/*                       fuera     pendiente
+Properties/*                         fuera     pendiente
+
+# La app (fase 6)
+Motor/ControlService.cs              app       10
+*                                    app       pendiente
