@@ -10,7 +10,7 @@
 # Las líneas "dato" son las insignias de arriba del mapa.
 
 dato fase 6 de 9
-dato bloque 1 de 3
+dato bloque 2 de 3
 dato estados 8313136+1711528+489008
 
 # Motor de mapeo (fase 5)
@@ -77,16 +77,19 @@ Translations/*                       fuera     pendiente
 Properties/*                         fuera     pendiente
 
 # La app (fase 6)
-Motor/ControlService.cs              app       40
+Motor/ControlService.cs              app       50
 Motor/Api/LightLevel.cs              app       hecho
 Motor/Api/ControllerService.cs       app       70
 Motor/Api/ControllerMapping.cs       app       70
 Motor/Api/ControlServiceControllerSource.cs app 60
 Motor/Api/*                          app       40
-AutoProfileChecker.cs                app       85
-AutoProfileHolder.cs                 app       85
-Interfaz/WebUi/AutoProfilesPanel.cs  app       70
+AutoProfileChecker.cs                app       90
+AutoProfileHolder.cs                 app       90
+Interfaz/WebUi/AutoProfilesPanel.cs  app       hecho
 Interfaz/AppUpdater.cs               app       85
-Interfaz/WebUi/WebUiWindow.cs        app       45
-Interfaz/AppHost.cs                  app       20
+Interfaz/WebUi/WebUiWindow.cs        app       75
+Interfaz/WebUi/ProfileOptions.cs     app       95
+Interfaz/WebUi/GeneralOptions.cs     app       80
+Interfaz/WebUi/ActionsPanel.cs       app       hecho
+Interfaz/AppHost.cs                  app       35
 *                                    app       pendiente
