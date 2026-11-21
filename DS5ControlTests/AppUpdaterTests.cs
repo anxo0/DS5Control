@@ -15,14 +15,15 @@ namespace DS5ControlTests;
 public class AppUpdaterTests
 {
     private static readonly Version Current = new Version(0, 1, 0);
-    private const string Url = "https://github.com/anxo0/DS5Control/releases/download/v0.2.0/DS5Control-0.2.0-win-x64.zip";
+    private const string Url = "https://github.com/anxo0/DS5Control/releases/download/v0.2.0-deprecated/DS5Control-0.2.0-deprecated-portable-win-x64.zip";
 
-    private static string Release(string tag = "v0.2.0", string url = Url, string digest = "\"digest\": \"sha256:abc\",")
+    private static string Release(string tag = "v0.2.0-deprecated", string url = Url, string digest = "\"digest\": \"sha256:abc\",",
+        string asset = "DS5Control-0.2.0-deprecated-portable-win-x64.zip")
     {
         return $$"""
             {"tag_name": "{{tag}}", "assets": [
                 {"name": "notas.txt", "browser_download_url": "https://github.com/anxo0/DS5Control/releases/download/x/notas.txt"},
-                {"name": "DS5Control-0.2.0-win-x64.zip", {{digest}} "browser_download_url": "{{url}}"}
+                {"name": "{{asset}}", {{digest}} "browser_download_url": "{{url}}"}
             ]}
             """;
     }
@@ -45,6 +46,24 @@ public class AppUpdaterTests
     public void IgnoresReleasesThatAreNotNewer(string tag)
     {
         Assert.IsNull(AppUpdater.ParseRelease(Release(tag), Current));
+    }
+
+    [TestMethod]
+    public void IgnoresTheCurrentVersionThatIsNotDeprecated()
+    {
+        Assert.IsNull(AppUpdater.ParseRelease(Release("v0.3.0", asset: "DS5Control-0.3.0-portable-win-x64.zip"), Current));
+    }
+
+    [TestMethod]
+    public void PicksTheNewestDeprecatedReleaseOfTheList()
+    {
+        string list = "[" + Release("v0.3.0", asset: "DS5Control-0.3.0-portable-win-x64.zip") + "," + Release() + "," +
+            Release("v0.1.5-deprecated", asset: "DS5Control-0.1.5-deprecated-portable-win-x64.zip") + "]";
+
+        AppUpdate update = AppUpdater.ParseReleases(list, Current);
+
+        Assert.AreEqual(new Version(0, 2, 0), update.Version);
+        Assert.IsNull(AppUpdater.ParseReleases("[]", Current));
     }
 
     [TestMethod]

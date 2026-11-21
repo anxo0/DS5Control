@@ -27,7 +27,11 @@ jobs:
       shell: bash
       run: |
         TAG=${{ inputs.tag }}
-        echo "VERSION=${TAG#v}" >> $GITHUB_ENV
+        # v0.2.9-deprecated: the program gets 0.2.9 and the files carry "deprecated" in the name.
+        NUMERO=${TAG#v}
+        NUMERO=${NUMERO%%-*}
+        echo "VERSION=$NUMERO" >> $GITHUB_ENV
+        echo "NOMBRE=$NUMERO-deprecated" >> $GITHUB_ENV
     - name: Interface
       working-directory: ui
       run: |
@@ -44,14 +48,15 @@ jobs:
     - name: Portable
       run: |
         Copy-Item COPYING, README.md, ui\THIRD_PARTY.md publicar
-        Compress-Archive publicar\* DS5Control-${{ env.VERSION }}-portable-win-x64.zip
+        Compress-Archive publicar\* DS5Control-${{ env.NOMBRE }}-portable-win-x64.zip
     - name: Installer
       run: |
         choco install innosetup --no-progress -y
         & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DVersion=${{ env.VERSION }} "/DOrigen=$PWD\publicar" "/O$PWD" installer\ds5control.iss
+        Rename-Item DS5Control-${{ env.VERSION }}-instalador.exe DS5Control-${{ env.NOMBRE }}-instalador.exe
     - name: Upload
       run: >
         gh release upload ${{ inputs.tag }} --clobber
-        DS5Control-${{ env.VERSION }}-portable-win-x64.zip DS5Control-${{ env.VERSION }}-instalador.exe
+        DS5Control-${{ env.NOMBRE }}-portable-win-x64.zip DS5Control-${{ env.NOMBRE }}-instalador.exe
       env:
         GITHUB_TOKEN: ${{ github.TOKEN }}

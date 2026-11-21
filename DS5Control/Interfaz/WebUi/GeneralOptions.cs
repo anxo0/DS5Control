@@ -70,7 +70,18 @@ namespace DS5ControlApp.Interfaz.WebUi
                     Button("carpeta", "Abrir carpeta de perfiles", () => Util.StartProcessInExplorer(Global.appdatapath)),
                     Button("buscarVersion", "Buscar versión nueva", async () =>
                     {
-                        if (!await host.UpdateAsync()) AppLogger.LogToGui("Tienes la última versión.", false);
+                        if (await host.UpdateAsync()) return;
+
+                        // The deprecated version gets no more updates: say so and offer the current one.
+                        System.Windows.MessageBoxResult answer = System.Windows.MessageBox.Show(
+                            "Esta versión de DS5Control ya no recibe actualizaciones.\n\n" +
+                            "Es la última hecha en C#. Para tener las novedades, descarga la versión actual.\n\n" +
+                            "¿Abrir la página de descargas?",
+                            "DS5Control", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information);
+                        if (answer == System.Windows.MessageBoxResult.Yes)
+                        {
+                            Process.Start(new ProcessStartInfo(AppUpdater.DownloadsPage) { UseShellExecute = true })?.Dispose();
+                        }
                     }),
                     Button("vigem", "Instalar ViGEmBus", () => _ = DriverSetup.InstallViGEmAsync()),
                     Button("hidhide", "Instalar HidHide", () => _ = DriverSetup.InstallHidHideAsync()),

@@ -14,15 +14,19 @@ namespace DS5ControlApp.Interfaz
     public sealed record AppUpdate(Version Version, string DownloadUrl, string Sha256);
 
     /// <summary>
-    /// Replaces the program with the latest GitHub release. The running program cannot overwrite
+    /// This is the deprecated C# version: it only moves to a newer deprecated release (the assets
+    /// whose name contains "-deprecated-"), never to the current version of the program.
+    /// Replaces the program with the newest deprecated GitHub release. The running program cannot overwrite
     /// its own files, so a small script waits for it to exit, copies the new files and opens it.
     /// </summary>
     public static class AppUpdater
     {
-        public const string LatestReleaseUrl = "https://api.github.com/repos/anxo0/DS5Control/releases/latest";
+        public const string ReleasesUrl = "https://api.github.com/repos/anxo0/DS5Control/releases";
+        public const string DownloadsPage = "https://github.com/anxo0/DS5Control/releases/latest";
         public const string ProgramFile = "DS5Control.exe";
 
         private const string AssetSuffix = "-win-x64.zip";
+        private const string DeprecatedMarker = "-deprecated-";
         private const string TrustedDownloads = "https://github.com/anxo0/DS5Control/releases/download/";
         private const string DigestPrefix = "sha256:";
         private const string WorkFolderName = "DS5Control-actualizacion";
@@ -57,6 +61,7 @@ namespace DS5ControlApp.Interfaz
             {
                 string name = asset.GetProperty("name").GetString() ?? string.Empty;
                 if (!name.EndsWith(AssetSuffix, StringComparison.OrdinalIgnoreCase)) continue;
+                if (name.IndexOf(DeprecatedMarker, StringComparison.OrdinalIgnoreCase) < 0) continue;
 
                 string url = asset.GetProperty("browser_download_url").GetString() ?? string.Empty;
                 string digest = asset.TryGetProperty("digest", out JsonElement value) ? value.GetString() : null;
@@ -68,9 +73,24 @@ namespace DS5ControlApp.Interfaz
             return null;
         }
 
+        /// <summary>The newest deprecated release in the list of every release, if it is newer.</summary>
+        public static AppUpdate ParseReleases(string json, Version current)
+        {
+            using JsonDocument document = JsonDocument.Parse(json);
+            if (document.RootElement.ValueKind != JsonValueKind.Array) return null;
+
+            AppUpdate best = null;
+            foreach (JsonElement release in document.RootElement.EnumerateArray())
+            {
+                AppUpdate update = ParseRelease(release.GetRawText(), current);
+                if (update != null && (best == null || Normalize(update.Version) > Normalize(best.Version))) best = update;
+            }
+            return best;
+        }
+
         public static async Task<AppUpdate> FindAsync(HttpClient client, Version current)
         {
-            return ParseRelease(await client.GetStringAsync(LatestReleaseUrl), current);
+            return ParseReleases(await client.GetStringAsync(ReleasesUrl), current);
         }
 
         /// <summary>Downloads and unpacks a release. Returns the folder that holds the new files.</summary>

@@ -6,6 +6,8 @@
 
 <p align="center">Usa tu mando de PlayStation en Windows y ajusta su luz, vibración y gatillos en segundos.</p>
 
+> **Versión C# deprecated.** Esta es la última versión de DS5Control hecha en C#. Ya no recibe actualizaciones ni soporte. La versión actual está en [Releases](https://github.com/anxo0/DS5Control/releases/latest).
+
 DS5Control es un fork de [DS4Windows](https://github.com/schmaldeo/DS4Windows) con una interfaz nueva, pensada para el DualSense y para manejarse con el propio mando.
 
 ## Qué hace
