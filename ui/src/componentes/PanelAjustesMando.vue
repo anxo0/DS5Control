@@ -26,21 +26,22 @@ import InterruptorFila from './InterruptorFila.vue'
 import IconoMando from './IconoMando.vue'
 import SelectorColor from './SelectorColor.vue'
 import VistaSticks from './VistaSticks.vue'
+import { t } from '../i18n'
 
-/** `curva` dibuja la resistencia del gatillo a lo largo de su recorrido. */
+/** `curva` dibuja la resistencia del gatillo a lo largo de su recorrido; `nombre` y `detalle` son claves de texto. */
 const EFECTOS: { id: EfectoGatillo; nombre: string; detalle: string; curva: string }[] = [
-  { id: 'ninguno', nombre: 'Ninguno', detalle: 'Recorrido libre', curva: 'M2 20H42' },
+  { id: 'ninguno', nombre: 'mando.efecto.ninguno', detalle: 'mando.efecto.ninguno.detalle', curva: 'M2 20H42' },
   {
     id: 'clicCompleto',
-    nombre: 'Clic completo',
-    detalle: 'Resistencia con un clic al final',
+    nombre: 'mando.efecto.clicCompleto',
+    detalle: 'mando.efecto.clicCompleto.detalle',
     curva: 'M2 20H12L30 5V20H42',
   },
-  { id: 'rigido', nombre: 'Rígido', detalle: 'Resistencia firme', curva: 'M2 20H10V5H42' },
+  { id: 'rigido', nombre: 'mando.efecto.rigido', detalle: 'mando.efecto.rigido.detalle', curva: 'M2 20H10V5H42' },
   {
     id: 'pulso',
-    nombre: 'Pulso',
-    detalle: 'Resistencia que vibra',
+    nombre: 'mando.efecto.pulso',
+    detalle: 'mando.efecto.pulso.detalle',
     curva: 'M2 20H8L12 6L17 20L22 6L27 20L32 6L37 20H42',
   },
 ]
@@ -52,13 +53,13 @@ const GATILLOS: { id: Gatillo; nombre: string; clave: 'gatilloL2' | 'gatilloR2' 
 
 const pestanas = computed(() => {
   const lista: { id: Pestana; nombre: string }[] = [
-    { id: 'luz', nombre: 'Luz' },
-    { id: 'vibracion', nombre: 'Vibración' },
+    { id: 'luz', nombre: t('mando.ajustes.pestana.luz') },
+    { id: 'vibracion', nombre: t('mando.ajustes.pestana.vibracion') },
   ]
   if (mando.value && modeloDe(mando.value.tipo).gatillosAdaptativos) {
-    lista.push({ id: 'gatillos', nombre: 'Gatillos' })
+    lista.push({ id: 'gatillos', nombre: t('mando.ajustes.pestana.gatillos') })
   }
-  lista.push({ id: 'sticks', nombre: 'Sticks' })
+  lista.push({ id: 'sticks', nombre: t('mando.ajustes.pestana.sticks') })
   return lista
 })
 
@@ -86,7 +87,7 @@ function cancelarSelector() {
 const gatilloActivo = ref<Gatillo>('r2')
 const gatilloElegido = computed(() => GATILLOS.find((g) => g.id === gatilloActivo.value)!)
 const efectoDe = (clave: 'gatilloL2' | 'gatilloR2') =>
-  EFECTOS.find((e) => e.id === ajustes.value?.[clave])?.nombre ?? ''
+  t(EFECTOS.find((e) => e.id === ajustes.value?.[clave])?.nombre ?? '')
 const recorrido = (id: Gatillo) => (conectado.value ? (mando.value?.gatillos[id] ?? 0) : 0)
 
 // Apretar un gatillo en el mando lo selecciona aquí.
@@ -105,20 +106,17 @@ const colorNivelBrillo = computed(() => {
 </script>
 
 <template>
-  <aside aria-label="Ajustes del mando" class="ajustes">
+  <aside :aria-label="t('mando.ajustes.aria')" class="ajustes">
     <template v-if="!mando">
-      <h2>Cómo conectarlo</h2>
+      <h2>{{ t('mando.ajustes.comoConectar') }}</h2>
       <div class="pasos">
         <div>
-          <h3>Por USB</h3>
-          <p>Conecta el cable y enciende el mando con el botón PS.</p>
+          <h3>{{ t('mando.ajustes.porUsb') }}</h3>
+          <p>{{ t('mando.ajustes.porUsbTexto') }}</p>
         </div>
         <div>
-          <h3>Por Bluetooth</h3>
-          <p>
-            Mantén pulsados Crear y PS hasta que la luz parpadee. Después, emparéjalo desde
-            Bluetooth en la configuración de Windows.
-          </p>
+          <h3>{{ t('mando.ajustes.porBluetooth') }}</h3>
+          <p>{{ t('mando.ajustes.porBluetoothTexto') }}</p>
         </div>
       </div>
     </template>
@@ -126,7 +124,7 @@ const colorNivelBrillo = computed(() => {
     <template v-else-if="ajustes">
       <div
         role="tablist"
-        aria-label="Qué ajustar"
+        :aria-label="t('mando.ajustes.queAjustar')"
         class="pestanas"
         data-atras="[aria-current='page']"
       >
@@ -146,10 +144,10 @@ const colorNivelBrillo = computed(() => {
       </div>
 
       <div v-if="modoReal" class="nota real" role="status">
-        <p>Estás en modo DualSense real: el juego controla luz, vibración y gatillos.</p>
-        <button class="cambiar" @click="seccion = 'ajustes'">Cambiar de modo</button>
+        <p>{{ t('mando.ajustes.modoReal') }}</p>
+        <button class="cambiar" @click="seccion = 'ajustes'">{{ t('mando.ajustes.cambiarModo') }}</button>
       </div>
-      <p v-else-if="bloqueado" class="nota">Conecta el mando para cambiar estos ajustes.</p>
+      <p v-else-if="bloqueado" class="nota">{{ t('mando.ajustes.conectaParaCambiar') }}</p>
 
       <section
         v-if="pestana === 'luz'"
@@ -166,7 +164,7 @@ const colorNivelBrillo = computed(() => {
             class="color"
             :class="{ activo: !ajustes.arcoiris && !ajustes.luzSegunBateria && ajustes.luz === hex }"
             :style="{ background: hex }"
-            :aria-label="`Color ${hex}`"
+            :aria-label="t('mando.ajustes.color', { hex })"
             :aria-pressed="!ajustes.arcoiris && !ajustes.luzSegunBateria && ajustes.luz === hex"
             :disabled="bloqueado"
             :data-foco-inicial="i === 0 ? '' : undefined"
@@ -175,7 +173,7 @@ const colorNivelBrillo = computed(() => {
           <button
             class="color personalizado"
             :class="{ activo: selectorAbierto }"
-            aria-label="Elegir un color personalizado"
+            :aria-label="t('mando.ajustes.colorPersonalizado')"
             :aria-expanded="selectorAbierto"
             :disabled="bloqueado"
             @click="abrirSelector"
@@ -190,7 +188,7 @@ const colorNivelBrillo = computed(() => {
         />
         <ControlNivel
           id="brillo"
-          etiqueta="Brillo"
+          :etiqueta="t('mando.ajustes.brillo')"
           :valor="ajustes.brillo"
           :min="5"
           :color="colorNivelBrillo"
@@ -198,13 +196,13 @@ const colorNivelBrillo = computed(() => {
           @cambiar="cambiarBrillo"
         />
         <InterruptorFila
-          etiqueta="Modo arcoíris"
+          :etiqueta="t('mando.ajustes.arcoiris')"
           :activo="ajustes.arcoiris"
           :desactivado="bloqueado"
           @cambiar="cambiarArcoiris"
         />
         <InterruptorFila
-          etiqueta="Cambiar color según batería"
+          :etiqueta="t('mando.ajustes.segunBateria')"
           :activo="ajustes.luzSegunBateria"
           :desactivado="bloqueado"
           @cambiar="cambiarLuzSegunBateria"
@@ -221,7 +219,7 @@ const colorNivelBrillo = computed(() => {
       >
         <ControlNivel
           id="fuerza"
-          etiqueta="Fuerza"
+          :etiqueta="t('mando.ajustes.fuerza')"
           :valor="ajustes.vibracion"
           :min="0"
           color="var(--ink)"
@@ -229,7 +227,7 @@ const colorNivelBrillo = computed(() => {
           @cambiar="cambiarVibracion"
         />
         <button class="probar" :disabled="bloqueado" @click="probar('vibracion')">
-          {{ prueba === 'vibracion' ? 'Probando...' : 'Probar en el mando' }}
+          {{ prueba === 'vibracion' ? t('mando.ajustes.probando') : t('mando.ajustes.probar') }}
         </button>
         <div class="tiempos">
           <button
@@ -238,10 +236,10 @@ const colorNivelBrillo = computed(() => {
             class="probar"
             :class="{ activo: duracionPrueba === segundos * 1000 }"
             :disabled="bloqueado"
-            :aria-label="duracionPrueba === segundos * 1000 ? 'Parar la vibración' : `Vibrar ${segundos} segundos`"
+            :aria-label="duracionPrueba === segundos * 1000 ? t('mando.ajustes.pararVibracion') : t('mando.ajustes.vibrarSegundos', { segundos })"
             @click="duracionPrueba === segundos * 1000 ? pararVibracion() : probar('vibracion', segundos * 1000)"
           >
-            {{ duracionPrueba === segundos * 1000 ? 'Parar' : `${segundos} s` }}
+            {{ duracionPrueba === segundos * 1000 ? t('mando.ajustes.parar') : `${segundos} s` }}
           </button>
         </div>
       </section>
@@ -254,7 +252,7 @@ const colorNivelBrillo = computed(() => {
         class="panel"
         data-atras="[role='tab'][aria-selected='true']"
       >
-        <div class="selector" role="group" aria-label="Gatillo que se ajusta">
+        <div class="selector" role="group" :aria-label="t('mando.ajustes.gatilloQueSeAjusta')">
           <button
             v-for="(g, i) in GATILLOS"
             :key="g.id"
@@ -272,7 +270,7 @@ const colorNivelBrillo = computed(() => {
             </span>
           </button>
         </div>
-        <div class="efectos" role="group" :aria-label="`Efecto de ${gatilloElegido.nombre}`">
+        <div class="efectos" role="group" :aria-label="t('mando.ajustes.efectoDe', { gatillo: gatilloElegido.nombre })">
           <button
             v-for="e in EFECTOS"
             :key="e.id"
@@ -284,12 +282,12 @@ const colorNivelBrillo = computed(() => {
           >
             <svg viewBox="0 0 44 24" aria-hidden="true"><path :d="e.curva" /></svg>
             <span class="efecto-texto">
-              <span class="efecto-nombre">{{ e.nombre }}</span>
-              <span class="efecto-detalle">{{ e.detalle }}</span>
+              <span class="efecto-nombre">{{ t(e.nombre) }}</span>
+              <span class="efecto-detalle">{{ t(e.detalle) }}</span>
             </span>
           </button>
         </div>
-        <p class="pista">Aprieta {{ gatilloElegido.nombre }} en el mando para notarlo.</p>
+        <p class="pista">{{ t('mando.ajustes.pista', { gatillo: gatilloElegido.nombre }) }}</p>
       </section>
 
       <section

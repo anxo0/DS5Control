@@ -75,6 +75,9 @@ export function crearPuenteWebView(canal: CanalWebView): Puente {
           case 'diagnostico':
             eventos.alDiagnostico(mensaje.datos)
             break
+          case 'juegos':
+            eventos.alJuegos(mensaje.lista)
+            break
           case 'mute':
             eventos.alMute()
             break

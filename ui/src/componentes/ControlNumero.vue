@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { t } from '../i18n'
 
 const props = defineProps<{
   etiqueta: string
@@ -45,14 +46,14 @@ function empezar(e: PointerEvent) {
 
 <template>
   <div class="numero" role="group" :aria-label="etiqueta">
-    <button :disabled="desactivado || valor <= min" :aria-label="`Bajar ${etiqueta}`" @click="mover(-1)">
+    <button :disabled="desactivado || valor <= min" :aria-label="t('mando.numero.bajar', { nombre: etiqueta })" @click="mover(-1)">
       <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10" /></svg>
     </button>
     <output @pointerdown="empezar" @pointermove="arrastrar">
       <span class="relleno" :style="{ transform: `scaleX(${relleno})` }" />
       <span class="cifra">{{ texto }}</span>
     </output>
-    <button :disabled="desactivado || valor >= max" :aria-label="`Subir ${etiqueta}`" @click="mover(1)">
+    <button :disabled="desactivado || valor >= max" :aria-label="t('mando.numero.subir', { nombre: etiqueta })" @click="mover(1)">
       <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10M7 2v10" /></svg>
     </button>
   </div>

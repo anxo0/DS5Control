@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import type { PosicionStick } from '../bridge'
 import { conectado, mando } from '../estado/app'
 import IconoMando from './IconoMando.vue'
+import { t } from '../i18n'
 
 const TAMANO = 120
 const CENTRO = TAMANO / 2
@@ -20,9 +21,10 @@ interface Medida {
   maxima: number
 }
 
-const LADOS: { id: Lado; nombre: string }[] = [
-  { id: 'izq', nombre: 'Izquierdo' },
-  { id: 'der', nombre: 'Derecho' },
+/** `nombre` es el que reconoce el pack de iconos; `clave`, el texto que se ve. */
+const LADOS: { id: Lado; nombre: string; clave: string }[] = [
+  { id: 'izq', nombre: 'Izquierdo', clave: 'mando.sticks.izquierdo' },
+  { id: 'der', nombre: 'Derecho', clave: 'mando.sticks.derecho' },
 ]
 
 const posicion = (lado: Lado): PosicionStick => mando.value?.sticks[lado] ?? { x: 0, y: 0 }
@@ -76,14 +78,14 @@ function medir() {
 onBeforeUnmount(() => clearInterval(temporizador))
 
 function veredicto(m: Medida) {
-  if (m.media >= UMBRAL_DERIVA) return { texto: 'Tiene deriva', clase: 'mal' }
-  if (m.media >= UMBRAL_LEVE) return { texto: 'Deriva leve', clase: 'leve' }
-  return { texto: 'Sin deriva', clase: 'bien' }
+  if (m.media >= UMBRAL_DERIVA) return { texto: t('mando.sticks.conDeriva'), clase: 'mal' }
+  if (m.media >= UMBRAL_LEVE) return { texto: t('mando.sticks.derivaLeve'), clase: 'leve' }
+  return { texto: t('mando.sticks.sinDeriva'), clase: 'bien' }
 }
 
 const textoBoton = computed(() => {
-  if (midiendo.value) return 'No toques los sticks...'
-  return resultado.value ? 'Repetir prueba' : 'Comprobar deriva'
+  if (midiendo.value) return t('mando.sticks.noToques')
+  return resultado.value ? t('mando.sticks.repetir') : t('mando.sticks.comprobar')
 })
 </script>
 
@@ -91,7 +93,7 @@ const textoBoton = computed(() => {
   <div class="vista">
     <div class="sticks">
       <figure v-for="s in LADOS" :key="s.id">
-        <svg :viewBox="`0 0 ${TAMANO} ${TAMANO}`" role="img" :aria-label="`Posición del stick ${s.nombre}`">
+        <svg :viewBox="`0 0 ${TAMANO} ${TAMANO}`" role="img" :aria-label="t('mando.sticks.posicion', { lado: t(s.clave) })">
           <circle class="aro" :cx="CENTRO" :cy="CENTRO" :r="RADIO" />
           <circle class="zona" :cx="CENTRO" :cy="CENTRO" :r="RADIO * UMBRAL_DERIVA" />
           <path class="cruz" :d="`M${CENTRO} ${CENTRO - RADIO}V${CENTRO + RADIO}M${CENTRO - RADIO} ${CENTRO}H${CENTRO + RADIO}`" />
@@ -110,12 +112,17 @@ const textoBoton = computed(() => {
         <span v-if="midiendo" class="avance" :style="{ transform: `scaleX(${progreso})` }" />
         <span class="texto">{{ textoBoton }}</span>
       </button>
-      <p v-if="!resultado && !midiendo" class="ayuda">Suelta los sticks y pulsa. Mide durante 3 segundos.</p>
+      <p v-if="!resultado && !midiendo" class="ayuda">{{ t('mando.sticks.ayuda') }}</p>
       <ul v-if="resultado" class="resultados">
         <li v-for="s in LADOS" :key="s.id">
-          <span>{{ s.nombre }}</span>
+          <span>{{ t(s.clave) }}</span>
           <strong :class="veredicto(resultado[s.id]).clase">{{ veredicto(resultado[s.id]).texto }}</strong>
-          <small>Media {{ porcentaje(resultado[s.id].media) }}, máximo {{ porcentaje(resultado[s.id].maxima) }}</small>
+          <small>{{
+            t('mando.sticks.medida', {
+              media: porcentaje(resultado[s.id].media),
+              maxima: porcentaje(resultado[s.id].maxima),
+            })
+          }}</small>
         </li>
       </ul>
     </div>

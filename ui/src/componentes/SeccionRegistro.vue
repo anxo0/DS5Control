@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { estadoApp } from '../estado/app'
+import { t } from '../i18n'
 
 const entradas = computed(() => [...estadoApp.value.registro].reverse())
 const copiado = ref(false)
@@ -20,12 +21,12 @@ async function copiar() {
 <template>
   <main class="seccion" data-atras="[aria-current='page']">
     <div class="cabecera">
-      <h1>Registro</h1>
+      <h1>{{ t('secciones.registro.titulo') }}</h1>
       <button data-foco-inicial :disabled="entradas.length === 0" @click="copiar">
-        {{ copiado ? 'Copiado' : 'Copiar' }}
+        {{ copiado ? t('secciones.registro.copiado') : t('secciones.registro.copiar') }}
       </button>
     </div>
-    <p v-if="entradas.length === 0" class="vacio">Todavía no hay mensajes en esta sesión.</p>
+    <p v-if="entradas.length === 0" class="vacio">{{ t('secciones.registro.vacio') }}</p>
     <ol v-else class="lista">
       <li v-for="(e, i) in entradas" :key="i" :class="{ aviso: e.aviso }">
         <time>{{ e.hora }}</time>

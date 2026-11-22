@@ -6,19 +6,23 @@ import IconoMando from './IconoMando.vue'
 import InstrumentoGatillo from './InstrumentoGatillo.vue'
 import InstrumentoStick from './InstrumentoStick.vue'
 import ListaAjustes from './ListaAjustes.vue'
+import { t } from '../i18n'
 
 onMounted(cargarOpciones)
 watch(() => [mando.value?.id, mando.value?.perfil], cargarOpciones)
 
-/** Los grupos con dos controles iguales enseñan uno cada vez, junto a su instrumento. */
-const LADOS: Record<string, { id: string; prefijo: string; titulo: string; icono: string }[]> = {
+/**
+ * Los grupos con dos controles iguales enseñan uno cada vez, junto a su instrumento. `titulo` es
+ * el comienzo del nombre de sus secciones (lo manda la app) y `etiqueta`, el texto del botón.
+ */
+const LADOS: Record<string, { id: string; prefijo: string; titulo: string; etiqueta: string; icono: string }[]> = {
   sticks: [
-    { id: 'izq', prefijo: 'LS', titulo: 'Stick izquierdo', icono: 'Stick izquierdo' },
-    { id: 'der', prefijo: 'RS', titulo: 'Stick derecho', icono: 'Stick derecho' },
+    { id: 'izq', prefijo: 'LS', titulo: 'Stick izquierdo', etiqueta: 'secciones.avanzado.stickIzq', icono: 'Stick izquierdo' },
+    { id: 'der', prefijo: 'RS', titulo: 'Stick derecho', etiqueta: 'secciones.avanzado.stickDer', icono: 'Stick derecho' },
   ],
   gatillos: [
-    { id: 'l2', prefijo: 'L2', titulo: 'L2', icono: 'L2' },
-    { id: 'r2', prefijo: 'R2', titulo: 'R2', icono: 'R2' },
+    { id: 'l2', prefijo: 'L2', titulo: 'L2', etiqueta: 'secciones.avanzado.l2', icono: 'L2' },
+    { id: 'r2', prefijo: 'R2', titulo: 'R2', etiqueta: 'secciones.avanzado.r2', icono: 'R2' },
   ],
 }
 
@@ -27,9 +31,11 @@ const grupo = computed(() => grupos.value.find((g) => g.id === grupoActivo.value
 const lados = computed(() => LADOS[grupo.value?.id ?? ''] ?? null)
 const lado = computed(() => lados.value?.[elegido.value[grupo.value?.id ?? ''] ?? 0] ?? null)
 
-function nombreCorto(nombre: string, titulo: string) {
-  if (nombre === titulo) return 'Respuesta'
-  const resto = nombre.slice(titulo.length + 2)
+/** Sin el lado delante, que ya lo dice el selector: "Stick izquierdo: precisión" es "Precisión". */
+function nombreCorto(s: SeccionAvanzada, titulo: string) {
+  if ((s.id ?? s.nombre) === titulo) return t('secciones.avanzado.respuesta')
+  const dos = s.nombre.indexOf(': ')
+  const resto = dos >= 0 ? s.nombre.slice(dos + 2) : s.nombre
   return resto.charAt(0).toUpperCase() + resto.slice(1)
 }
 
@@ -38,8 +44,8 @@ const secciones = computed<SeccionAvanzada[]>(() => {
   const actual = lado.value
   if (!actual) return todas
   return todas
-    .filter((s) => s.nombre.startsWith(actual.titulo))
-    .map((s) => ({ ...s, nombre: nombreCorto(s.nombre, actual.titulo) }))
+    .filter((s) => (s.id ?? s.nombre).startsWith(actual.titulo))
+    .map((s) => ({ ...s, nombre: nombreCorto(s, actual.titulo) }))
 })
 
 function valorDe(id: string): AjusteAvanzado['valor'] | undefined {
@@ -70,14 +76,14 @@ const recorrido = computed(() => (lado.value?.id === 'r2' ? mando.value?.gatillo
 <template>
   <main class="seccion" data-atras="[aria-current='page']">
     <header>
-      <h1>Avanzado</h1>
-      <p>Se guarda en el perfil {{ mando?.perfil ?? '' }}.</p>
+      <h1>{{ t('secciones.avanzado.titulo') }}</h1>
+      <p>{{ t('secciones.avanzado.perfil', { perfil: mando?.perfil ?? '' }) }}</p>
     </header>
 
-    <p v-if="!conectado" class="vacio">Conecta un mando para ver estos ajustes.</p>
+    <p v-if="!conectado" class="vacio">{{ t('secciones.avanzado.sinMando') }}</p>
 
     <template v-else>
-      <div class="grupos" role="tablist" aria-label="Grupos de ajustes">
+      <div class="grupos" role="tablist" :aria-label="t('secciones.avanzado.grupos')">
         <button
           v-for="(g, i) in grupos"
           :key="g.id"
@@ -93,7 +99,7 @@ const recorrido = computed(() => (lado.value?.id === 'r2' ? mando.value?.gatillo
 
       <div class="banco" role="tabpanel" data-atras="[role='tab'][aria-selected='true']">
         <aside v-if="lados && lado && grupo" class="mesa">
-          <div class="lados" role="group" aria-label="Control que se ajusta">
+          <div class="lados" role="group" :aria-label="t('secciones.avanzado.lados')">
             <button
               v-for="(l, i) in lados"
               :key="l.id"
@@ -102,7 +108,7 @@ const recorrido = computed(() => (lado.value?.id === 'r2' ? mando.value?.gatillo
               @click="elegido = { ...elegido, [grupo.id]: i }"
             >
               <IconoMando :control="l.icono" />
-              <span>{{ l.titulo }}</span>
+              <span>{{ t(l.etiqueta) }}</span>
             </button>
           </div>
           <InstrumentoStick

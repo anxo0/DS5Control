@@ -1,0 +1,40 @@
+[package]
+name = "ds5-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "DS5Control"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-notification = "2"
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+ds5-actualizador = { path = "../ds5-actualizador" }
+ds5-autoperfiles = { path = "../ds5-autoperfiles" }
+ds5-diagnostico = { path = "../ds5-diagnostico" }
+ds5-hid = { path = "../ds5-hid" }
+ds5-informes = { path = "../ds5-informes" }
+ds5-mapeo = { path = "../ds5-mapeo" }
+ds5-perfiles = { path = "../ds5-perfiles" }
+ds5-servicio = { path = "../ds5-servicio" }
+ds5-virtual = { path = "../ds5-virtual" }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_System_Com",
+    "Win32_System_Com_StructuredStorage",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }

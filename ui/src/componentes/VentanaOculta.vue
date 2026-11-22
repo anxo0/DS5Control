@@ -1,6 +1,10 @@
+<script setup lang="ts">
+import { t } from '../i18n'
+</script>
+
 <template>
   <div class="oculta" role="status">
-    <p>App oculta. Pulsa el botón de silencio del mando para volver.</p>
+    <p>{{ t('general.oculta.texto') }}</p>
   </div>
 </template>
 

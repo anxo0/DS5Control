@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { t } from '../i18n'
 
 const props = defineProps<{ color: string }>()
 const emit = defineEmits<{ cambiar: [hex: string]; guardar: [hex: string]; cancelar: [] }>()
@@ -91,7 +92,7 @@ const CANALES = ['R', 'G', 'B']
 </script>
 
 <template>
-  <section class="selector-color" aria-label="Color personalizado">
+  <section class="selector-color" :aria-label="t('mando.color.personalizado')">
     <div
       ref="plano"
       class="plano"
@@ -111,13 +112,13 @@ const CANALES = ['R', 'G', 'B']
     </div>
 
     <label class="tono">
-      <span>Tono</span>
+      <span>{{ t('mando.color.tono') }}</span>
       <input v-model.number="tono" type="range" min="0" max="359" step="3" />
     </label>
 
     <div class="campos">
       <label class="campo hex">
-        <span>Hex</span>
+        <span>{{ t('mando.color.hex') }}</span>
         <input
           :value="textoHex"
           maxlength="7"
@@ -139,8 +140,8 @@ const CANALES = ['R', 'G', 'B']
     </div>
 
     <div class="acciones">
-      <button class="cancelar" @click="emit('cancelar')">Cancelar</button>
-      <button class="guardar" @click="emit('guardar', hex)">Guardar color</button>
+      <button class="cancelar" @click="emit('cancelar')">{{ t('mando.color.cancelar') }}</button>
+      <button class="guardar" @click="emit('guardar', hex)">{{ t('mando.color.guardar') }}</button>
     </div>
   </section>
 </template>

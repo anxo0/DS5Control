@@ -8,7 +8,9 @@ import {
   archivoElegido,
   autoPerfiles,
   diagnostico,
+  cargandoDiagnostico,
   generales,
+  juegos,
   conectado,
   estadoApp,
   grupoActivo,
@@ -106,7 +108,11 @@ onMounted(() => {
     alOpciones: (lista) => { grupos.value = lista },
     alAcciones: (lista) => { acciones.value = lista },
     alGenerales: (lista) => { generales.value = lista },
-    alDiagnostico: (datos) => { diagnostico.value = datos },
+    alDiagnostico: (datos) => {
+      diagnostico.value = datos
+      cargandoDiagnostico.value = false
+    },
+    alJuegos: (lista) => { juegos.value = lista },
     alAutoPerfiles: (lista) => { autoPerfiles.value = lista },
     alArchivo: (ruta) => { archivoElegido.value = ruta },
     alMute: () => {

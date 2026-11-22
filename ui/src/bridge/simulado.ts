@@ -177,8 +177,17 @@ export function crearPuenteSimulado(): Puente {
             m.mapeo.push({ control: comando.control, salida: comando.salida })
           })
           break
+        case 'pedirDiagnostico':
+          // El simulado no lee ningún mando: tras un momento responde que no hay datos.
+          setTimeout(() => eventos?.alDiagnostico(null), 900)
+          break
         case 'pedirGenerales':
           eventos?.alGenerales([{ nombre: 'Inicio', ajustes: [ajuste('inicioWindows', 'Abrir al iniciar Windows', 'interruptor', false)] }])
+          break
+        case 'pedirJuegos':
+          eventos?.alJuegos([])
+          break
+        case 'jugar':
           break
         case 'pedirAuto':
           eventos?.alAutoPerfiles([])

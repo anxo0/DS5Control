@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
+import { t } from '../i18n'
 
 /** Versión a la que se está actualizando, o null si no hay actualización en marcha. */
 const props = defineProps<{ version: string | null }>()
@@ -26,9 +27,9 @@ watch(
     aria-describedby="aviso-texto"
     @cancel.prevent
   >
-    <h2 id="aviso-titulo">Actualizando a la versión {{ version }}</h2>
+    <h2 id="aviso-titulo">{{ t('general.actualizacion.titulo', { version: version ?? '' }) }}</h2>
     <p id="aviso-texto">
-      DS5Control se cerrará y volverá a abrirse solo en unos segundos. No hace falta que hagas nada.
+      {{ t('general.actualizacion.texto') }}
     </p>
     <span class="barra" aria-hidden="true"><span /></span>
   </dialog>

@@ -6,44 +6,45 @@ import { iconoDe } from '../mandos/iconos'
 import DibujoMando from './DibujoMando.vue'
 import GrabadorMacro from './GrabadorMacro.vue'
 import IconoMando from './IconoMando.vue'
+import { t } from '../i18n'
 
-/** `dibujo` es el identificador del botón en el SVG del mando. */
+/** `dibujo` es el identificador del botón en el SVG del mando; `nombre`, la clave de su texto. */
 const GRUPOS = [
   {
     nombre: 'Botones',
     controles: [
-      { id: 'Cross', nombre: 'Cruz', base: 'A', dibujo: 'cross' },
-      { id: 'Circle', nombre: 'Círculo', base: 'B', dibujo: 'circle' },
-      { id: 'Square', nombre: 'Cuadrado', base: 'X', dibujo: 'rect' },
-      { id: 'Triangle', nombre: 'Triángulo', base: 'Y', dibujo: 'triangle' },
+      { id: 'Cross', nombre: 'mando.control.cruz', base: 'A', dibujo: 'cross' },
+      { id: 'Circle', nombre: 'mando.control.circulo', base: 'B', dibujo: 'circle' },
+      { id: 'Square', nombre: 'mando.control.cuadrado', base: 'X', dibujo: 'rect' },
+      { id: 'Triangle', nombre: 'mando.control.triangulo', base: 'Y', dibujo: 'triangle' },
     ],
   },
   {
     nombre: 'Gatillos',
     controles: [
-      { id: 'L1', nombre: 'L1', base: 'LB', dibujo: 'l1' },
-      { id: 'R1', nombre: 'R1', base: 'RB', dibujo: 'r1' },
-      { id: 'L2', nombre: 'L2', base: 'LT', dibujo: 'l2' },
-      { id: 'R2', nombre: 'R2', base: 'RT', dibujo: 'r2' },
+      { id: 'L1', nombre: 'mando.control.l1', base: 'LB', dibujo: 'l1' },
+      { id: 'R1', nombre: 'mando.control.r1', base: 'RB', dibujo: 'r1' },
+      { id: 'L2', nombre: 'mando.control.l2', base: 'LT', dibujo: 'l2' },
+      { id: 'R2', nombre: 'mando.control.r2', base: 'RT', dibujo: 'r2' },
     ],
   },
   {
     nombre: 'Cruceta',
     controles: [
-      { id: 'DpadUp', nombre: 'Cruceta arriba', base: 'DpadUp', dibujo: 'dpad-up' },
-      { id: 'DpadDown', nombre: 'Cruceta abajo', base: 'DpadDown', dibujo: 'dpad-down' },
-      { id: 'DpadLeft', nombre: 'Cruceta izquierda', base: 'DpadLeft', dibujo: 'dpad-left' },
-      { id: 'DpadRight', nombre: 'Cruceta derecha', base: 'DpadRight', dibujo: 'dpad-right' },
+      { id: 'DpadUp', nombre: 'mando.control.crucetaArriba', base: 'DpadUp', dibujo: 'dpad-up' },
+      { id: 'DpadDown', nombre: 'mando.control.crucetaAbajo', base: 'DpadDown', dibujo: 'dpad-down' },
+      { id: 'DpadLeft', nombre: 'mando.control.crucetaIzquierda', base: 'DpadLeft', dibujo: 'dpad-left' },
+      { id: 'DpadRight', nombre: 'mando.control.crucetaDerecha', base: 'DpadRight', dibujo: 'dpad-right' },
     ],
   },
   {
     nombre: 'Centro',
     controles: [
-      { id: 'L3', nombre: 'L3', base: 'LS', dibujo: 'l3' },
-      { id: 'R3', nombre: 'R3', base: 'RS', dibujo: 'r3' },
-      { id: 'Share', nombre: 'Crear', base: 'Back', dibujo: 'create' },
-      { id: 'Options', nombre: 'Options', base: 'Start', dibujo: 'options' },
-      { id: 'PS', nombre: 'PS', base: 'Guide', dibujo: 'ps' },
+      { id: 'L3', nombre: 'mando.control.l3', base: 'LS', dibujo: 'l3' },
+      { id: 'R3', nombre: 'mando.control.r3', base: 'RS', dibujo: 'r3' },
+      { id: 'Share', nombre: 'mando.control.crear', base: 'Back', dibujo: 'create' },
+      { id: 'Options', nombre: 'mando.control.options', base: 'Start', dibujo: 'options' },
+      { id: 'PS', nombre: 'mando.control.ps', base: 'Guide', dibujo: 'ps' },
     ],
   },
 ]
@@ -51,25 +52,26 @@ const GRUPOS = [
 type Control = (typeof GRUPOS)[number]['controles'][number]
 const CONTROLES = GRUPOS.flatMap((g) => g.controles)
 
+/** Cada salida con la clave de su texto. */
 const SALIDAS = [
-  ['A', 'Cruz'],
-  ['B', 'Círculo'],
-  ['X', 'Cuadrado'],
-  ['Y', 'Triángulo'],
-  ['LB', 'L1'],
-  ['RB', 'R1'],
-  ['LT', 'L2'],
-  ['RT', 'R2'],
-  ['LS', 'L3'],
-  ['RS', 'R3'],
-  ['DpadUp', 'Arriba'],
-  ['DpadDown', 'Abajo'],
-  ['DpadLeft', 'Izquierda'],
-  ['DpadRight', 'Derecha'],
-  ['Back', 'Crear'],
-  ['Start', 'Options'],
-  ['Guide', 'PS'],
-  ['Unbound', 'Sin función'],
+  ['A', 'mando.control.cruz'],
+  ['B', 'mando.control.circulo'],
+  ['X', 'mando.control.cuadrado'],
+  ['Y', 'mando.control.triangulo'],
+  ['LB', 'mando.control.l1'],
+  ['RB', 'mando.control.r1'],
+  ['LT', 'mando.control.l2'],
+  ['RT', 'mando.control.r2'],
+  ['LS', 'mando.control.l3'],
+  ['RS', 'mando.control.r3'],
+  ['DpadUp', 'mando.control.arriba'],
+  ['DpadDown', 'mando.control.abajo'],
+  ['DpadLeft', 'mando.control.izquierda'],
+  ['DpadRight', 'mando.control.derecha'],
+  ['Back', 'mando.control.crear'],
+  ['Start', 'mando.control.options'],
+  ['Guide', 'mando.control.ps'],
+  ['Unbound', 'mando.sinFuncion'],
 ] as const
 
 const NOMBRES = new Map<string, string>(SALIDAS)
@@ -86,9 +88,10 @@ const cambiado = (c: Control) => {
 }
 const etiqueta = (c: Control) => {
   const s = salidaDe(c.id) ?? c.base
-  if (s === 'Macro') return 'Macro'
+  if (s === 'Macro') return t('mando.botones.macro')
   if (s.startsWith('Key:')) return nombreTecla(Number(s.slice(4)))
-  return NOMBRES.get(s) ?? 'Personalizado'
+  const clave = NOMBRES.get(s)
+  return clave ? t(clave) : t('mando.botones.personalizado')
 }
 const salidaVisible = (c: Control) => {
   const s = salidaDe(c.id) ?? c.base
@@ -104,9 +107,9 @@ function elegirEnDibujo(id: string) {
 
 <template>
   <main class="seccion" data-atras="[aria-current='page']">
-    <h1>Botones</h1>
+    <h1>{{ t('mando.botones.titulo') }}</h1>
     <div class="cuerpo">
-      <section class="mando" aria-label="Botones del mando">
+      <section class="mando" :aria-label="t('mando.botones.delMando')">
         <DibujoMando
           class="dibujo"
           :mando="mando"
@@ -122,7 +125,7 @@ function elegirEnDibujo(id: string) {
               :key="c.id"
               class="control"
               :class="{ activa: elegido.id === c.id }"
-              :aria-label="`${c.nombre}: ${etiqueta(c)}`"
+              :aria-label="`${t(c.nombre)}: ${etiqueta(c)}`"
               :aria-pressed="elegido.id === c.id"
               :disabled="!conectado"
               :data-foco-inicial="n === 0 && i === 0 ? '' : undefined"
@@ -135,8 +138,8 @@ function elegirEnDibujo(id: string) {
         </div>
       </section>
 
-      <section class="panel" :aria-label="`Función de ${elegido.nombre}`">
-        <h2 class="titulo"><IconoMando :control="elegido.id" /> funciona como</h2>
+      <section class="panel" :aria-label="t('mando.botones.funcionDe', { boton: t(elegido.nombre) })">
+        <h2 class="titulo"><IconoMando :control="elegido.id" /> {{ t('mando.botones.funcionaComo') }}</h2>
         <div class="salidas">
           <button
             v-for="[id, nombre] in SALIDAS"
@@ -144,14 +147,14 @@ function elegirEnDibujo(id: string) {
             class="salida"
             :class="{ activa: actual === id }"
             :aria-pressed="actual === id"
-            :aria-label="nombre"
+            :aria-label="t(nombre)"
             :disabled="!conectado"
             @click="asignarBoton(elegido.id, id)"
           >
-            <IconoMando :control="id === 'Unbound' ? nombre : id" />
+            <IconoMando :control="id === 'Unbound' ? t(nombre) : id" />
           </button>
         </div>
-        <h2>O como teclado y ratón</h2>
+        <h2>{{ t('mando.botones.comoTeclado') }}</h2>
         <GrabadorMacro solo-una-tecla :pasos="[]" @cambiar="asignarTecla(elegido.id, $event[0] ?? 0)" />
         <GrabadorMacro :key="elegido.id" :pasos="[]" @cambiar="asignarMacro(elegido.id, $event)" />
         <button
@@ -159,7 +162,7 @@ function elegirEnDibujo(id: string) {
           :disabled="!conectado || salidaDe(elegido.id) === null"
           @click="asignarBoton(elegido.id, null)"
         >
-          Restablecer este botón
+          {{ t('mando.botones.restablecer') }}
         </button>
       </section>
     </div>

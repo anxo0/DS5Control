@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { mando, puente } from '../estado/app'
+import { t } from '../i18n'
 
 const abierto = ref(false)
 const d = puente.depuracion!
@@ -9,19 +10,19 @@ const d = puente.depuracion!
 <template>
   <div class="depuracion" data-sin-foco>
     <div v-if="abierto" class="acciones">
-      <button @click="d.mute()">Simular mute</button>
-      <button @click="d.fijarBateria(12)">Batería baja</button>
+      <button @click="d.mute()">{{ t('general.depuracion.mute') }}</button>
+      <button @click="d.fijarBateria(12)">{{ t('general.depuracion.bateriaBaja') }}</button>
       <button @click="d.fijarCargando(!mando?.cargando)">
-        {{ mando?.cargando ? 'Dejar de cargar' : 'Cargando' }}
+        {{ mando?.cargando ? t('general.depuracion.dejarCargar') : t('general.depuracion.cargando') }}
       </button>
       <button @click="d.fijarConectado(!mando?.conectado)">
-        {{ mando?.conectado ? 'Desconectar' : 'Reconectar' }}
+        {{ mando?.conectado ? t('general.depuracion.desconectar') : t('general.depuracion.reconectar') }}
       </button>
-      <button @click="d.quitarMandos()">Sin mando</button>
-      <button @click="d.restablecer()">Restablecer</button>
-      <button @click="d.actualizar()">Aviso de actualización</button>
+      <button @click="d.quitarMandos()">{{ t('general.depuracion.sinMando') }}</button>
+      <button @click="d.restablecer()">{{ t('general.depuracion.restablecer') }}</button>
+      <button @click="d.actualizar()">{{ t('general.depuracion.actualizacion') }}</button>
     </div>
-    <button class="abrir" :aria-expanded="abierto" @click="abierto = !abierto">Depuración</button>
+    <button class="abrir" :aria-expanded="abierto" @click="abierto = !abierto">{{ t('general.depuracion.abrir') }}</button>
   </div>
 </template>
 

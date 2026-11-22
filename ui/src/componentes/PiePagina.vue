@@ -6,26 +6,30 @@ import cruceta from '../assets/iconos/D-Pad.svg'
 import l1 from '../assets/iconos/L1.svg'
 import r1 from '../assets/iconos/R1.svg'
 import { estadoApp, mando } from '../estado/app'
+import { t } from '../i18n'
 
 /** Cada icono se pinta como máscara para que tome el color del tema. */
-const AYUDAS = [
-  { iconos: [{ src: cruz, nombre: 'Cruz' }], texto: 'Elegir' },
-  { iconos: [{ src: circulo, nombre: 'Círculo' }], texto: 'Atrás' },
-  { iconos: [{ src: l1, nombre: 'L1' }, { src: r1, nombre: 'R1' }], texto: 'Cambiar pestaña' },
-  { iconos: [{ src: cruceta, nombre: 'Cruceta' }], texto: 'Moverse y ajustar' },
-]
+const AYUDAS = computed(() => [
+  { iconos: [{ src: cruz, nombre: t('general.pie.cruz') }], texto: t('general.pie.elegir') },
+  { iconos: [{ src: circulo, nombre: t('general.pie.circulo') }], texto: t('general.pie.atras') },
+  { iconos: [{ src: l1, nombre: 'L1' }, { src: r1, nombre: 'R1' }], texto: t('general.pie.cambiarPestana') },
+  { iconos: [{ src: cruceta, nombre: t('general.pie.cruceta') }], texto: t('general.pie.moverse') },
+])
 
 /** Lo que ven los juegos ahora mismo, para saberlo de un vistazo. */
 const emulacion = computed(() => {
   const m = mando.value
   if (!m?.conectado) return null
-  if (m.emulando) return `Emulando ${m.emulando}`
-  return `${m.tipo === 'dualshock4' ? 'DualShock 4' : 'DualSense'} real, sin emular`
+  if (m.emulando) return t('general.pie.emulando', { modelo: m.emulando })
+  return t('general.pie.sinEmular', { modelo: m.tipo === 'dualshock4' ? 'DualShock 4' : 'DualSense' })
 })
 
 const servicios = computed(() => {
   const { vigemBus, hidHide } = estadoApp.value.servicios
-  const texto = `ViGEmBus ${vigemBus ? 'instalado' : 'no instalado'} · HidHide ${hidHide ? 'activo' : 'inactivo'}`
+  const texto = t('general.pie.servicios', {
+    vigem: t(vigemBus ? 'general.pie.instalado' : 'general.pie.noInstalado'),
+    hidhide: t(hidHide ? 'general.pie.activo' : 'general.pie.inactivo'),
+  })
   return emulacion.value ? `${emulacion.value} · ${texto}` : texto
 })
 </script>

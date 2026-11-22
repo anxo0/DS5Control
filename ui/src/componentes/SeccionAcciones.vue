@@ -18,15 +18,16 @@ import ControlNumero from './ControlNumero.vue'
 import GrabadorMacro from './GrabadorMacro.vue'
 import IconoMando from './IconoMando.vue'
 import InterruptorFila from './InterruptorFila.vue'
+import { t } from '../i18n'
 
-const TIPOS: { id: TipoAccion; nombre: string }[] = [
-  { id: 'macro', nombre: 'Macro' },
-  { id: 'tecla', nombre: 'Pulsar tecla' },
-  { id: 'programa', nombre: 'Abrir programa' },
-  { id: 'perfil', nombre: 'Cambiar de perfil' },
-  { id: 'bateria', nombre: 'Ver batería' },
-  { id: 'desconectar', nombre: 'Apagar mando' },
-  { id: 'giroscopio', nombre: 'Calibrar giroscopio' },
+const TIPOS: { id: TipoAccion; clave: string }[] = [
+  { id: 'macro', clave: 'secciones.acciones.tipo.macro' },
+  { id: 'tecla', clave: 'secciones.acciones.tipo.tecla' },
+  { id: 'programa', clave: 'secciones.acciones.tipo.programa' },
+  { id: 'perfil', clave: 'secciones.acciones.tipo.perfil' },
+  { id: 'bateria', clave: 'secciones.acciones.tipo.bateria' },
+  { id: 'desconectar', clave: 'secciones.acciones.tipo.desconectar' },
+  { id: 'giroscopio', clave: 'secciones.acciones.tipo.giroscopio' },
 ]
 
 const CONTROLES = [
@@ -73,7 +74,7 @@ watch(archivoElegido, (ruta) => {
   if (ruta && form.value) form.value.detalles = ruta
 })
 
-const tipoDe = (a: AccionEspecial) => TIPOS.find((t) => t.id === a.tipo)?.nombre ?? 'Otra'
+const tipoDe = (a: AccionEspecial) => t(TIPOS.find((x) => x.id === a.tipo)?.clave ?? 'secciones.acciones.tipo.otra')
 const editable = (a: AccionEspecial) => a.tipo !== 'otra'
 
 const valido = computed(() => {
@@ -122,14 +123,14 @@ function guardar() {
 
 <template>
   <main class="seccion" data-atras="[aria-current='page']">
-    <h1>Acciones</h1>
-    <p class="nota">Macros y atajos que se lanzan con un botón. Se activan por perfil.</p>
+    <h1>{{ t('secciones.acciones.titulo') }}</h1>
+    <p class="nota">{{ t('secciones.acciones.nota') }}</p>
 
-    <p v-if="!conectado" class="nota">Conecta un mando para ver las acciones.</p>
+    <p v-if="!conectado" class="nota">{{ t('secciones.acciones.sinMando') }}</p>
 
     <template v-else-if="!form">
-      <button class="principal" data-foco-inicial @click="nueva">Nueva acción</button>
-      <p v-if="!acciones.length" class="nota">Aún no hay acciones.</p>
+      <button class="principal" data-foco-inicial @click="nueva">{{ t('secciones.acciones.nueva') }}</button>
+      <p v-if="!acciones.length" class="nota">{{ t('secciones.acciones.vacio') }}</p>
       <ul class="lista">
         <li v-for="a in acciones" :key="a.nombre">
           <InterruptorFila :etiqueta="a.nombre" :activo="a.activa" @cambiar="activarAccion(a.nombre, $event)" />
@@ -141,8 +142,8 @@ function guardar() {
             </template>
           </p>
           <div class="botones">
-            <button v-if="editable(a)" class="secundario" @click="editar(a)">Editar</button>
-            <button class="secundario" @click="borrarAccion(a.nombre)">Borrar</button>
+            <button v-if="editable(a)" class="secundario" @click="editar(a)">{{ t('secciones.acciones.editar') }}</button>
+            <button class="secundario" @click="borrarAccion(a.nombre)">{{ t('secciones.acciones.borrar') }}</button>
           </div>
         </li>
       </ul>
@@ -150,28 +151,28 @@ function guardar() {
 
     <form v-else class="formulario" @submit.prevent="guardar">
       <label class="campo">
-        <span>Nombre</span>
+        <span>{{ t('secciones.acciones.nombre') }}</span>
         <input v-model="form.nombre" type="text" maxlength="60" data-foco-inicial />
       </label>
 
       <div class="campo">
-        <span>Qué hace</span>
+        <span>{{ t('secciones.acciones.queHace') }}</span>
         <div class="chips">
           <button
-            v-for="t in TIPOS"
-            :key="t.id"
+            v-for="tp in TIPOS"
+            :key="tp.id"
             type="button"
-            :class="{ activa: form.tipo === t.id }"
-            :aria-pressed="form.tipo === t.id"
-            @click="form.tipo = t.id; form.detalles = ''"
+            :class="{ activa: form.tipo === tp.id }"
+            :aria-pressed="form.tipo === tp.id"
+            @click="form.tipo = tp.id; form.detalles = ''"
           >
-            {{ t.nombre }}
+            {{ t(tp.clave) }}
           </button>
         </div>
       </div>
 
       <div class="campo">
-        <span>Se lanza con</span>
+        <span>{{ t('secciones.acciones.seLanzaCon') }}</span>
         <div class="chips">
           <button
             v-for="[id, nombre] in CONTROLES"
@@ -188,28 +189,28 @@ function guardar() {
 
       <template v-if="form.tipo === 'macro'">
         <GrabadorMacro :pasos="form.pasos" @cambiar="form.pasos = $event" />
-        <InterruptorFila etiqueta="Repetir mientras se mantiene" :activo="form.repetir" @cambiar="form.repetir = $event" />
+        <InterruptorFila :etiqueta="t('secciones.acciones.repetir')" :activo="form.repetir" @cambiar="form.repetir = $event" />
       </template>
 
       <div v-else-if="form.tipo === 'tecla'" class="campo">
-        <span>Tecla{{ teclaElegida[0] ? `: ${nombreTecla(teclaElegida[0])}` : '' }}</span>
+        <span>{{ t('secciones.acciones.tecla') }}{{ teclaElegida[0] ? `: ${nombreTecla(teclaElegida[0])}` : '' }}</span>
         <GrabadorMacro solo-una-tecla :pasos="[]" @cambiar="form.detalles = String($event[0])" />
       </div>
 
       <template v-else-if="form.tipo === 'programa'">
         <label class="campo">
-          <span>Programa</span>
+          <span>{{ t('secciones.acciones.programa') }}</span>
           <input v-model="form.detalles" type="text" />
         </label>
-        <button type="button" class="secundario" @click="elegirPrograma">Buscar programa</button>
+        <button type="button" class="secundario" @click="elegirPrograma">{{ t('secciones.acciones.buscarPrograma') }}</button>
         <label class="campo">
-          <span>Argumentos</span>
+          <span>{{ t('secciones.acciones.argumentos') }}</span>
           <input v-model="form.extra" type="text" />
         </label>
       </template>
 
       <div v-else-if="form.tipo === 'perfil'" class="campo">
-        <span>Perfil</span>
+        <span>{{ t('secciones.acciones.perfil') }}</span>
         <div class="chips">
           <button
             v-for="p in estadoApp.perfiles"
@@ -225,13 +226,13 @@ function guardar() {
       </div>
 
       <div v-if="USAN_RETARDO.includes(form.tipo)" class="fila">
-        <span>{{ form.tipo === 'programa' ? 'Espera antes de abrir' : 'Mantener pulsado' }} (segundos)</span>
-        <ControlNumero etiqueta="Segundos" :valor="form.retardo" :min="0" :max="60" :paso="0.5" @cambiar="form.retardo = $event" />
+        <span>{{ form.tipo === 'programa' ? t('secciones.acciones.esperaAbrir') : t('secciones.acciones.mantener') }} ({{ t('secciones.acciones.segundosMin') }})</span>
+        <ControlNumero :etiqueta="t('secciones.acciones.segundos')" :valor="form.retardo" :min="0" :max="60" :paso="0.5" @cambiar="form.retardo = $event" />
       </div>
 
       <div class="botones">
-        <button type="submit" class="principal" :disabled="!valido">Guardar</button>
-        <button type="button" class="secundario" @click="form = null">Cancelar</button>
+        <button type="submit" class="principal" :disabled="!valido">{{ t('secciones.acciones.guardar') }}</button>
+        <button type="button" class="secundario" @click="form = null">{{ t('secciones.acciones.cancelar') }}</button>
       </div>
     </form>
   </main>
@@ -261,10 +262,11 @@ h1 {
   font-size: 14px;
 }
 
+/* Las acciones llenan el ancho en columnas: cada fila sigue siendo corta y fácil de leer. */
 .lista {
   display: grid;
-  gap: 16px;
-  max-width: 640px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px 32px;
   margin: 0;
   padding: 0;
   list-style: none;

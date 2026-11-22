@@ -1,0 +1,40 @@
+name: Rust
+
+# Checks the Rust version while it is being built. It publishes nothing: releases still come
+# from the C# version (release.yml) until the switch.
+on:
+  push:
+    paths:
+      - "rust/**"
+      - "ui/**"
+      - ".github/workflows/rust.yml"
+  pull_request:
+    paths:
+      - "rust/**"
+      - "ui/**"
+      - ".github/workflows/rust.yml"
+
+jobs:
+  rust:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - name: Interface
+      working-directory: ui
+      run: |
+        npm ci
+        npm run build
+    - name: Toolchain
+      run: rustup component add clippy rustfmt
+    - name: Format
+      working-directory: rust
+      run: cargo fmt --all --check
+    - name: Lint
+      working-directory: rust
+      run: cargo clippy --workspace --all-targets -- -D warnings
+    - name: Tests
+      working-directory: rust
+      run: cargo test --workspace

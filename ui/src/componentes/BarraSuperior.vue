@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { conectado, controlarVentana, enVentana, mando, ocultar } from '../estado/app'
 import { PALETAS, paleta } from '../estado/paleta'
+import { t } from '../i18n'
 
 const NOMBRE_PRODUCTO = 'DS5Control'
 
@@ -9,8 +10,8 @@ const CONEXIONES = { bluetooth: 'Bluetooth', usb: 'USB' } as const
 
 const resumen = computed(() => {
   const m = mando.value
-  if (!m) return 'Ningún mando conectado'
-  if (!m.conectado) return `${m.nombre} · Desconectado`
+  if (!m) return t('general.barra.sinMando')
+  if (!m.conectado) return t('general.barra.desconectado', { nombre: m.nombre })
   const partes = [m.nombre, CONEXIONES[m.conexion]]
   if (m.bateria !== null) partes.push(`${m.bateria}%`)
   return partes.join(' · ')
@@ -31,17 +32,17 @@ const logo = computed(() => PALETAS.find((p) => p.id === paleta.value)!.logo)
       <span>{{ resumen }}</span>
     </div>
     <div v-if="enVentana" class="ventana">
-      <button aria-label="Minimizar" @click="controlarVentana('minimizar')">
+      <button :aria-label="t('general.barra.minimizar')" @click="controlarVentana('minimizar')">
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7h10" /></svg>
       </button>
-      <button aria-label="Maximizar" @click="controlarVentana('maximizar')">
+      <button :aria-label="t('general.barra.maximizar')" @click="controlarVentana('maximizar')">
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2.5" y="2.5" width="9" height="9" rx="1.5" /></svg>
       </button>
-      <button class="cerrar" aria-label="Ocultar en segundo plano" @click="ocultar">
+      <button class="cerrar" :aria-label="t('general.barra.ocultarFondo')" @click="ocultar">
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" /></svg>
       </button>
     </div>
-    <button v-else class="ocultar" @click="ocultar">Ocultar</button>
+    <button v-else class="ocultar" @click="ocultar">{{ t('general.barra.ocultar') }}</button>
   </header>
 </template>
 

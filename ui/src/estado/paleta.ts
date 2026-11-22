@@ -3,12 +3,13 @@ import clasico from '../assets/logo/ds5control-clasico.svg'
 import azul from '../assets/logo/ds5control-azul.svg'
 import fuego from '../assets/logo/ds5control-fuego.svg'
 import menta from '../assets/logo/ds5control-menta.svg'
+import { t } from '../i18n'
 
 export const PALETAS = [
-  { id: 'fuego', nombre: 'Fuego', logo: fuego },
-  { id: 'azul', nombre: 'Azul', logo: azul },
-  { id: 'menta', nombre: 'Menta', logo: menta },
-  { id: 'clasico', nombre: 'Clásico', logo: clasico },
+  { id: 'fuego', get nombre() { return t('general.paleta.fuego') }, logo: fuego },
+  { id: 'azul', get nombre() { return t('general.paleta.azul') }, logo: azul },
+  { id: 'menta', get nombre() { return t('general.paleta.menta') }, logo: menta },
+  { id: 'clasico', get nombre() { return t('general.paleta.clasico') }, logo: clasico },
 ] as const
 
 export type Paleta = (typeof PALETAS)[number]['id']

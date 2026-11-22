@@ -3,17 +3,23 @@ import { computed } from 'vue'
 import { bateriaBaja, conectado, mando } from '../estado/app'
 import IndicadorBateria from './IndicadorBateria.vue'
 import DibujoMando from './DibujoMando.vue'
+import { t } from '../i18n'
 
-const titulo = computed(() => mando.value?.nombre ?? 'Conecta tu mando')
+const titulo = computed(() => mando.value?.nombre ?? t('mando.panel.conecta'))
 
 const detalle = computed(() => {
   const m = mando.value
-  if (!m) return 'Aún no hay ningún mando. En cuanto conectes uno, aparecerá aquí.'
-  if (!m.conectado) return 'Se ha desconectado. Enciéndelo o conéctalo por USB para seguir.'
-  if (bateriaBaja.value) return 'Batería baja. Conéctalo por USB pronto.'
-  const emulacion = m.emulando ? `emulando un mando de ${m.emulando}` : 'sin emulación'
-  if (m.cargando) return `Cargando y ${emulacion}`
-  return `Conectado y ${emulacion}`
+  if (!m) return t('mando.panel.sinMando')
+  if (!m.conectado) return t('mando.panel.desconectado')
+  if (bateriaBaja.value) return t('mando.panel.bateriaBaja')
+  if (m.cargando) {
+    return m.emulando
+      ? t('mando.panel.cargandoEmulando', { mando: m.emulando })
+      : t('mando.panel.cargandoSinEmulacion')
+  }
+  return m.emulando
+    ? t('mando.panel.conectadoEmulando', { mando: m.emulando })
+    : t('mando.panel.conectadoSinEmulacion')
 })
 </script>
 

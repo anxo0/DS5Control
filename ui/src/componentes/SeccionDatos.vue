@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
-import { conectado, diagnostico, mando, pedirDiagnostico, pedirTelemetria } from '../estado/app'
+import { cargandoDiagnostico, conectado, diagnostico, mando, pedirDiagnostico, pedirTelemetria } from '../estado/app'
 import { iconoDe } from '../mandos/iconos'
 import IconoMando from './IconoMando.vue'
 import VistaDatos from './VistaDatos.vue'
+import { local, t } from '../i18n'
 
 onMounted(() => {
   pedirTelemetria(true)
@@ -26,61 +27,91 @@ function duracion(segundos: number) {
   const dias = Math.floor(segundos / 86400)
   const horas = Math.floor((segundos % 86400) / 3600)
   const minutos = Math.floor((segundos % 3600) / 60)
-  return dias ? `${dias} d ${horas} h` : horas ? `${horas} h ${minutos} min` : `${minutos} min`
+  return dias
+    ? t('secciones.datos.duracion.dh', { d: dias, h: horas })
+    : horas
+      ? t('secciones.datos.duracion.hm', { h: horas, m: minutos })
+      : t('secciones.datos.duracion.m', { m: minutos })
 }
 
-const numero = (v: number) => v.toLocaleString('es-ES')
+const numero = (v: number) => v.toLocaleString(local.value)
+
+/** Mientras llega el diagnóstico, las tarjetas salen con su título y huecos donde irán los datos. */
+const cargando = computed(() => cargandoDiagnostico.value && !diagnostico.value)
+const esqueleto = [
+  { titulo: 'secciones.datos.tiempoUso', filas: 4, grande: true },
+  { titulo: 'secciones.datos.errores', filas: 3, grande: false },
+  { titulo: 'secciones.datos.pulsaciones', filas: 6, grande: false },
+  { titulo: 'secciones.datos.sticks', filas: 4, grande: false },
+  { titulo: 'secciones.datos.conexion', filas: 3, grande: false },
+]
 </script>
 
 <template>
   <main class="seccion" data-atras="[aria-current='page']">
     <header>
-      <h1>Datos</h1>
-      <button data-foco-inicial :disabled="!conectado" @click="pedirDiagnostico()">Actualizar</button>
+      <h1>{{ t('secciones.datos.titulo') }}</h1>
+      <button data-foco-inicial :disabled="!conectado" @click="pedirDiagnostico()">{{ t('secciones.datos.actualizar') }}</button>
     </header>
 
-    <p v-if="!conectado" class="nota">Conecta un mando para ver sus datos.</p>
+    <p v-if="!conectado" class="nota">{{ t('secciones.datos.sinMando') }}</p>
 
     <div v-else class="columnas">
       <section class="tarjeta destacada">
-        <h2>Batería</h2>
+        <h2>{{ t('secciones.datos.bateria') }}</h2>
         <div class="voltaje">
-          <strong>{{ voltios === null ? '...' : `${voltios.toFixed(2)} V` }}</strong>
-          <span>voltaje ahora</span>
+          <span v-if="voltios === null && cargando" class="hueso voltios" />
+          <strong v-else>{{ voltios === null ? '...' : `${voltios.toFixed(2)} V` }}</strong>
+          <span>{{ t('secciones.datos.voltajeAhora') }}</span>
         </div>
-        <p class="nota">Cambia según lo cargada que esté. No indica la salud de la batería.</p>
+        <p class="nota">{{ t('secciones.datos.voltajeNota') }}</p>
+        <dl v-if="cargando" aria-hidden="true">
+          <div v-for="n in 3" :key="n"><span class="hueso" :style="{ width: `${48 + n * 9}%` }" /><span class="hueso dato" /></div>
+        </dl>
         <dl v-if="uso">
-          <div><dt>Cargas registradas</dt><dd>{{ numero(uso.ciclosCarga) }}</dd></div>
-          <div><dt>Cargas hasta el 100 %</dt><dd>{{ numero(uso.cargasCompletas) }}</dd></div>
-          <div><dt>Tiempo total cargando</dt><dd>{{ duracion(uso.carga) }}</dd></div>
+          <div><dt>{{ t('secciones.datos.cargas') }}</dt><dd>{{ numero(uso.ciclosCarga) }}</dd></div>
+          <div><dt>{{ t('secciones.datos.cargasCompletas') }}</dt><dd>{{ numero(uso.cargasCompletas) }}</dd></div>
+          <div><dt>{{ t('secciones.datos.tiempoCargando') }}</dt><dd>{{ duracion(uso.carga) }}</dd></div>
         </dl>
       </section>
 
       <section class="tarjeta">
-        <h2>Ahora mismo</h2>
+        <h2>{{ t('secciones.datos.ahora') }}</h2>
         <VistaDatos />
       </section>
 
+      <template v-if="cargando">
+        <section v-for="e in esqueleto" :key="e.titulo" class="tarjeta" aria-busy="true">
+          <h2>{{ t(e.titulo) }}</h2>
+          <span v-if="e.grande" class="hueso enorme-hueco" />
+          <dl aria-hidden="true">
+            <div v-for="n in e.filas" :key="n">
+              <span class="hueso" :style="{ width: `${40 + ((n * 17) % 35)}%` }" /><span class="hueso dato" />
+            </div>
+          </dl>
+        </section>
+      </template>
+
       <section v-if="uso" class="tarjeta">
-        <h2>Tiempo de uso</h2>
+        <h2>{{ t('secciones.datos.tiempoUso') }}</h2>
         <p class="enorme">{{ duracion(uso.activo) }}</p>
         <dl>
-          <div><dt>Registros</dt><dd>{{ numero(uso.registros) }}</dd></div>
-          <div><dt>Motores hápticos</dt><dd>{{ duracion(uso.haptico) }}</dd></div>
-          <div><dt>Gatillo izquierdo</dt><dd>{{ duracion(uso.gatilloIzq) }}</dd></div>
-          <div><dt>Gatillo derecho</dt><dd>{{ duracion(uso.gatilloDer) }}</dd></div>
+          <div><dt>{{ t('secciones.datos.registros') }}</dt><dd>{{ numero(uso.registros) }}</dd></div>
+          <div><dt>{{ t('secciones.datos.hapticos') }}</dt><dd>{{ duracion(uso.haptico) }}</dd></div>
+          <div><dt>{{ t('secciones.datos.gatilloIzq') }}</dt><dd>{{ duracion(uso.gatilloIzq) }}</dd></div>
+          <div><dt>{{ t('secciones.datos.gatilloDer') }}</dt><dd>{{ duracion(uso.gatilloDer) }}</dd></div>
         </dl>
       </section>
 
       <section v-if="uso" class="tarjeta">
-        <h2>Errores registrados: {{ numero(totalErrores) }}</h2>
+        <h2>{{ t('secciones.datos.erroresTotal', { n: numero(totalErrores) }) }}</h2>
         <dl>
           <div v-for="f in uso.errores" :key="f.nombre"><dt>{{ f.nombre }}</dt><dd>{{ numero(f.valor) }}</dd></div>
         </dl>
       </section>
 
       <section v-if="uso" class="tarjeta">
-        <h2>Pulsaciones</h2>
+        <h2>{{ t('secciones.datos.pulsaciones') }}</h2>
         <ul class="pulsaciones">
           <li v-for="p in pulsaciones" :key="p.nombre">
             <IconoMando v-if="iconoDe(p.nombre)" :control="p.nombre" :tamano="20" />
@@ -92,22 +123,25 @@ const numero = (v: number) => v.toLocaleString('es-ES')
       </section>
 
       <section v-if="uso" class="tarjeta">
-        <h2>Sticks</h2>
+        <h2>{{ t('secciones.datos.sticks') }}</h2>
         <dl>
           <div v-for="f in uso.sticks" :key="f.nombre"><dt>{{ f.nombre }}</dt><dd>{{ numero(f.valor) }}</dd></div>
         </dl>
       </section>
 
       <section v-if="uso" class="tarjeta">
-        <h2>Conexión</h2>
+        <h2>{{ t('secciones.datos.conexion') }}</h2>
         <dl>
           <div v-for="f in uso.conexion" :key="f.nombre"><dt>{{ f.nombre }}</dt><dd>{{ numero(f.valor) }}</dd></div>
         </dl>
       </section>
 
       <section class="tarjeta">
-        <h2>Fábrica</h2>
-        <p v-if="!diagnostico" class="nota">Leyendo el mando...</p>
+        <h2>{{ t('secciones.datos.fabrica') }}</h2>
+        <dl v-if="!diagnostico && cargando" aria-busy="true">
+          <div v-for="n in 6" :key="n"><span class="hueso" :style="{ width: `${36 + ((n * 13) % 30)}%` }" /><span class="hueso dato largo" /></div>
+        </dl>
+        <p v-else-if="!diagnostico" class="nota">{{ t('secciones.datos.sinFabrica') }}</p>
         <dl v-else class="largos">
           <div v-for="f in diagnostico.fabrica" :key="f.nombre"><dt>{{ f.nombre }}</dt><dd>{{ f.valor }}</dd></div>
         </dl>
@@ -266,5 +300,50 @@ dd {
 output {
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/* Esqueleto: huecos del tamaño del texto que va a ocupar su sitio, con un latido suave. */
+.hueso {
+  display: block;
+  height: 0.9em;
+  border-radius: 4px;
+  background: var(--ground);
+  animation: latido 1.4s ease-in-out infinite;
+}
+
+dl .hueso {
+  align-self: center;
+}
+
+.hueso.dato {
+  width: 3.5em;
+}
+
+.hueso.largo {
+  width: 7em;
+}
+
+.hueso.voltios {
+  width: 4.2em;
+  height: 34px;
+  border-radius: 6px;
+}
+
+.hueso.enorme-hueco {
+  width: 6em;
+  height: 34px;
+  border-radius: 6px;
+}
+
+@keyframes latido {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hueso {
+    animation: none;
+  }
 }
 </style>

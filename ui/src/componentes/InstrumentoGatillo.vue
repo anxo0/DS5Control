@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InstrumentoRespuesta from './InstrumentoRespuesta.vue'
+import { t } from '../i18n'
 
 defineProps<{
   recorrido: number
@@ -12,14 +13,14 @@ defineProps<{
 
 <template>
   <div class="instrumento">
-    <div class="carril" role="img" aria-label="Recorrido del gatillo y zonas ajustadas">
+    <div class="carril" role="img" :aria-label="t('mando.gatillo.aria')">
       <span class="muerta" :style="{ width: `${muerta * 100}%` }" />
       <span class="fuera" :style="{ left: `${maxima * 100}%` }" />
       <span class="lleno" :style="{ transform: `scaleX(${recorrido})` }" />
     </div>
     <ul class="leyenda">
-      <li><span class="m muerta" />No hace nada</li>
-      <li><span class="m lleno" />Lo que pulsas</li>
+      <li><span class="m muerta" />{{ t('mando.gatillo.noHaceNada') }}</li>
+      <li><span class="m lleno" />{{ t('mando.gatillo.loQuePulsas') }}</li>
     </ul>
     <InstrumentoRespuesta :entrada="recorrido" :muerta="muerta" :maxima="maxima" :curva="curva" :personalizada="personalizada" />
   </div>

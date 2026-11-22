@@ -1,8 +1,18 @@
 import { computed, ref, shallowRef } from 'vue'
+import { fijarIdioma } from '../i18n'
 import { crearPuente } from '../bridge'
-import type { Diagnostico, Emulacion, AccionEspecial, AccionNueva, AjusteAvanzado, AjustesMando, AutoPerfil, SeccionAvanzada, Comando, EfectoGatillo, EstadoApp, EstadoMando, Gatillo, GrupoAvanzado } from '../bridge'
+import type { Diagnostico, Juego, Emulacion, AccionEspecial, AccionNueva, AjusteAvanzado, AjustesMando, AutoPerfil, SeccionAvanzada, Comando, EfectoGatillo, EstadoApp, EstadoMando, Gatillo, GrupoAvanzado } from '../bridge'
 
-export type Seccion = 'mando' | 'botones' | 'perfiles' | 'acciones' | 'avanzado' | 'datos' | 'registro' | 'ajustes'
+export type Seccion =
+  | 'mando'
+  | 'juegos'
+  | 'botones'
+  | 'perfiles'
+  | 'acciones'
+  | 'avanzado'
+  | 'datos'
+  | 'registro'
+  | 'ajustes'
 export type Pestana = 'luz' | 'vibracion' | 'gatillos' | 'sticks'
 export type Prueba = 'vibracion' | 'gatillos'
 
@@ -36,6 +46,12 @@ export const archivoElegido = ref('')
 export const generales = shallowRef<SeccionAvanzada[]>([])
 export const autoPerfiles = shallowRef<AutoPerfil[]>([])
 export const diagnostico = shallowRef<Diagnostico | null>(null)
+/** Se ha pedido el diagnóstico y todavía no ha llegado. */
+export const cargandoDiagnostico = shallowRef(false)
+/** null hasta que el host contesta; luego, los juegos que encontró. */
+export const juegos = shallowRef<Juego[] | null>(null)
+/** El juego que se acaba de pedir abrir, para enseñar que va en camino. */
+export const lanzando = ref<string | null>(null)
 
 export const ajustesLocales = shallowRef<AjustesMando | null>(null)
 let ultimoCambio = -Infinity
@@ -54,6 +70,7 @@ export const bateriaBaja = computed(() => {
 
 export function recibirEstado(estado: EstadoApp) {
   estadoApp.value = estado
+  fijarIdioma(estado.idioma)
   const actual = mando.value
   if (actual) yaHuboMando.value = true
   if (!actual) ajustesLocales.value = null
@@ -159,7 +176,18 @@ export function cambiarOpcion(id: string, valor: AjusteAvanzado['valor']) {
 export const instalarVigem = () => puente.enviar({ tipo: 'instalarVigem' })
 export const instalarHidHide = () => puente.enviar({ tipo: 'instalarHidHide' })
 export const rechazarHidHide = () => puente.enviar({ tipo: 'rechazarHidHide' })
-export const pedirDiagnostico = () => puente.enviar({ tipo: 'pedirDiagnostico' })
+export function pedirDiagnostico() {
+  cargandoDiagnostico.value = true
+  puente.enviar({ tipo: 'pedirDiagnostico' })
+}
+export const pedirJuegos = () => puente.enviar({ tipo: 'pedirJuegos' })
+let temporizadorLanzando: ReturnType<typeof setTimeout> | undefined
+export function jugar(id: string) {
+  puente.enviar({ tipo: 'jugar', id })
+  lanzando.value = id
+  clearTimeout(temporizadorLanzando)
+  temporizadorLanzando = setTimeout(() => (lanzando.value = null), 6000)
+}
 export const pedirTelemetria = (activo: boolean) => puente.enviar({ tipo: 'telemetria', activo })
 
 export const cargarGenerales = () => puente.enviar({ tipo: 'pedirGenerales' })

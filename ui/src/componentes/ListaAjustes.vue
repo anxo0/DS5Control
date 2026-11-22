@@ -7,6 +7,7 @@ import ControlNumero from './ControlNumero.vue'
 import EditorCurva from './EditorCurva.vue'
 import IconoMando from './IconoMando.vue'
 import InterruptorFila from './InterruptorFila.vue'
+import { t } from '../i18n'
 
 defineProps<{ secciones: SeccionAvanzada[]; columnas?: boolean }>()
 const emit = defineEmits<{ cambiar: [id: string, valor: AjusteAvanzado['valor']] }>()
@@ -15,8 +16,10 @@ const emit = defineEmits<{ cambiar: [id: string, valor: AjusteAvanzado['valor']]
 const PLEGADAS = /precisión|deriva|sensores|curva personalizada$/i
 const abiertas = ref(new Set<string>())
 
-const plegada = (s: SeccionAvanzada) => PLEGADAS.test(s.nombre) && !s.nombre.endsWith('curva personalizada')
-const cerrada = (s: SeccionAvanzada) => plegada(s) && !abiertas.value.has(s.nombre)
+/** El nombre en español: las secciones se reconocen por él sea cual sea el idioma. */
+const clave = (s: SeccionAvanzada) => s.id ?? s.nombre
+const plegada = (s: SeccionAvanzada) => PLEGADAS.test(clave(s)) && !clave(s).endsWith('curva personalizada')
+const cerrada = (s: SeccionAvanzada) => plegada(s) && !abiertas.value.has(clave(s))
 const esCurva = (a: AjusteAvanzado) => a.id.endsWith('OutputCurveIndex') || a.id.endsWith('CurveIndex')
 
 function alternar(nombre: string) {
@@ -33,8 +36,8 @@ function alternarBoton(ajuste: AjusteAvanzado, indice: number) {
 
 <template>
   <div class="tarjetas" :class="{ columnas }">
-    <section v-for="s in secciones" :key="s.nombre" class="tarjeta">
-      <button v-if="plegada(s)" class="cabecera plegable" :aria-expanded="!cerrada(s)" @click="alternar(s.nombre)">
+    <section v-for="s in secciones" :key="clave(s)" class="tarjeta">
+      <button v-if="plegada(s)" class="cabecera plegable" :aria-expanded="!cerrada(s)" @click="alternar(clave(s))">
         <h2>{{ s.nombre }}</h2>
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" :class="{ abierta: !cerrada(s) }"><path d="M3 5l4 4 4-4" /></svg>
       </button>
@@ -96,7 +99,7 @@ function alternarBoton(ajuste: AjusteAvanzado, indice: number) {
             </div>
           </div>
           <div v-else-if="a.tipo === 'botones'" class="bloque">
-            <span>{{ a.nombre }}{{ (a.valor as number[]).length ? '' : ': siempre activo' }}</span>
+            <span>{{ a.nombre }}{{ (a.valor as number[]).length ? '' : t('secciones.lista.siempreActivo') }}</span>
             <div class="chips">
               <button
                 v-for="(o, i) in a.opciones"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { diagnostico, mando } from '../estado/app'
+import { t } from '../i18n'
 
 /** Tope de las barras: los giros rápidos pasan de aquí y las barras simplemente se llenan. */
 const MAX_GIRO = 20000
@@ -26,20 +27,20 @@ const salud = computed(() => {
   const errores = uso.errores
     .filter((e) => ERRORES_DE_CARGA.includes(e.nombre))
     .reduce((s, e) => s + e.valor, 0)
-  if (errores > 0) return { texto: 'Revisar', motivo: `${errores} errores de carga registrados` }
-  const motivo = `unas ${ciclos} cargas completas equivalentes`
-  if (ciclos >= CICLOS_DESGASTE) return { texto: 'Desgastada', motivo }
-  if (ciclos >= CICLOS_A_VIGILAR) return { texto: 'A vigilar', motivo }
-  return { texto: 'Buena', motivo: `sin errores de carga y ${motivo}` }
+  if (errores > 0) return { texto: t('secciones.vista.salud.revisar'), motivo: t('secciones.vista.salud.errores', { n: errores }) }
+  const motivo = t('secciones.vista.salud.ciclos', { n: ciclos })
+  if (ciclos >= CICLOS_DESGASTE) return { texto: t('secciones.vista.salud.desgastada'), motivo }
+  if (ciclos >= CICLOS_A_VIGILAR) return { texto: t('secciones.vista.salud.vigilar'), motivo }
+  return { texto: t('secciones.vista.salud.buena'), motivo: t('secciones.vista.salud.sinErrores', { motivo }) }
 })
 
 const ESTADOS: Record<number, string> = {
-  0: 'Descargando',
-  1: 'Cargando',
-  2: 'Carga completa',
-  10: 'No carga: voltaje anómalo',
-  11: 'No carga: temperatura anómala',
-  15: 'Error de carga',
+  0: 'secciones.vista.estado.descargando',
+  1: 'secciones.vista.estado.cargando',
+  2: 'secciones.vista.estado.completa',
+  10: 'secciones.vista.estado.voltaje',
+  11: 'secciones.vista.estado.temperatura',
+  15: 'secciones.vista.estado.error',
 }
 
 const ejes = (v: { x: number; y: number; z: number }, max: number) =>
@@ -55,22 +56,22 @@ const fmt = (v: number) => (Math.abs(v) >= 100 ? Math.round(v) : v.toFixed(2))
 <template>
   <div v-if="datos" class="vista">
     <section>
-      <h3>Salud de la batería: {{ salud?.texto ?? '...' }}</h3>
-      <p v-if="salud">Estimación: {{ salud.motivo }}.</p>
+      <h3>{{ t('secciones.vista.salud', { estado: salud?.texto ?? '...' }) }}</h3>
+      <p v-if="salud">{{ t('secciones.vista.estimacion', { motivo: salud.motivo }) }}</p>
       <p :class="{ alerta: datos.bateria.estado >= 10 }">
-        {{ ESTADOS[datos.bateria.estado] ?? 'Estado desconocido' }}
+        {{ t(ESTADOS[datos.bateria.estado] ?? 'secciones.vista.estado.desconocido') }}
       </p>
     </section>
 
     <section>
-      <h3>Panel táctil</h3>
-      <svg :viewBox="`0 0 ${ANCHO_PANEL} ${ALTO_PANEL}`" role="img" aria-label="Dedos sobre el panel">
-        <circle v-for="(t, i) in datos.toques" :key="i" :cx="t.x" :cy="t.y" r="70" />
+      <h3>{{ t('secciones.vista.panel') }}</h3>
+      <svg :viewBox="`0 0 ${ANCHO_PANEL} ${ALTO_PANEL}`" role="img" :aria-label="t('secciones.vista.panel.dedos')">
+        <circle v-for="(toque, i) in datos.toques" :key="i" :cx="toque.x" :cy="toque.y" r="70" />
       </svg>
     </section>
 
     <section>
-      <h3>Giroscopio</h3>
+      <h3>{{ t('secciones.vista.giroscopio') }}</h3>
       <div v-for="e in ejes(datos.giro, MAX_GIRO)" :key="e.eje" class="eje">
         <span>{{ e.eje }}</span>
         <div class="barra"><i :style="{ transform: `scaleX(${e.relleno})` }" /></div>
@@ -79,7 +80,7 @@ const fmt = (v: number) => (Math.abs(v) >= 100 ? Math.round(v) : v.toFixed(2))
     </section>
 
     <section>
-      <h3>Acelerómetro</h3>
+      <h3>{{ t('secciones.vista.acelerometro') }}</h3>
       <div v-for="e in ejes(datos.acel, MAX_ACEL)" :key="e.eje" class="eje">
         <span>{{ e.eje }}</span>
         <div class="barra"><i :style="{ transform: `scaleX(${e.relleno})` }" /></div>
@@ -88,15 +89,15 @@ const fmt = (v: number) => (Math.abs(v) >= 100 ? Math.round(v) : v.toFixed(2))
     </section>
 
     <section>
-      <h3>Audio</h3>
+      <h3>{{ t('secciones.vista.audio') }}</h3>
       <dl>
-        <div><dt>Cascos</dt><dd>{{ datos.audio.cascos ? 'Conectados' : 'No' }}</dd></div>
-        <div><dt>Micrófono</dt><dd>{{ datos.audio.micro ? 'Conectado' : 'No' }}</dd></div>
+        <div><dt>{{ t('secciones.vista.cascos') }}</dt><dd>{{ datos.audio.cascos ? t('secciones.vista.cascos.si') : t('secciones.vista.no') }}</dd></div>
+        <div><dt>{{ t('secciones.vista.micro') }}</dt><dd>{{ datos.audio.micro ? t('secciones.vista.micro.si') : t('secciones.vista.no') }}</dd></div>
       </dl>
     </section>
 
   </div>
-  <p v-else class="nada">Estos datos solo están disponibles con un DualSense.</p>
+  <p v-else class="nada">{{ t('secciones.vista.soloDualSense') }}</p>
 </template>
 
 <style scoped>

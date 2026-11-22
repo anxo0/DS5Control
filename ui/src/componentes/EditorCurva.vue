@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import ControlNumero from './ControlNumero.vue'
+import { t } from '../i18n'
 
 const props = defineProps<{ valor: string }>()
 const emit = defineEmits<{ cambiar: [valor: string] }>()
@@ -8,10 +9,10 @@ const emit = defineEmits<{ cambiar: [valor: string] }>()
 const LINEAL = [0.25, 0.25, 0.75, 0.75]
 const TAMANO = 120
 const PUNTOS = [
-  { nombre: 'Primer punto, entrada' },
-  { nombre: 'Primer punto, salida' },
-  { nombre: 'Segundo punto, entrada' },
-  { nombre: 'Segundo punto, salida' },
+  { nombre: 'mando.curva.primeroEntrada' },
+  { nombre: 'mando.curva.primeroSalida' },
+  { nombre: 'mando.curva.segundoEntrada' },
+  { nombre: 'mando.curva.segundoSalida' },
 ]
 
 const valores = computed(() => {
@@ -33,15 +34,15 @@ function cambiar(indice: number, valor: number) {
 
 <template>
   <div class="curva">
-    <svg :viewBox="`0 0 ${TAMANO} ${TAMANO}`" role="img" aria-label="Forma de la curva">
+    <svg :viewBox="`0 0 ${TAMANO} ${TAMANO}`" role="img" :aria-label="t('mando.curva.forma')">
       <path class="guia" :d="`M0 ${TAMANO}L${TAMANO} 0`" />
       <path class="linea" :d="trazo" />
     </svg>
     <ul>
       <li v-for="(p, i) in PUNTOS" :key="p.nombre">
-        <span>{{ p.nombre }}</span>
+        <span>{{ t(p.nombre) }}</span>
         <ControlNumero
-          :etiqueta="p.nombre"
+          :etiqueta="t(p.nombre)"
           :valor="valores[i] ?? 0"
           :min="0"
           :max="1"

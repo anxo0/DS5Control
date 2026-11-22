@@ -2,6 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import IconoMando from './IconoMando.vue'
 import { estadoApp, instalarHidHide, rechazarHidHide } from '../estado/app'
+import { t } from '../i18n'
 
 /** El mismo dibujo de mando que la navegación, para que el esquema hable el idioma de la app. */
 const MANDO =
@@ -39,10 +40,10 @@ function cancelar(evento: Event) {
   <dialog ref="dialogo" class="oferta" aria-labelledby="oferta-titulo" aria-describedby="oferta-texto" @cancel="cancelar">
     <figure class="esquema" aria-hidden="true">
       <div class="carril">
-        <span class="etiqueta">Ahora</span>
+        <span class="etiqueta">{{ t('general.hidhide.ahora') }}</span>
         <div class="fuentes">
-          <span class="fuente"><svg viewBox="0 0 20 20"><path :d="MANDO" /></svg>Tu DualSense</span>
-          <span class="fuente"><svg viewBox="0 0 20 20"><path :d="MANDO" /></svg>Mando de DS5Control</span>
+          <span class="fuente"><svg viewBox="0 0 20 20"><path :d="MANDO" /></svg>{{ t('general.hidhide.tuDualSense') }}</span>
+          <span class="fuente"><svg viewBox="0 0 20 20"><path :d="MANDO" /></svg>{{ t('general.hidhide.mandoApp') }}</span>
         </div>
         <span class="flecha" />
         <span class="resultado doble">
@@ -51,10 +52,10 @@ function cancelar(evento: Event) {
         </span>
       </div>
       <div class="carril">
-        <span class="etiqueta">Con HidHide</span>
+        <span class="etiqueta">{{ t('general.hidhide.conHidHide') }}</span>
         <div class="fuentes">
-          <span class="fuente oculta"><svg viewBox="0 0 20 20"><path :d="MANDO" /></svg>Tu DualSense</span>
-          <span class="fuente"><svg viewBox="0 0 20 20"><path :d="MANDO" /></svg>Mando de DS5Control</span>
+          <span class="fuente oculta"><svg viewBox="0 0 20 20"><path :d="MANDO" /></svg>{{ t('general.hidhide.tuDualSense') }}</span>
+          <span class="fuente"><svg viewBox="0 0 20 20"><path :d="MANDO" /></svg>{{ t('general.hidhide.mandoApp') }}</span>
         </div>
         <span class="flecha" />
         <span class="resultado">
@@ -64,26 +65,25 @@ function cancelar(evento: Event) {
     </figure>
 
     <div class="cuerpo">
-      <h2 id="oferta-titulo">Que cada botón cuente una vez</h2>
+      <h2 id="oferta-titulo">{{ t('general.hidhide.titulo') }}</h2>
       <p id="oferta-texto" class="entrada">
-        Algunos juegos, como Fortnite, ven tu DualSense dos veces: el real y el que crea DS5Control.
-        Por eso un toque de R1 salta dos pestañas. HidHide esconde el real a los juegos.
+        {{ t('general.hidhide.texto') }}
       </p>
       <ul class="detalles">
-        <li>DS5Control sigue viendo tu mando; los juegos, solo el suyo.</li>
-        <li>Vuelve a mostrarlo en el modo DualSense real y al cerrar la app.</li>
-        <li>Gratuito, del mismo autor que ViGEmBus. Windows pedirá permiso de administrador.</li>
+        <li>{{ t('general.hidhide.detalle1') }}</li>
+        <li>{{ t('general.hidhide.detalle2') }}</li>
+        <li>{{ t('general.hidhide.detalle3') }}</li>
       </ul>
     </div>
 
     <footer>
       <p class="nota" aria-live="polite">
-        {{ instalando ? 'Acepta el aviso de Windows para seguir.' : 'Puedes instalarlo cuando quieras desde Ajustes.' }}
+        {{ instalando ? t('general.hidhide.aceptaAviso') : t('general.hidhide.cuandoQuieras') }}
       </p>
       <div class="acciones">
-        <button :disabled="instalando" @click="rechazarHidHide">Ahora no</button>
+        <button :disabled="instalando" @click="rechazarHidHide">{{ t('general.hidhide.ahoraNo') }}</button>
         <button class="principal" data-foco-inicial :disabled="instalando" @click="instalarHidHide">
-          {{ instalando ? 'Instalando...' : 'Instalar HidHide' }}
+          {{ instalando ? t('general.hidhide.instalando') : t('general.hidhide.instalar') }}
         </button>
       </div>
     </footer>

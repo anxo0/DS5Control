@@ -107,6 +107,13 @@ export interface EstadoMando {
   ajustes: AjustesMando
 }
 
+/** Un juego instalado que la app puede abrir. */
+export interface Juego {
+  id: string
+  titulo: string
+  portada: string | null
+}
+
 export interface AjusteAvanzado {
   id: string
   nombre: string
@@ -122,6 +129,8 @@ export interface AjusteAvanzado {
 }
 
 export interface SeccionAvanzada {
+  /** El nombre en español, que no cambia con el idioma. */
+  id?: string
   nombre: string
   ajustes: AjusteAvanzado[]
 }
@@ -156,6 +165,8 @@ export interface AutoPerfil {
 
 export interface EstadoApp {
   mandos: EstadoMando[]
+  /** El idioma elegido en Ajustes (`es`, `en`, `pt`); vacío o ausente es el de Windows. */
+  idioma?: string
   abrirConMute: boolean
   controlConMando: boolean
   ventanaVisible: boolean
@@ -186,6 +197,8 @@ export type Comando =
   | { tipo: 'instalarHidHide' }
   | { tipo: 'rechazarHidHide' }
   | { tipo: 'pedirDiagnostico' }
+  | { tipo: 'pedirJuegos' }
+  | { tipo: 'jugar'; id: string }
   | { tipo: 'telemetria'; activo: boolean }
   | { tipo: 'pedirGenerales' }
   | { tipo: 'general'; id: string; valor: AjusteAvanzado['valor'] }
@@ -226,6 +239,7 @@ export type MensajeEntrante =
   | { tipo: 'estado'; estado: EstadoApp }
   | { tipo: 'mute' }
   | { tipo: 'diagnostico'; datos: Diagnostico | null }
+  | { tipo: 'juegos'; lista: Juego[] }
   | { tipo: 'generales'; secciones: SeccionAvanzada[] }
   | { tipo: 'autoPerfiles'; lista: AutoPerfil[] }
   | { tipo: 'acciones'; acciones: AccionEspecial[] }
@@ -239,6 +253,7 @@ export interface Eventos {
   alEstado(estado: EstadoApp): void
   alMute(): void
   alDiagnostico(datos: Diagnostico | null): void
+  alJuegos(lista: Juego[]): void
   alGenerales(secciones: SeccionAvanzada[]): void
   alAutoPerfiles(lista: AutoPerfil[]): void
   alAcciones(acciones: AccionEspecial[]): void

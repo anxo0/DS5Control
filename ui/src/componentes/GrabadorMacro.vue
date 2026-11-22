@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { nombreTecla } from '../estado/teclas'
+import { t } from '../i18n'
 
 const props = defineProps<{ pasos: number[]; soloUnaTecla?: boolean }>()
 const emit = defineEmits<{ cambiar: [pasos: number[]] }>()
@@ -98,8 +99,8 @@ onBeforeUnmount(parar)
 <template>
   <div class="grabador">
     <button ref="boton" class="grabar" :class="{ activa: grabando }" @click="grabando ? parar() : empezar()">
-      <template v-if="soloUnaTecla">{{ grabando ? 'Pulsa una tecla...' : 'Elegir tecla' }}</template>
-      <template v-else>{{ grabando ? 'Parar grabación' : pasos.length ? 'Volver a grabar' : 'Grabar con teclado y ratón' }}</template>
+      <template v-if="soloUnaTecla">{{ grabando ? t('mando.macro.pulsaTecla') : t('mando.macro.elegirTecla') }}</template>
+      <template v-else>{{ grabando ? t('mando.macro.parar') : pasos.length ? t('mando.macro.volver') : t('mando.macro.grabar') }}</template>
     </button>
     <p v-if="resumen">{{ resumen }}</p>
   </div>

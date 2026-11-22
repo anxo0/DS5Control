@@ -1,0 +1,10 @@
+[package]
+name = "ds5-mapeo"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ds5-informes = { path = "../ds5-informes" }
+ds5-perfiles = { path = "../ds5-perfiles" }
+regex = { version = "1.11", default-features = false, features = ["std", "unicode-perl"] }

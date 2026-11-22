@@ -1,0 +1,8 @@
+[package]
+name = "ds5-dsu"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ds5-informes = { path = "../ds5-informes" }

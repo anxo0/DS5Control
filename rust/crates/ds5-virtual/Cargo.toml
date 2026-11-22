@@ -1,0 +1,26 @@
+[package]
+name = "ds5-virtual"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ds5-informes = { path = "../ds5-informes" }
+
+[dev-dependencies]
+ds5-hid = { path = "../ds5-hid" }
+
+[target.'cfg(windows)'.dev-dependencies]
+windows = { version = "0.62", features = ["Win32_UI_Input_XboxController"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Devices_DeviceAndDriverInstallation",
+    "Win32_Devices_Properties",
+    "Win32_Storage_FileSystem",
+    "Win32_System_IO",
+    "Win32_System_Threading",
+    "Win32_Security",
+    "Win32_UI_Input_KeyboardAndMouse",
+] }

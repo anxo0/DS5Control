@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import BloqueAutoPerfiles from './BloqueAutoPerfiles.vue'
 import { borrarPerfil, conectado, crearPerfil, estadoApp, mando, usarPerfil } from '../estado/app'
+import { t } from '../i18n'
 
 const nombre = ref('')
 const porBorrar = ref<string | null>(null)
@@ -30,20 +31,22 @@ function pedirBorrado(perfil: string) {
 
 <template>
   <main class="seccion" data-atras="[aria-current='page']">
-    <h1>Perfiles</h1>
-    <p class="ayuda">Cada perfil guarda luz, vibración, gatillos y botones.</p>
+    <h1>{{ t('secciones.perfiles.titulo') }}</h1>
+    <p class="ayuda">{{ t('secciones.perfiles.ayuda') }}</p>
 
+    <div class="reparto">
+      <div class="perfiles">
     <ul class="lista">
       <li v-for="(p, i) in estadoApp.perfiles" :key="p">
         <span class="nombre">{{ p }}</span>
-        <span v-if="mando?.perfil === p" class="uso">En uso</span>
+        <span v-if="mando?.perfil === p" class="uso">{{ t('secciones.perfiles.enUso') }}</span>
         <button
           v-else
           :disabled="!conectado"
           :data-foco-inicial="i === 0 ? '' : undefined"
           @click="usarPerfil(p)"
         >
-          Usar
+          {{ t('secciones.perfiles.usar') }}
         </button>
         <button
           class="borrar"
@@ -51,22 +54,24 @@ function pedirBorrado(perfil: string) {
           :disabled="mando?.perfil === p"
           @click="pedirBorrado(p)"
         >
-          {{ porBorrar === p ? 'Confirmar' : 'Borrar' }}
+          {{ porBorrar === p ? t('secciones.perfiles.confirmar') : t('secciones.perfiles.borrar') }}
         </button>
       </li>
     </ul>
 
     <form class="nuevo" @submit.prevent="crear">
-      <label for="nombre-perfil">Nuevo perfil, a partir del actual</label>
+      <label for="nombre-perfil">{{ t('secciones.perfiles.nuevo') }}</label>
       <div class="fila">
         <input id="nombre-perfil" v-model="nombre" maxlength="60" autocomplete="off" />
-        <button type="submit" class="crear" :disabled="!puedeCrear">Crear</button>
+        <button type="submit" class="crear" :disabled="!puedeCrear">{{ t('secciones.perfiles.crear') }}</button>
       </div>
-      <p v-if="repetido" class="error">Ya hay un perfil con ese nombre.</p>
-      <p v-else-if="invalido" class="error">El nombre no puede llevar \ / : * ? " &lt; &gt; |</p>
+      <p v-if="repetido" class="error">{{ t('secciones.perfiles.repetido') }}</p>
+      <p v-else-if="invalido" class="error">{{ t('secciones.perfiles.invalido') }}</p>
     </form>
+      </div>
 
-    <BloqueAutoPerfiles />
+      <BloqueAutoPerfiles />
+    </div>
   </main>
 </template>
 
@@ -93,11 +98,22 @@ h1 {
   color: var(--muted);
 }
 
+/* Dos columnas en pantallas anchas: los perfiles a un lado y los juegos al otro. */
+.reparto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  align-items: start;
+  gap: 24px 48px;
+}
+
+.perfiles {
+  min-width: 0;
+}
+
 .lista {
   margin: 8px 0 0;
   padding: 0;
   list-style: none;
-  max-width: 720px;
 }
 
 li {
@@ -155,7 +171,6 @@ button:disabled {
 .nuevo {
   display: grid;
   gap: 8px;
-  max-width: 720px;
   margin-top: 16px;
 }
 

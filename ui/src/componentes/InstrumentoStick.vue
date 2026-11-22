@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { respuesta } from '../mandos/curvas'
 import type { PosicionStick } from '../bridge'
 import InstrumentoRespuesta from './InstrumentoRespuesta.vue'
+import { t } from '../i18n'
 
 const LADO = 200
 const CENTRO = LADO / 2
@@ -24,7 +25,7 @@ const escala = computed(() => (entrada.value > 0 ? salida.value / entrada.value 
 
 <template>
   <div class="instrumento">
-    <svg :viewBox="`0 0 ${LADO} ${LADO}`" role="img" aria-label="Posición del stick y zonas ajustadas">
+    <svg :viewBox="`0 0 ${LADO} ${LADO}`" role="img" :aria-label="t('mando.stick.aria')">
       <circle class="aro" :cx="CENTRO" :cy="CENTRO" :r="RADIO" />
       <circle class="limite" :cx="CENTRO" :cy="CENTRO" :r="RADIO * maxima" />
       <circle class="muerta" :cx="CENTRO" :cy="CENTRO" :r="RADIO * muerta" />
@@ -34,9 +35,9 @@ const escala = computed(() => (entrada.value > 0 ? salida.value / entrada.value 
       <circle class="juego" :cx="pantalla(posicion.x * escala)" :cy="pantalla(posicion.y * escala)" r="7" />
     </svg>
     <ul class="leyenda">
-      <li><span class="m real" />Tu dedo</li>
-      <li><span class="m juego" />Lo que ve el juego</li>
-      <li><span class="m muerta" />Zona muerta</li>
+      <li><span class="m real" />{{ t('mando.stick.tuDedo') }}</li>
+      <li><span class="m juego" />{{ t('mando.stick.juego') }}</li>
+      <li><span class="m muerta" />{{ t('mando.stick.zonaMuerta') }}</li>
     </ul>
     <InstrumentoRespuesta :entrada="entrada" :muerta="muerta" :maxima="maxima" :curva="curva" :personalizada="personalizada" />
   </div>

@@ -338,3 +338,14 @@ assets/logo/tocado_por_mi.psd
 # Installer images, rendered at release time by installer/diseno/construir.ps1
 installer/piezas/
 installer/diseno/construido/
+
+# Grabaciones de la fase 0 de la mudanza a Rust (llevan la MAC del mando)
+tools/fase0/grabaciones/
+tools/fase5/referencias/
+tools/fase5/mapeo/
+tools/fase5/panel/
+publicar-rust/
+
+# The Games section is not published yet (a copy of its wiring is kept in its own folder).
+rust/crates/ds5-juegos/
+ui/src/componentes/SeccionJuegos.vue

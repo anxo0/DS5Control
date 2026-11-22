@@ -5,11 +5,12 @@ import { PALETAS, cambiarPaleta, paleta } from '../estado/paleta'
 import { cambiarTema, tema } from '../estado/tema'
 import InterruptorFila from './InterruptorFila.vue'
 import ListaAjustes from './ListaAjustes.vue'
+import { t } from '../i18n'
 
 const EMULACIONES = [
-  { id: 'xbox', nombre: 'Xbox 360', detalle: 'La opción más compatible' },
-  { id: 'ds4', nombre: 'DualShock 4', detalle: 'Muestra botones de PlayStation' },
-  { id: 'nativo', nombre: 'DualSense real', detalle: 'Gatillos y vibración del juego. Con cable' },
+  { id: 'xbox', nombre: 'secciones.ajustes.emulacion.xbox', detalle: 'secciones.ajustes.emulacion.xbox.detalle' },
+  { id: 'ds4', nombre: 'secciones.ajustes.emulacion.ds4', detalle: 'secciones.ajustes.emulacion.ds4.detalle' },
+  { id: 'nativo', nombre: 'secciones.ajustes.emulacion.nativo', detalle: 'secciones.ajustes.emulacion.nativo.detalle' },
 ] as const
 
 onMounted(cargarGenerales)
@@ -21,12 +22,12 @@ function fijarTema(valor: 'claro' | 'oscuro') {
 
 <template>
   <main class="seccion" data-atras="[aria-current='page']">
-    <h1>Ajustes</h1>
+    <h1>{{ t('secciones.ajustes.titulo') }}</h1>
 
     <section class="fila">
       <div class="etiqueta">
-        <h2>Mando en los juegos</h2>
-        <p>Cómo ven los juegos tu mando.</p>
+        <h2>{{ t('secciones.ajustes.emulacion') }}</h2>
+        <p>{{ t('secciones.ajustes.emulacion.ayuda') }}</p>
       </div>
       <div class="opciones tres">
         <button
@@ -39,31 +40,31 @@ function fijarTema(valor: 'claro' | 'oscuro') {
           :data-foco-inicial="i === 0 ? '' : undefined"
           @click="cambiarEmulacion(e.id)"
         >
-          <strong>{{ e.nombre }}</strong>
-          <span>{{ e.detalle }}</span>
+          <strong>{{ t(e.nombre) }}</strong>
+          <span>{{ t(e.detalle) }}</span>
         </button>
       </div>
     </section>
 
     <section class="fila">
       <div class="etiqueta">
-        <h2>Tema</h2>
-        <p>Aspecto de la aplicación.</p>
+        <h2>{{ t('secciones.ajustes.tema') }}</h2>
+        <p>{{ t('secciones.ajustes.tema.ayuda') }}</p>
       </div>
       <div class="opciones dos">
         <button class="opcion" :class="{ activa: tema === 'claro' }" :aria-pressed="tema === 'claro'" @click="fijarTema('claro')">
-          <strong>Claro</strong>
+          <strong>{{ t('secciones.ajustes.tema.claro') }}</strong>
         </button>
         <button class="opcion" :class="{ activa: tema === 'oscuro' }" :aria-pressed="tema === 'oscuro'" @click="fijarTema('oscuro')">
-          <strong>Oscuro</strong>
+          <strong>{{ t('secciones.ajustes.tema.oscuro') }}</strong>
         </button>
       </div>
     </section>
 
     <section class="fila">
       <div class="etiqueta">
-        <h2>Color del icono</h2>
-        <p>Se aplica a la ventana y a la barra superior.</p>
+        <h2>{{ t('secciones.ajustes.icono') }}</h2>
+        <p>{{ t('secciones.ajustes.icono.ayuda') }}</p>
       </div>
       <div class="opciones cuatro">
         <button
@@ -82,17 +83,17 @@ function fijarTema(valor: 'claro' | 'oscuro') {
 
     <section class="fila">
       <div class="etiqueta">
-        <h2>Botón de silencio</h2>
-        <p>Trae la app al frente o la oculta desde el mando.</p>
+        <h2>{{ t('secciones.ajustes.mute') }}</h2>
+        <p>{{ t('secciones.ajustes.mute.ayuda') }}</p>
       </div>
       <div class="control">
         <InterruptorFila
-          etiqueta="Abrir con el botón de silencio"
+          :etiqueta="t('secciones.ajustes.mute.abrir')"
           :activo="estadoApp.abrirConMute"
           @cambiar="cambiarAbrirConMute"
         />
         <InterruptorFila
-          etiqueta="Manejar la app con el mando"
+          :etiqueta="t('secciones.ajustes.mute.controlConMando')"
           :activo="estadoApp.controlConMando"
           @cambiar="cambiarControlConMando"
         />
@@ -100,7 +101,7 @@ function fijarTema(valor: 'claro' | 'oscuro') {
     </section>
 
     <ListaAjustes class="generales" :secciones="generales" @cambiar="cambiarGeneral" />
-    <p class="creditos">Iconos de botones por Zacksly (CC BY 3.0, zacksly.itch.io).</p>
+    <p class="creditos">{{ t('secciones.ajustes.creditos') }}</p>
   </main>
 </template>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { EstadoMando } from '../bridge'
+import { t } from '../i18n'
 
 const props = defineProps<{ mando: EstadoMando; baja: boolean }>()
 
@@ -8,9 +9,9 @@ const conLectura = computed(() => props.mando.conectado && props.mando.bateria !
 const nivel = computed(() => (conLectura.value ? (props.mando.bateria ?? 0) : 0))
 const etiqueta = computed(() => {
   if (props.mando.cargando && conLectura.value) {
-    return nivel.value === 100 ? 'Carga completa' : 'Cargando'
+    return nivel.value === 100 ? t('mando.bateria.cargaCompleta') : t('mando.bateria.cargando')
   }
-  return 'Batería'
+  return t('mando.bateria.titulo')
 })
 </script>
 
@@ -31,7 +32,7 @@ const etiqueta = computed(() => {
         {{ etiqueta }}
       </span>
       <span v-if="conLectura" class="valor">{{ nivel }}%</span>
-      <span v-else class="sin-datos">Sin datos</span>
+      <span v-else class="sin-datos">{{ t('mando.bateria.sinDatos') }}</span>
     </div>
     <div class="pista">
       <div class="carga" :style="{ width: `${nivel}%` }" />

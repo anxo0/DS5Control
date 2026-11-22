@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import type { ControlMando, EfectoGatillo, EstadoMando } from '../bridge'
 import { ajustesLocales, estadoApp, prueba } from '../estado/app'
 import { modeloDe } from '../mandos/modelos'
+import { t } from '../i18n'
 
 const props = defineProps<{
   mando: EstadoMando | null
@@ -23,10 +24,10 @@ function alPulsar(e: MouseEvent) {
 const RECORRIDO_STICK = 28
 
 const EFECTOS: Record<EfectoGatillo, string> = {
-  ninguno: 'Ninguno',
-  clicCompleto: 'Clic completo',
-  rigido: 'Rígido',
-  pulso: 'Pulso',
+  ninguno: 'mando.efecto.ninguno',
+  clicCompleto: 'mando.efecto.clicCompleto',
+  rigido: 'mando.efecto.rigido',
+  pulso: 'mando.efecto.pulso',
 }
 
 const modelo = computed(() => modeloDe(props.mando?.tipo ?? 'dualsense'))
@@ -37,8 +38,8 @@ const luz = computed(() => (props.conectado ? (props.mando?.luzActual ?? null) :
 const opacidadLuz = computed(() => 0.3 + 0.7 * ((ajustes.value?.brillo ?? 100) / 100))
 
 const descripcion = computed(() => {
-  if (!props.mando) return 'Dibujo del mando, sin ningún mando conectado'
-  return 'Mando con su barra de luz, gatillos y botón de silencio'
+  if (!props.mando) return t('mando.dibujo.sinMando')
+  return t('mando.dibujo.descripcion')
 })
 
 const resaltados = computed<ControlMando[]>(() => {
@@ -110,20 +111,20 @@ watch(
         <g text-anchor="end">
           <text class="nombre" :x="modelo.rotulos.l2.x" :y="modelo.rotulos.l2.y">L2</text>
           <text class="valor" :x="modelo.rotulos.l2.x" :y="modelo.rotulos.l2.y + 32">
-            {{ EFECTOS[ajustes.gatilloL2] }}
+            {{ t(EFECTOS[ajustes.gatilloL2]) }}
           </text>
-          <text class="nombre" :x="modelo.rotulos.luz.x" :y="modelo.rotulos.luz.y">Barra de luz</text>
+          <text class="nombre" :x="modelo.rotulos.luz.x" :y="modelo.rotulos.luz.y">{{ t('mando.dibujo.barraLuz') }}</text>
           <text class="valor" :x="modelo.rotulos.luz.x" :y="modelo.rotulos.luz.y + 32">
-            {{ luz ?? 'Apagada' }}
+            {{ luz ?? t('mando.dibujo.apagada') }}
           </text>
         </g>
         <g>
           <text class="nombre" :x="modelo.rotulos.r2.x" :y="modelo.rotulos.r2.y">R2</text>
           <text class="valor" :x="modelo.rotulos.r2.x" :y="modelo.rotulos.r2.y + 32">
-            {{ EFECTOS[ajustes.gatilloR2] }}
+            {{ t(EFECTOS[ajustes.gatilloR2]) }}
           </text>
           <text class="nombre" :x="modelo.rotulos.vibracion.x" :y="modelo.rotulos.vibracion.y">
-            Vibración
+            {{ t('mando.dibujo.vibracion') }}
           </text>
           <text class="valor" :x="modelo.rotulos.vibracion.x" :y="modelo.rotulos.vibracion.y + 32">
             {{ ajustes.vibracion }}%
@@ -131,10 +132,10 @@ watch(
         </g>
         <g v-if="modelo.rotulos.silencio" text-anchor="middle">
           <text class="nombre" :x="modelo.rotulos.silencio.x" :y="modelo.rotulos.silencio.y">
-            Silencio
+            {{ t('mando.dibujo.silencio') }}
           </text>
           <text class="valor" :x="modelo.rotulos.silencio.x" :y="modelo.rotulos.silencio.y + 32">
-            {{ estadoApp.abrirConMute ? 'Abre esta app' : 'Sin función' }}
+            {{ estadoApp.abrirConMute ? t('mando.dibujo.abreApp') : t('mando.sinFuncion') }}
           </text>
         </g>
       </template>

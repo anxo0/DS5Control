@@ -8,20 +8,21 @@ import {
   estadoApp,
   quitarAutoPerfil,
 } from '../estado/app'
+import { t } from '../i18n'
 
 onMounted(cargarAutoPerfiles)
 </script>
 
 <template>
   <section class="auto">
-    <h2>Cambiar de perfil al abrir un juego</h2>
-    <p>Elige el juego y el perfil que se pone solo. Al cerrarlo, vuelve el perfil anterior.</p>
+    <h2>{{ t('secciones.auto.titulo') }}</h2>
+    <p>{{ t('secciones.auto.ayuda') }}</p>
 
     <ul v-if="autoPerfiles.length">
       <li v-for="a in autoPerfiles" :key="a.ruta">
         <div class="cabecera">
           <strong :title="a.ruta">{{ a.nombre }}</strong>
-          <button class="quitar" @click="quitarAutoPerfil(a.ruta)">Quitar</button>
+          <button class="quitar" @click="quitarAutoPerfil(a.ruta)">{{ t('secciones.auto.quitar') }}</button>
         </div>
         <div class="chips">
           <button
@@ -37,7 +38,7 @@ onMounted(cargarAutoPerfiles)
       </li>
     </ul>
 
-    <button class="anadir" @click="anadirAutoPerfil">Añadir juego</button>
+    <button class="anadir" @click="anadirAutoPerfil">{{ t('secciones.auto.anadir') }}</button>
   </section>
 </template>
 
@@ -45,7 +46,7 @@ onMounted(cargarAutoPerfiles)
 .auto {
   display: grid;
   gap: 10px;
-  max-width: 640px;
+  min-width: 0;
 }
 
 h2 {

@@ -1,0 +1,18 @@
+[package]
+name = "ds5-servicio"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+ds5-informes = { path = "../ds5-informes" }
+ds5-hid = { path = "../ds5-hid" }
+ds5-perfiles = { path = "../ds5-perfiles" }
+ds5-mapeo = { path = "../ds5-mapeo" }
+ds5-virtual = { path = "../ds5-virtual" }
+ds5-dsu = { path = "../ds5-dsu" }
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = ["Win32_Globalization", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }

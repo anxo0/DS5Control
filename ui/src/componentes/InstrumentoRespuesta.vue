@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { respuesta, trazoCurva } from '../mandos/curvas'
+import { t } from '../i18n'
 
 const LADO = 100
 
@@ -26,15 +27,15 @@ const porcentaje = (v: number) => `${Math.round(v * 100)}%`
   <div class="respuesta">
     <dl>
       <div>
-        <dt>Mueves</dt>
+        <dt>{{ t('mando.respuesta.mueves') }}</dt>
         <dd>{{ porcentaje(entrada) }}</dd>
       </div>
       <div class="juego">
-        <dt>Le llega al juego</dt>
+        <dt>{{ t('mando.respuesta.alJuego') }}</dt>
         <dd>{{ porcentaje(salida) }}</dd>
       </div>
     </dl>
-    <svg :viewBox="`-2 -2 ${LADO + 4} ${LADO + 4}`" preserveAspectRatio="none" role="img" aria-label="Curva de respuesta">
+    <svg :viewBox="`-2 -2 ${LADO + 4} ${LADO + 4}`" preserveAspectRatio="none" role="img" :aria-label="t('mando.respuesta.curva')">
       <path class="rejilla" :d="`M0 ${LADO}H${LADO}V0M${LADO / 2} 0V${LADO}M0 ${LADO / 2}H${LADO}`" />
       <path class="ideal" :d="`M0 ${LADO}L${LADO} 0`" />
       <path class="curva" :d="trazo" />
