@@ -4,9 +4,11 @@
 <meta charset="utf-8">
 <title>DS5Control</title>
 <!--
-  El menú de clic derecho de la bandeja, con el aspecto de MenuBandeja.xaml de la versión en C#:
-  caja con bordes redondeados, elementos de 13 px con 12x8 de relleno y el color del tema.
-  La app le pasa los datos en window.__MENU__ y recibe lo que se elige por el canal "mensaje".
+  El menú de clic derecho de la bandeja, igual que MenuBandeja.xaml de la versión en C#:
+  caja de 190 px mínimo con 6 px de relleno, borde de 1 px y esquinas de 10 px; elementos de
+  13 px Segoe UI con 12x8 de relleno y esquinas de 6 px; separador de 1 px con 8x4 de margen;
+  flecha en los que tienen submenú, y los submenús desplegados al lado al pasar el ratón.
+  La app le pasa los datos con window.pintar() y coloca la ventana con window.colocar().
 -->
 <style>
   :root {
@@ -23,13 +25,18 @@
   }
   html, body {
     margin: 0;
+    width: 100%;
+    height: 100%;
     background: transparent;
     overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
+    cursor: default;
   }
   .caja {
-    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 0;
     min-width: 190px;
     box-sizing: border-box;
     padding: 6px;
@@ -37,45 +44,33 @@
     border-radius: 10px;
     background: var(--fondo);
     color: var(--texto);
-    font: 13px "Segoe UI", system-ui, sans-serif;
+    font: 13px "Segoe UI", sans-serif;
   }
-  button {
+  .caja.sub { min-width: 170px; visibility: hidden; }
+  .caja.sub.abierto { visibility: visible; }
+  .elemento {
     display: flex;
     align-items: center;
-    width: 100%;
-    gap: 16px;
     padding: 8px 12px;
-    border: 0;
     border-radius: 6px;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    text-align: left;
     white-space: nowrap;
-    cursor: default;
   }
-  button:hover, button:focus-visible {
-    background: var(--resalte);
-    outline: none;
-  }
-  button .nombre { flex: 1; }
-  button.elegido .nombre { font-weight: 600; }
-  button svg { flex: none; }
-  .linea {
-    height: 1px;
-    margin: 4px 8px;
-    background: var(--linea);
-  }
+  .elemento .nombre { flex: 1; }
+  .elemento svg { margin-left: 16px; flex: none; }
+  .elemento:hover, .elemento.desplegado { background: var(--resalte); }
+  .elemento.negrita { font-weight: 700; }
+  .elemento.apagado { opacity: 0.5; }
+  .elemento.apagado:hover { background: transparent; }
+  .linea { height: 1px; margin: 4px 8px; background: var(--linea); }
 </style>
 </head>
 <body>
-<div class="caja" id="caja" role="menu"></div>
+<div class="caja" id="menu"></div>
 <script>
   (function () {
-    const datos = window.__MENU__ || { textos: {}, mandos: [], perfiles: [] }
-    const t = datos.textos
-    if (datos.oscuro) document.documentElement.classList.add('oscuro')
-    const caja = document.getElementById('caja')
+    const menu = document.getElementById('menu')
+    let submenus = []
+    let lado = 'derecha'
 
     const enviar = (m) => {
       const tauri = window.__TAURI__
@@ -83,85 +78,116 @@
     }
     const conNumero = (plantilla, n) => String(plantilla || '').replace('{}', n)
 
-    const flecha = (haciaAtras) => {
+    // La flecha de MenuBandeja.xaml: "M0,0 L4,4 L0,8" con trazo de 1,5.
+    const flecha = () => {
       const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-      s.setAttribute('width', '6'); s.setAttribute('height', '10'); s.setAttribute('viewBox', '0 0 6 10')
+      s.setAttribute('width', '6'); s.setAttribute('height', '10'); s.setAttribute('viewBox', '-1 -1 6 10')
       const p = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-      p.setAttribute('d', haciaAtras ? 'M5 1 L1 5 L5 9' : 'M1 1 L5 5 L1 9')
+      p.setAttribute('d', 'M0,0 L4,4 L0,8')
       p.setAttribute('fill', 'none'); p.setAttribute('stroke', 'currentColor'); p.setAttribute('stroke-width', '1.5')
       s.appendChild(p)
       return s
     }
-    const elemento = (texto, alPulsar, opciones = {}) => {
-      const b = document.createElement('button')
-      b.setAttribute('role', 'menuitem')
-      if (opciones.atras) b.appendChild(flecha(true))
+
+    const elemento = (caja, texto, opciones = {}) => {
+      const d = document.createElement('div')
+      d.className = 'elemento'
+      if (opciones.negrita) d.classList.add('negrita')
+      if (opciones.apagado) d.classList.add('apagado')
       const n = document.createElement('span')
       n.className = 'nombre'
       n.textContent = texto
-      b.appendChild(n)
-      if (opciones.submenu) b.appendChild(flecha(false))
-      if (opciones.elegido) b.classList.add('elegido')
-      b.addEventListener('click', alPulsar)
-      caja.appendChild(b)
+      d.appendChild(n)
+      if (opciones.hijos) d.appendChild(flecha())
+      if (opciones.alPulsar && !opciones.apagado) d.addEventListener('click', opciones.alPulsar)
+      caja.appendChild(d)
+      return d
     }
-    const linea = () => { const d = document.createElement('div'); d.className = 'linea'; caja.appendChild(d) }
+    const linea = (caja) => { const d = document.createElement('div'); d.className = 'linea'; caja.appendChild(d) }
 
-    // Tras pintar, la app ajusta la ventana a lo que ocupa el menú.
-    const medir = () => requestAnimationFrame(() => {
-      const r = caja.getBoundingClientRect()
-      enviar({ accion: 'tamano', ancho: Math.ceil(r.width), alto: Math.ceil(r.height) })
-      const primero = caja.querySelector('button')
-      if (primero) primero.focus({ preventScroll: true })
-    })
+    const cerrarSubmenu = () => {
+      for (const s of submenus) {
+        s.caja.classList.remove('abierto')
+        s.padre.classList.remove('desplegado')
+      }
+    }
+    window.cerrarSubmenu = cerrarSubmenu
 
-    const principal = () => {
-      caja.replaceChildren()
-      elemento(t.abrir, () => enviar({ accion: 'abrir' }))
+    // Un elemento con submenú: al pasar el ratón se despliega al lado, a la altura del elemento.
+    const conSubmenu = (texto, hijos, opciones = {}) => {
+      const padre = elemento(menu, texto, { hijos: hijos.length > 0, apagado: opciones.apagado })
+      if (!hijos.length || opciones.apagado) {
+        padre.addEventListener('mouseenter', cerrarSubmenu)
+        return
+      }
+      const caja = document.createElement('div')
+      caja.className = 'caja sub'
+      for (const h of hijos) elemento(caja, h.texto, { alPulsar: h.alPulsar })
+      document.body.appendChild(caja)
+      submenus.push({ caja, padre })
+      padre.addEventListener('mouseenter', () => {
+        cerrarSubmenu()
+        const m = menu.getBoundingClientRect()
+        const p = padre.getBoundingClientRect()
+        const ancho = caja.offsetWidth
+        const alto = caja.offsetHeight
+        caja.style.left = (lado === 'derecha' ? m.right + 8 : m.left - 8 - ancho) + 'px'
+        caja.style.top = Math.max(0, Math.min(p.top - 7, window.innerHeight - alto)) + 'px'
+        caja.classList.add('abierto')
+        padre.classList.add('desplegado')
+      })
+    }
+
+    // `PopulateContextMenu`: perfiles de cada mando, Desconectar, separador, Abrir, Detener o
+    // Iniciar, separador y Salir.
+    window.pintar = (datos) => {
+      const t = datos.textos || {}
+      document.documentElement.classList.toggle('oscuro', !!datos.oscuro)
+      for (const s of submenus) s.caja.remove()
+      submenus = []
+      menu.replaceChildren()
       const mandos = datos.mandos || []
-      if (mandos.length) {
-        linea()
-        for (const m of mandos) {
-          elemento(conNumero(t.perfil, m.ranura + 1), () => perfiles(m), { submenu: true })
-        }
-        if (mandos.some((m) => m.bluetooth)) elemento(t.desconectar, desconectar, { submenu: true })
+      for (const m of mandos) {
+        conSubmenu(conNumero(t.perfil, m.ranura + 1), (datos.perfiles || []).map((nombre) => ({
+          texto: nombre,
+          alPulsar: () => enviar({ accion: 'perfil', ranura: m.ranura, nombre }),
+        })))
       }
-      linea()
-      elemento(t.salir, () => enviar({ accion: 'salir' }))
-      medir()
+      conSubmenu(t.desconectar, mandos.filter((m) => m.desconectable).map((m) => ({
+        texto: conNumero(t.mando, m.ranura + 1),
+        alPulsar: () => enviar({ accion: 'desconectar', ranura: m.ranura }),
+      })), { apagado: mandos.length === 0 })
+      linea(menu)
+      const abrir = elemento(menu, t.abrir, { negrita: true, alPulsar: () => enviar({ accion: 'abrir' }) })
+      abrir.addEventListener('mouseenter', cerrarSubmenu)
+      const servicio = elemento(menu, datos.enMarcha ? t.detener : t.iniciar, { alPulsar: () => enviar({ accion: 'servicio' }) })
+      servicio.addEventListener('mouseenter', cerrarSubmenu)
+      linea(menu)
+      const salir = elemento(menu, t.salir, { alPulsar: () => enviar({ accion: 'salir' }) })
+      salir.addEventListener('mouseenter', cerrarSubmenu)
+
+      // Lo que ocupan el menú y el submenú más grande, para que la app ajuste la ventana.
+      requestAnimationFrame(() => {
+        const anchoSub = Math.max(0, ...submenus.map((s) => s.caja.offsetWidth))
+        const altoSub = Math.max(0, ...submenus.map((s) => s.caja.offsetHeight))
+        enviar({ accion: 'tamano', anchoMenu: menu.offsetWidth, altoMenu: menu.offsetHeight, anchoSub, altoSub })
+      })
     }
 
-    const perfiles = (m) => {
-      caja.replaceChildren()
-      elemento(conNumero(t.perfil, m.ranura + 1), principal, { atras: true })
-      linea()
-      for (const nombre of datos.perfiles || []) {
-        elemento(nombre, () => enviar({ accion: 'perfil', ranura: m.ranura, nombre }), { elegido: nombre === m.perfil })
-      }
-      medir()
+    window.colocar = (o) => {
+      lado = o.lado
+      menu.style.left = o.izquierda + 'px'
+      menu.style.top = o.arriba + 'px'
     }
 
-    const desconectar = () => {
-      caja.replaceChildren()
-      elemento(t.desconectar, principal, { atras: true })
-      linea()
-      for (const m of (datos.mandos || []).filter((x) => x.bluetooth)) {
-        elemento(conNumero(t.mando, m.ranura + 1), () => enviar({ accion: 'desconectar', ranura: m.ranura }))
-      }
-      medir()
-    }
-
-    // Con el teclado: flechas para moverse, Escape para cerrar.
-    document.addEventListener('keydown', (e) => {
-      const botones = [...caja.querySelectorAll('button')]
-      const i = botones.indexOf(document.activeElement)
-      if (e.key === 'ArrowDown') { botones[(i + 1) % botones.length]?.focus(); e.preventDefault() }
-      if (e.key === 'ArrowUp') { botones[(i - 1 + botones.length) % botones.length]?.focus(); e.preventDefault() }
-      if (e.key === 'Escape') window.close()
+    // Un clic fuera de las cajas o Escape cierran el menú.
+    document.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('.caja')) enviar({ accion: 'ocultar' })
     })
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') enviar({ accion: 'ocultar' }) })
     document.addEventListener('contextmenu', (e) => e.preventDefault())
 
-    principal()
+    window.pintar(window.__MENU__ || { textos: {}, mandos: [], perfiles: [] })
   })()
 </script>
 </body>

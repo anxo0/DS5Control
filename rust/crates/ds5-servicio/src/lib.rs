@@ -266,6 +266,11 @@ impl Servicio {
         Ok(true)
     }
 
+    /// Si el motor está en marcha (no se ha parado con `parar`).
+    pub fn en_marcha(&self) -> bool {
+        self.vigia.is_some()
+    }
+
     /// Para todos los mandos y deja HidHide como estaba.
     pub fn parar(&mut self) {
         self.compartido.parar.store(true, Ordering::Relaxed);
