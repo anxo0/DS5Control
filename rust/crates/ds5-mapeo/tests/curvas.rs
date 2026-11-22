@@ -130,10 +130,7 @@ fn las_curvas_dan_lo_mismo_que_en_c() {
 /// el centro de golpe dentro del tiempo, sale el centro; pasado el tiempo, el valor de verdad.
 #[test]
 fn el_antirrebote_corta_el_cruce_rapido_del_centro() {
-    let p = Perfil::leer(include_str!(
-        "../../../../tools/fase5/perfiles/01-defecto.xml"
-    ))
-    .unwrap();
+    let p = Perfil::leer(include_str!("datos/perfil-defecto.xml")).unwrap();
     let mut a = AjustesCurvas::desde_perfil(&p.ajustes);
     a.antirrebote_ls.activo = true;
     a.ls.zona_muerta = 0;

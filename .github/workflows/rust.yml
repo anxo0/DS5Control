@@ -1,7 +1,7 @@
 name: Rust
 
-# Checks the Rust version while it is being built. It publishes nothing: releases still come
-# from the C# version (release.yml) until the switch.
+# Checks the Rust version on every push. It publishes nothing: releases are built on the PC
+# with tools/publicar-rust.ps1.
 on:
   push:
     paths:

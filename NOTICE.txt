@@ -1,6 +1,13 @@
-This project includes the source code of some third party projects. This file
-will attempt to document some third party source code that is used in the
-DS5Control source code, derived from DS4Windows, and state the original source.
+This project includes or is based on the source code of some third party projects.
+This file documents that code and states the original source. DS5Control is derived
+from DS4Windows (https://github.com/schmaldeo/DS4Windows).
+
+1€ Filter (smoothing of the gyro and the DSU motion data), ported to Rust from the
+C# version:
+http://cristal.univ-lille.fr/~casiez/1euro/OneEuroFilter.cs
+
+The C# versions of DS5Control (kept in the git history and in the 0.2.9-deprecated
+release) also included:
 
 Crc32:
 https://github.com/dariogriffo/Crc32
@@ -8,8 +15,7 @@ https://github.com/dariogriffo/Crc32
 Font Awesome:
 https://fontawesome.com/license
 
-1€ Filter (C# version):
-http://cristal.univ-lille.fr/~casiez/1euro/OneEuroFilter.cs
-
 vJoyInterfaceCS:
 https://github.com/shauleiz/vJoy/tree/master/apps/common/vJoyInterfaceCS
+
+The libraries used by the interface and their licenses are listed in ui/THIRD_PARTY.md.

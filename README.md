@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/anxo0/DS5Control/releases/latest"><img src="https://img.shields.io/github/v/release/anxo0/DS5Control?label=release&color=1f4fe0" alt="Latest release"></a>
-  <a href="COPYING"><img src="https://img.shields.io/badge/license-GPL--3.0-555" alt="License: GPL-3.0"></a>
+  <a href="LICENSE.txt"><img src="https://img.shields.io/badge/license-GPL--3.0-555" alt="License: GPL-3.0"></a>
   <img src="https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20x64-555" alt="Platform: Windows 10 and 11, 64-bit">
 </p>
 
@@ -76,7 +76,7 @@ DS5Control is a fork of [DS4Windows](https://github.com/schmaldeo/DS4Windows) wi
 
 Get the [latest release](https://github.com/anxo0/DS5Control/releases/latest) in one of two forms:
 
-- **Installer:** run `DS5Control-x.y.z-instalador.exe` and open DS5Control from the Start menu. No administrator rights needed.
+- **Installer:** run `DS5Control-x.y.z-installer.exe` and open DS5Control from the Start menu. No administrator rights needed.
 - **Portable:** unzip `DS5Control-x.y.z-portable-win-x64.zip` anywhere and run `DS5Control.exe`.
 
 Both update themselves when opened.
@@ -107,10 +107,10 @@ Measured on the same PC, with the same settings, against the last C# version (0.
 | CPU, idle | under 0.1 % | under 0.1 % |
 | Portable download | 73 MB | 13 MB |
 
-DS5Control has moved from C# to Rust piece by piece, without ever stopping working. Every green square is code that already has its Rust version and gives exactly the same result as the C# one.
+DS5Control moved from C# to Rust piece by piece, without ever stopping working, and since 0.3.0 it runs entirely on Rust. Each square is a piece of the C# code, sized by its lines: green means its Rust version is done and gives exactly the same result. The grey strip at the bottom is what was left behind on purpose, such as the old WPF interface.
 
 <p align="center">
-  <img src="tools/estado-rust/estado.svg" alt="Map of the move to Rust" width="100%">
+  <img src="tools/estado-rust/estado.svg" alt="Map of the move to Rust: every part of the C# code is done" width="100%">
 </p>
 
 ## Building
@@ -139,6 +139,6 @@ See [ui/THIRD_PARTY.md](ui/THIRD_PARTY.md) and [contributors.txt](contributors.t
 
 ## License
 
-GNU General Public License v3.0. See [COPYING](COPYING).
+GNU General Public License v3.0. See [LICENSE.txt](LICENSE.txt).
 
 Independent project, not affiliated with Sony, Microsoft or the DS4Windows authors. PlayStation, DualSense and DualShock are trademarks of Sony Interactive Entertainment. Windows and Xbox are trademarks of Microsoft.

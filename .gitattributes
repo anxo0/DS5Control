@@ -61,3 +61,14 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+###############################################################################
+# Language statistics on GitHub: since 0.3.0 the program is the Rust code in
+# rust/ and the interface in ui/. The C# version is kept for reference and the
+# tools only help to build and test, so they do not count.
+###############################################################################
+DS5Control/** linguist-vendored
+DS5ControlTests/** linguist-vendored
+DS5Control.sln linguist-vendored
+tools/** linguist-vendored
+installer/** linguist-vendored

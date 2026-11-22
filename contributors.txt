@@ -1,3 +1,9 @@
+DS5Control
+
+anxo0
+
+DS5Control is based on DS4Windows. These are the people who built DS4Windows:
+
 Travis Nickles (Ryochan7)
 Adamsw72
 Ahmed

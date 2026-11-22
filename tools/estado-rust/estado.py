@@ -23,12 +23,12 @@ LISTA = os.path.join(AQUI, "mudanza.txt")
 SALIDA = os.path.join(AQUI, "estado.svg")
 
 PIEZAS = [
-    ("mapeo", "Motor de mapeo"),
-    ("perfiles", "Perfiles y ajustes"),
-    ("mando", "Mando físico"),
-    ("virtual", "Mando virtual y HidHide"),
-    ("app", "La app"),
-    ("fuera", "No se muda"),
+    ("mapeo", "Mapping engine"),
+    ("perfiles", "Profiles and settings"),
+    ("mando", "Physical controller"),
+    ("virtual", "Virtual controller and HidHide"),
+    ("app", "The app"),
+    ("fuera", "Not moved"),
 ]
 NOMBRE_PIEZA = dict(PIEZAS)
 
@@ -49,16 +49,16 @@ HUECO = 1       # separación entre cuadraditos
 PASO = CUADRO + HUECO
 
 
-# ---------------------------------------------------------------- formato español
+# ---------------------------------------------------------------- number format
 
 def miles(n):
-    """Entero con punto de millar: 11513672 -> 11.513.672."""
-    return f"{int(n):,}".replace(",", ".")
+    """Integer with thousands separator: 11513672 -> 11,513,672."""
+    return f"{int(n):,}"
 
 
 def decimal(x, cifras=1):
-    """Número con coma decimal: 95.1 -> 95,1."""
-    return f"{x:.{cifras}f}".replace(".", ",")
+    """Number with a decimal point: 95.1."""
+    return f"{x:.{cifras}f}"
 
 
 # ---------------------------------------------------------------- datos
@@ -76,9 +76,9 @@ def leer_lista(ruta):
                 if len(partes) < 3:
                     raise SystemExit(f"mudanza.txt:{num}: falta el valor del dato")
                 nombre, valor = partes[1], " ".join(partes[2:])
-                if nombre == "estados":
+                if nombre in ("estados", "states"):
                     total = sum(int(t) for t in valor.split("+"))
-                    valor = f"{miles(total)} estados iguales que C#"
+                    valor = f"{miles(total)} identical to C#"
                 datos.append((nombre, valor))
                 continue
             if len(partes) != 3:
@@ -237,8 +237,8 @@ def dibujar_archivo(a, x, y, w, h, color_hecho, color_pendiente):
     """Rectángulo de un archivo relleno de cuadraditos."""
     salida = ['<g>']
     salida.append(
-        f'<title>{escape(a["ruta"])}: {miles(a["lineas"])} líneas, '
-        f'{decimal(a["pct"])} % mudado</title>'
+        f'<title>{escape(a["ruta"])}: {miles(a["lineas"])} lines, '
+        f'{decimal(a["pct"])} % moved</title>'
     )
     salida.append(
         f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" '
@@ -306,7 +306,7 @@ def generar(archivos, datos):
     # insignias
     x = MARGEN
     color = "#dfb317" if pct_global < 50 else "#4c1"
-    trozo, ancho = insignia(x, y, "mudado", f"{decimal(pct_global)} %", color)
+    trozo, ancho = insignia(x, y, "moved to Rust", f"{decimal(pct_global)} %", color)
     svg.append(trozo)
     x += ancho + 6
     for nombre, valor in datos:
@@ -333,7 +333,7 @@ def generar(archivos, datos):
         lineas, hechas, pct = resumen_pieza(lista)
         resumenes.append((clave, lineas, hechas, pct))
         titulo = (f"{NOMBRE_PIEZA[clave]}: {decimal(pct)} % "
-                  f"({miles(round(hechas))}/{miles(lineas)} líneas)")
+                  f"({miles(round(hechas))}/{miles(lineas)} lines)")
         pad = 3
         svg.append(
             f'<rect x="{px + 1:.1f}" y="{py + 1:.1f}" width="{pw - 2:.1f}" height="{ph - 2:.1f}" '
@@ -354,8 +354,8 @@ def generar(archivos, datos):
     if fuera:
         svg.append(
             f'<text x="{MARGEN}" y="{y + 12}" fill="{TEXTO_SUAVE}" font-size="12" '
-            f'font-weight="600">No se muda (no cuenta en el porcentaje): '
-            f'{miles(lineas_fuera)} líneas</text>'
+            f'font-weight="600">Not moved (not counted in the percentage): '
+            f'{miles(lineas_fuera)} lines</text>'
         )
         y += 20
         alto_fuera = 140
@@ -367,7 +367,7 @@ def generar(archivos, datos):
     cabecera = (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{ANCHO}" height="{y:.0f}" '
         f'viewBox="0 0 {ANCHO} {y:.0f}" font-family="Verdana,DejaVu Sans,sans-serif">'
-        f'<title>Estado de la mudanza a Rust: {decimal(pct_global)} %</title>'
+        f'<title>Move to Rust: {decimal(pct_global)} %</title>'
         f'<rect width="100%" height="100%" fill="{FONDO}"/>'
     )
     return cabecera + "".join(svg) + "</svg>\n", resumenes, (lineas_tot, hechas_tot, pct_global), lineas_fuera
@@ -385,12 +385,12 @@ def main():
     with open(salida, "w", encoding="utf-8", newline="\n") as f:
         f.write(texto)
 
-    print("Estado de la mudanza a Rust")
+    print("Move to Rust")
     for clave, l, h, p in resumenes:
-        print(f"  {NOMBRE_PIEZA[clave]:<26} {decimal(p):>6} %  ({miles(round(h))}/{miles(l)} líneas)")
-    print(f"  {'Total':<26} {decimal(pct):>6} %  ({miles(round(hechas))}/{miles(lineas)} líneas)")
-    print(f"  {NOMBRE_PIEZA['fuera']:<26} {miles(lineas_fuera)} líneas (no cuentan)")
-    print(f"SVG escrito en {salida}")
+        print(f"  {NOMBRE_PIEZA[clave]:<26} {decimal(p):>6} %  ({miles(round(h))}/{miles(l)} lines)")
+    print(f"  {'Total':<26} {decimal(pct):>6} %  ({miles(round(hechas))}/{miles(lineas)} lines)")
+    print(f"  {NOMBRE_PIEZA['fuera']:<26} {miles(lineas_fuera)} lines (not counted)")
+    print(f"SVG written to {salida}")
 
 
 if __name__ == "__main__":

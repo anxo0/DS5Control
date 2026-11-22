@@ -34,7 +34,7 @@ New-Item -ItemType Directory $carpeta | Out-Null
 Copy-Item rust\target\release\DS5Control.exe $carpeta
 New-Item -ItemType Directory (Join-Path $carpeta 'drivers') | Out-Null
 Copy-Item DS5Control\Drivers\* (Join-Path $carpeta 'drivers')
-Copy-Item COPYING, README.md, ui\THIRD_PARTY.md $carpeta
+Copy-Item LICENSE.txt, README.md, ui\THIRD_PARTY.md $carpeta
 
 "== Portable"
 # The program updates itself from the asset that ends in -win-x64.zip.

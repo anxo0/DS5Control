@@ -349,3 +349,6 @@ publicar-rust/
 # The Games section is not published yet (a copy of its wiring is kept in its own folder).
 rust/crates/ds5-juegos/
 ui/src/componentes/SeccionJuegos.vue
+
+# Design notes for local tools, not part of the project
+PRODUCT.md

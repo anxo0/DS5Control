@@ -43,7 +43,7 @@ jobs:
     # The program updates itself from the asset that ends in -win-x64.zip.
     - name: Portable
       run: |
-        Copy-Item COPYING, README.md, ui\THIRD_PARTY.md publicar
+        Copy-Item LICENSE.txt, README.md, ui\THIRD_PARTY.md publicar
         Compress-Archive publicar\* DS5Control-${{ env.VERSION }}-portable-win-x64.zip
     - name: Installer
       run: |

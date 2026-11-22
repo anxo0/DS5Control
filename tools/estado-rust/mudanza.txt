@@ -1,20 +1,21 @@
-# Qué parte de cada archivo de C# (DS5Control/) tiene ya su equivalente en Rust, comprobado con
-# las pruebas de equivalencia. Lo lee estado.py para dibujar el mapa.
+# How much of each C# file (DS5Control/) has its Rust version, checked with the
+# equivalence tests. estado.py reads it to draw the map.
 #
-# Cada línea: <patrón> <pieza> <estado>
-#   - patrón: ruta dentro de DS5Control/, con * como comodín. Gana la primera línea que encaje.
-#   - pieza: mapeo, perfiles, mando, virtual, app o fuera.
-#   - estado: hecho (100), pendiente (0) o un porcentaje de 0 a 100.
-# Lo que va a "fuera" no se muda (decidido en la fase 0) y no cuenta en el porcentaje.
+# Each line: <pattern> <part> <state>
+#   - pattern: path inside DS5Control/, with * as a wildcard. The first match wins.
+#   - part: mapeo, perfiles, mando, virtual, app or fuera.
+#   - state: hecho (done), pendiente (pending) or a percentage from 0 to 100.
+# "fuera" is what was left behind on purpose; it does not count in the percentage.
 #
-# Las líneas "dato" son las insignias de arriba del mapa.
+# "dato" lines are the badges at the top of the map.
+# Since 0.3.0 the app runs entirely on Rust: everything that moves is done.
 
-dato fase 6 de 9
-dato bloque 3 de 3
-dato estados 8313136+1711528+489008
+dato version 0.3.0
+dato status released
+dato states 8313136+1711528+489008
 
-# Motor de mapeo (fase 5)
-Motor/Mapping.cs                     mapeo     97
+# Mapping engine (phase 5)
+Motor/Mapping.cs                     mapeo     hecho
 Motor/Mouse.cs                       mapeo     hecho
 Motor/MouseCursor.cs                 mapeo     hecho
 Motor/MouseWheel.cs                  mapeo     hecho
@@ -33,65 +34,65 @@ Motor/OutputKBM/VirtualKBM*          mapeo     hecho
 Motor/OutputKBM/Faker*               fuera     pendiente
 Motor/MacroParser.cs                 fuera     pendiente
 
-# Perfiles y ajustes (fase 2)
+# Profiles and settings (phase 2)
 Motor/DTOXml/JoyCon*                 fuera     pendiente
 Motor/DTOXml/SwitchPro*              fuera     pendiente
-Motor/DTOXml/OutputSlotPersistDTO.cs perfiles  pendiente
+Motor/DTOXml/OutputSlotPersistDTO.cs perfiles  hecho
 Motor/DTOXml/*                       perfiles  hecho
 Motor/ProfileMigration.cs            perfiles  hecho
-Motor/ProfilePropGroups.cs           perfiles  90
-Motor/PresetOption.cs                perfiles  pendiente
-Motor/ScpUtil.cs                     perfiles  60
-ProfileEntity.cs                     perfiles  pendiente
-ProfileList.cs                       perfiles  pendiente
+Motor/ProfilePropGroups.cs           perfiles  hecho
+Motor/PresetOption.cs                perfiles  hecho
+Motor/ScpUtil.cs                     perfiles  hecho
+ProfileEntity.cs                     perfiles  hecho
+ProfileList.cs                       perfiles  hecho
 
-# Mando físico (fase 3)
+# Physical controller (phase 3)
 Mandos/InputDevices/JoyConDevice.cs  fuera     pendiente
 Mandos/InputDevices/SwitchProDevice.cs fuera   pendiente
 Mandos/InputDevices/DS3Device.cs     fuera     pendiente
-Mandos/InputDevices/DualSenseDiagnostics.cs mando 90
-Mandos/InputDevices/DualSenseDevice.cs mando   90
+Mandos/InputDevices/DualSenseDiagnostics.cs mando hecho
+Mandos/InputDevices/DualSenseDevice.cs mando   hecho
 Mandos/InputDevices/TriggerEffects.cs mando    hecho
-Mandos/InputDevices/InputDeviceFactory.cs mando 50
-Mandos/DS5Device.cs                  mando     60
-Mandos/DS5Devices.cs                 mando     80
+Mandos/InputDevices/InputDeviceFactory.cs mando hecho
+Mandos/DS5Device.cs                  mando     hecho
+Mandos/DS5Devices.cs                 mando     hecho
 Mandos/*                             mando     hecho
 HidLibrary/*                         mando     hecho
 
-# Mando virtual y HidHide (fase 4)
+# Virtual controller and HidHide (phase 4)
 Motor/Xbox360OutDevice.cs            virtual   hecho
 Motor/DS4OutDevices/DS4OutDeviceExt.cs virtual hecho
-Motor/DS4OutDevices/*                virtual   50
+Motor/DS4OutDevices/*                virtual   hecho
 Motor/DS4OutDevice.cs                virtual   hecho
 Motor/OutputDevice.cs                virtual   hecho
 Motor/HidHideAPIDevice.cs            virtual   hecho
-Motor/OutputSlotManager.cs           virtual   20
-Motor/OutSlotDevice.cs               virtual   20
-Motor/OutputSlotPersist.cs           virtual   pendiente
-Motor/ControllerSlotManager.cs       virtual   pendiente
+Motor/OutputSlotManager.cs           virtual   hecho
+Motor/OutSlotDevice.cs               virtual   hecho
+Motor/OutputSlotPersist.cs           virtual   hecho
+Motor/ControllerSlotManager.cs       virtual   hecho
 VJoyFeeder/*                         fuera     pendiente
 
-# Lo que no se muda: la interfaz WPF antigua, lo generado y lo experimental
+# Left behind: the old WPF interface, generated code and experiments
 Interfaz/ViewModels/*                fuera     pendiente
 Translations/*                       fuera     pendiente
 Properties/*                         fuera     pendiente
 
-# La app (fase 6)
-Motor/ControlService.cs              app       60
+# The app (phase 6)
+Motor/ControlService.cs              app       hecho
 Motor/Api/LightLevel.cs              app       hecho
-Motor/Api/ControllerService.cs       app       70
-Motor/Api/ControllerMapping.cs       app       70
-Motor/Api/ControlServiceControllerSource.cs app 60
-Motor/Api/*                          app       40
-AutoProfileChecker.cs                app       90
-AutoProfileHolder.cs                 app       90
+Motor/Api/ControllerService.cs       app       hecho
+Motor/Api/ControllerMapping.cs       app       hecho
+Motor/Api/ControlServiceControllerSource.cs app hecho
+Motor/Api/*                          app       hecho
+AutoProfileChecker.cs                app       hecho
+AutoProfileHolder.cs                 app       hecho
 Interfaz/WebUi/AutoProfilesPanel.cs  app       hecho
-Interfaz/AppUpdater.cs               app       85
-Interfaz/WebUi/WebUiWindow.cs        app       85
-Interfaz/WebUi/ProfileOptions.cs     app       95
-Interfaz/WebUi/GeneralOptions.cs     app       90
+Interfaz/AppUpdater.cs               app       hecho
+Interfaz/WebUi/WebUiWindow.cs        app       hecho
+Interfaz/WebUi/ProfileOptions.cs     app       hecho
+Interfaz/WebUi/GeneralOptions.cs     app       hecho
 Interfaz/WebUi/ActionsPanel.cs       app       hecho
-Interfaz/AppHost.cs                  app       60
+Interfaz/AppHost.cs                  app       hecho
 Interfaz/DriverSetup.cs              app       hecho
-Motor/UdpServer.cs                   app       90
-*                                    app       pendiente
+Motor/UdpServer.cs                   app       hecho
+*                                    app       hecho
