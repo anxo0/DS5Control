@@ -12,6 +12,10 @@ pub const TEXTOS: Tabla = &[
     // Bandeja y selector de archivos.
     ("Abrir DS5Control", "Open DS5Control", "Abrir o DS5Control"),
     ("Salir", "Exit", "Sair"),
+    ("Perfil del mando {}", "Controller {} profile", "Perfil do comando {}"),
+    ("Mando {}", "Controller {}", "Comando {}"),
+    ("Desconectar", "Disconnect", "Desconectar"),
+    ("Atrás", "Back", "Voltar"),
     ("Todos los archivos", "All files", "Todos os arquivos"),
     ("Programas", "Programs", "Programas"),
     ("Juegos", "Games", "Jogos"),

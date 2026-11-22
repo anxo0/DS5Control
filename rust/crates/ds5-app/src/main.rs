@@ -11,6 +11,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod archivo_registro;
+mod bandeja;
 mod colocacion;
 mod instaladores;
 mod limpieza;
@@ -29,7 +30,6 @@ use ds5_mapeo::Peticion;
 use ds5_servicio::interfaz::{self, NivelLuz, PRUEBA_VIBRACION_MAXIMA_MS};
 use ds5_servicio::{programa, Aviso, Orden, Servicio};
 use serde_json::{json, Value};
-use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager, WebviewWindow};
 
@@ -262,6 +262,7 @@ fn mensaje(app: AppHandle, mensaje: Value) {
             estado.ultimo.lock().unwrap().clear();
         }
         Some("comando") => comando(&app, &mensaje["comando"]),
+        Some("menuBandeja") => bandeja::mensaje(&app, &mensaje),
         // El tema, la paleta y los colores guardados de la página, para el archivo compartido.
         Some("navegador") => {
             let estado = app.state::<Arc<App>>();
@@ -536,9 +537,6 @@ fn general(app: &AppHandle, estado: &App, id: &str, valor: &Value) {
             drop(servicio);
             // Los textos que escribe la app salen ya en el idioma nuevo.
             enviar_generales(app, estado);
-            if let (Some(bandeja), Ok(menu)) = (app.tray_by_id("bandeja"), menu_bandeja(app)) {
-                let _ = bandeja.set_menu(Some(menu));
-            }
         }
         generales::Cambio::Prioridad(i) => sistema::poner_prioridad(i),
         generales::Cambio::InicioWindows(activar) => {
@@ -820,15 +818,6 @@ fn poner_icono(app: &AppHandle, paleta: &str) {
         let paleta = ULTIMA.lock().unwrap().clone();
         icono_del_acceso(&app, &paleta);
     });
-}
-
-/// El menú de la bandeja, en el idioma de la app.
-fn menu_bandeja(app: &AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
-    let idioma = *app.state::<Arc<App>>().idioma.lock().unwrap();
-    let t = |s| textos::traducir(idioma, s);
-    let abrir = MenuItem::with_id(app, "abrir", t("Abrir DS5Control"), true, None::<&str>)?;
-    let salir = MenuItem::with_id(app, "salir", t("Salir"), true, None::<&str>)?;
-    Menu::with_items(app, &[&abrir, &salir])
 }
 
 /// `UpdateNoticeMs`: lo que se ve el aviso de la ventana antes de cerrarse para actualizar.
@@ -1232,27 +1221,24 @@ fn main() {
         .manage(app_estado)
         .invoke_handler(tauri::generate_handler![mensaje])
         .setup(move |app| {
-            let menu = menu_bandeja(app.handle())?;
+            // Sin menú nativo: el clic derecho abre el menú con el aspecto de la app.
             let mut bandeja = TrayIconBuilder::with_id("bandeja")
                 .tooltip("DS5Control")
-                .menu(&menu)
-                .show_menu_on_left_click(false)
-                .on_menu_event(|app, evento| match evento.id().as_ref() {
-                    "abrir" => mostrar(app),
-                    "salir" => {
-                        app.state::<Arc<App>>().servicio.lock().unwrap().parar();
-                        app.exit(0);
-                    }
-                    _ => {}
-                })
                 .on_tray_icon_event(|bandeja, evento| {
                     if let TrayIconEvent::Click {
-                        button: MouseButton::Left,
+                        button,
                         button_state: MouseButtonState::Up,
+                        position,
                         ..
                     } = evento
                     {
-                        mostrar(bandeja.app_handle());
+                        match button {
+                            MouseButton::Left => mostrar(bandeja.app_handle()),
+                            MouseButton::Right => {
+                                bandeja::abrir(bandeja.app_handle(), position.x, position.y)
+                            }
+                            _ => {}
+                        }
                     }
                 });
             if let Some(icono) = app.default_window_icon() {

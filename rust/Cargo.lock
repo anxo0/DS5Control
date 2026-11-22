@@ -926,6 +926,7 @@ dependencies = [
  "ds5-diagnostico",
  "ds5-hid",
  "ds5-informes",
+ "ds5-juegos",
  "ds5-mapeo",
  "ds5-perfiles",
  "ds5-servicio",

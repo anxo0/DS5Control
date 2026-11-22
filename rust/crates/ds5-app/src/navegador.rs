@@ -20,6 +20,13 @@ pub fn paleta_guardada(carpeta: &Path) -> Option<String> {
     v.get("paleta")?.as_str().map(str::to_string)
 }
 
+/// El tema guardado (`claro` u `oscuro`), para el menú de la bandeja.
+pub fn tema_guardado(carpeta: &Path) -> Option<String> {
+    let t = std::fs::read_to_string(carpeta.join(ARCHIVO)).ok()?;
+    let v: serde_json::Value = serde_json::from_str(&t).ok()?;
+    v.get("tema")?.as_str().map(str::to_string)
+}
+
 /// El script, con lo que haya guardado en `carpeta`.
 pub fn script(carpeta: &Path) -> String {
     let guardado = std::fs::read_to_string(carpeta.join(ARCHIVO))

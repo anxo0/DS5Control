@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>DS5Control</title>
+<!--
+  El menú de clic derecho de la bandeja, con el aspecto de MenuBandeja.xaml de la versión en C#:
+  caja con bordes redondeados, elementos de 13 px con 12x8 de relleno y el color del tema.
+  La app le pasa los datos en window.__MENU__ y recibe lo que se elige por el canal "mensaje".
+-->
+<style>
+  :root {
+    --fondo: #ffffff;
+    --texto: #16233a;
+    --resalte: #f2f4f7;
+    --linea: #dde3ec;
+  }
+  :root.oscuro {
+    --fondo: #191b1f;
+    --texto: #f2f4f7;
+    --resalte: #2c2f35;
+    --linea: #2c2f35;
+  }
+  html, body {
+    margin: 0;
+    background: transparent;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .caja {
+    display: inline-block;
+    min-width: 190px;
+    box-sizing: border-box;
+    padding: 6px;
+    border: 1px solid var(--linea);
+    border-radius: 10px;
+    background: var(--fondo);
+    color: var(--texto);
+    font: 13px "Segoe UI", system-ui, sans-serif;
+  }
+  button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 16px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    white-space: nowrap;
+    cursor: default;
+  }
+  button:hover, button:focus-visible {
+    background: var(--resalte);
+    outline: none;
+  }
+  button .nombre { flex: 1; }
+  button.elegido .nombre { font-weight: 600; }
+  button svg { flex: none; }
+  .linea {
+    height: 1px;
+    margin: 4px 8px;
+    background: var(--linea);
+  }
+</style>
+</head>
+<body>
+<div class="caja" id="caja" role="menu"></div>
+<script>
+  (function () {
+    const datos = window.__MENU__ || { textos: {}, mandos: [], perfiles: [] }
+    const t = datos.textos
+    if (datos.oscuro) document.documentElement.classList.add('oscuro')
+    const caja = document.getElementById('caja')
+
+    const enviar = (m) => {
+      const tauri = window.__TAURI__
+      if (tauri) tauri.core.invoke('mensaje', { mensaje: Object.assign({ tipo: 'menuBandeja' }, m) })
+    }
+    const conNumero = (plantilla, n) => String(plantilla || '').replace('{}', n)
+
+    const flecha = (haciaAtras) => {
+      const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      s.setAttribute('width', '6'); s.setAttribute('height', '10'); s.setAttribute('viewBox', '0 0 6 10')
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      p.setAttribute('d', haciaAtras ? 'M5 1 L1 5 L5 9' : 'M1 1 L5 5 L1 9')
+      p.setAttribute('fill', 'none'); p.setAttribute('stroke', 'currentColor'); p.setAttribute('stroke-width', '1.5')
+      s.appendChild(p)
+      return s
+    }
+    const elemento = (texto, alPulsar, opciones = {}) => {
+      const b = document.createElement('button')
+      b.setAttribute('role', 'menuitem')
+      if (opciones.atras) b.appendChild(flecha(true))
+      const n = document.createElement('span')
+      n.className = 'nombre'
+      n.textContent = texto
+      b.appendChild(n)
+      if (opciones.submenu) b.appendChild(flecha(false))
+      if (opciones.elegido) b.classList.add('elegido')
+      b.addEventListener('click', alPulsar)
+      caja.appendChild(b)
+    }
+    const linea = () => { const d = document.createElement('div'); d.className = 'linea'; caja.appendChild(d) }
+
+    // Tras pintar, la app ajusta la ventana a lo que ocupa el menú.
+    const medir = () => requestAnimationFrame(() => {
+      const r = caja.getBoundingClientRect()
+      enviar({ accion: 'tamano', ancho: Math.ceil(r.width), alto: Math.ceil(r.height) })
+      const primero = caja.querySelector('button')
+      if (primero) primero.focus({ preventScroll: true })
+    })
+
+    const principal = () => {
+      caja.replaceChildren()
+      elemento(t.abrir, () => enviar({ accion: 'abrir' }))
+      const mandos = datos.mandos || []
+      if (mandos.length) {
+        linea()
+        for (const m of mandos) {
+          elemento(conNumero(t.perfil, m.ranura + 1), () => perfiles(m), { submenu: true })
+        }
+        if (mandos.some((m) => m.bluetooth)) elemento(t.desconectar, desconectar, { submenu: true })
+      }
+      linea()
+      elemento(t.salir, () => enviar({ accion: 'salir' }))
+      medir()
+    }
+
+    const perfiles = (m) => {
+      caja.replaceChildren()
+      elemento(conNumero(t.perfil, m.ranura + 1), principal, { atras: true })
+      linea()
+      for (const nombre of datos.perfiles || []) {
+        elemento(nombre, () => enviar({ accion: 'perfil', ranura: m.ranura, nombre }), { elegido: nombre === m.perfil })
+      }
+      medir()
+    }
+
+    const desconectar = () => {
+      caja.replaceChildren()
+      elemento(t.desconectar, principal, { atras: true })
+      linea()
+      for (const m of (datos.mandos || []).filter((x) => x.bluetooth)) {
+        elemento(conNumero(t.mando, m.ranura + 1), () => enviar({ accion: 'desconectar', ranura: m.ranura }))
+      }
+      medir()
+    }
+
+    // Con el teclado: flechas para moverse, Escape para cerrar.
+    document.addEventListener('keydown', (e) => {
+      const botones = [...caja.querySelectorAll('button')]
+      const i = botones.indexOf(document.activeElement)
+      if (e.key === 'ArrowDown') { botones[(i + 1) % botones.length]?.focus(); e.preventDefault() }
+      if (e.key === 'ArrowUp') { botones[(i - 1 + botones.length) % botones.length]?.focus(); e.preventDefault() }
+      if (e.key === 'Escape') window.close()
+    })
+    document.addEventListener('contextmenu', (e) => e.preventDefault())
+
+    principal()
+  })()
+</script>
+</body>
+</html>

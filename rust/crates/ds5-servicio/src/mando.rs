@@ -57,6 +57,8 @@ pub struct Vivo {
     pub ajustes: Perfil,
     /// El mando virtual enchufado.
     pub emulando: Option<Tipo>,
+    /// La MAC del mando (ceros si no se pudo leer), para desconectarlo por Bluetooth.
+    pub mac: [u8; 6],
 }
 
 /// Un mando conectado, visto desde fuera de su hilo.
@@ -238,6 +240,7 @@ fn hilo(mando: &Arc<Mando>, d: Dispositivo, ordenes: Receiver<Orden>, en: &Entor
     let mut c = Cargado::new(nombre, perfil);
     let acciones = || en.acciones.lock().unwrap().clone();
     let mac = leer_mac(&d);
+    mando.vivo.lock().unwrap().mac = mac;
     let mut calibracion = std::fs::read_to_string(en.carpeta.ruta.join(calibracion::ARCHIVO))
         .ok()
         .and_then(|t| calibracion::leer(&t, mac));

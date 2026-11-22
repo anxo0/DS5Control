@@ -127,6 +127,53 @@ mod so {
         mejor.map(|(_, d)| d)
     }
 
+    /// `DisconnectBT` de C#: pide a cada radio Bluetooth que suelte el mando con esta MAC.
+    pub fn desconectar_bt(mac: [u8; 6]) -> bool {
+        use windows::Win32::Devices::Bluetooth::{
+            BluetoothFindFirstRadio, BluetoothFindNextRadio, BluetoothFindRadioClose,
+            BLUETOOTH_FIND_RADIO_PARAMS,
+        };
+        use windows::Win32::Foundation::{CloseHandle, HANDLE};
+        use windows::Win32::System::IO::DeviceIoControl;
+        const IOCTL_BTH_DISCONNECT_DEVICE: u32 = 0x0041_000C;
+
+        // La dirección va al revés que la MAC escrita: el último byte primero.
+        let mut direccion = [0u8; 8];
+        for (i, b) in mac.iter().enumerate() {
+            direccion[5 - i] = *b;
+        }
+        let direccion = u64::from_le_bytes(direccion);
+        let parametros = BLUETOOTH_FIND_RADIO_PARAMS {
+            dwSize: std::mem::size_of::<BLUETOOTH_FIND_RADIO_PARAMS>() as u32,
+        };
+        let mut radio = HANDLE::default();
+        let Ok(busqueda) = (unsafe { BluetoothFindFirstRadio(&parametros, &mut radio) }) else {
+            return false;
+        };
+        let hecho = loop {
+            let mut n = 0u32;
+            let hecho = unsafe {
+                DeviceIoControl(
+                    radio,
+                    IOCTL_BTH_DISCONNECT_DEVICE,
+                    Some(&direccion as *const u64 as *const _),
+                    8,
+                    None,
+                    0,
+                    Some(&mut n),
+                    None,
+                )
+            }
+            .is_ok();
+            let _ = unsafe { CloseHandle(radio) };
+            if hecho || unsafe { BluetoothFindNextRadio(busqueda, &mut radio) }.is_err() {
+                break hecho;
+            }
+        };
+        let _ = unsafe { BluetoothFindRadioClose(busqueda) };
+        hecho
+    }
+
     pub fn identidad(id: &str) {
         let _ = unsafe {
             windows::Win32::UI::Shell::SetCurrentProcessExplicitAppUserModelID(&HSTRING::from(id))
@@ -196,6 +243,14 @@ mod so {
     pub fn poner_prioridad(_i: usize) {}
     pub fn icono_grande(_ventana: isize, _ico: &[u8]) {}
     pub fn identidad(_id: &str) {}
+    pub fn desconectar_bt(_mac: [u8; 6]) -> bool {
+        false
+    }
+}
+
+/// Desconecta por Bluetooth el mando con esta MAC, como `DisconnectBT` de C#.
+pub fn desconectar_bt(mac: [u8; 6]) -> bool {
+    so::desconectar_bt(mac)
 }
 
 /// La identidad del programa en la barra de tareas. Sin ella, Windows reconoce el programa por la
