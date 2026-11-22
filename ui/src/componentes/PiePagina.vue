@@ -30,7 +30,8 @@ const servicios = computed(() => {
     vigem: t(vigemBus ? 'general.pie.instalado' : 'general.pie.noInstalado'),
     hidhide: t(hidHide ? 'general.pie.activo' : 'general.pie.inactivo'),
   })
-  return emulacion.value ? `${emulacion.value} · ${texto}` : texto
+  const partes = [emulacion.value, texto, estadoApp.value.version && `v${estadoApp.value.version}`]
+  return partes.filter(Boolean).join(' · ')
 })
 </script>
 

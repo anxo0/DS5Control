@@ -24,6 +24,8 @@ use crate::Aviso;
 
 /// Cuánto se espera tras el último cambio para guardar el perfil.
 const GUARDAR_TRAS: Duration = Duration::from_secs(1);
+/// `READ_STREAM_TIMEOUT` de C#: sin informes durante este tiempo, el mando se da por desconectado.
+const SIN_DATOS: Duration = Duration::from_secs(3);
 
 /// Una orden para el hilo de un mando.
 pub enum Orden {
@@ -298,6 +300,7 @@ fn hilo(mando: &Arc<Mando>, d: Dispositivo, ordenes: Receiver<Orden>, en: &Entor
     let mut ultimo_uso = us();
     let mut prueba_hasta: Option<Instant> = None;
     let mut errores = 0u32;
+    let mut ultimo_dato = Instant::now();
     let mut guardar_en: Option<Instant> = None;
 
     while !mando.parar.load(Ordering::Relaxed) {
@@ -359,7 +362,20 @@ fn hilo(mando: &Arc<Mando>, d: Dispositivo, ordenes: Receiver<Orden>, en: &Entor
 
         let n = match d.leer(&mut bufer, Duration::from_millis(500)) {
             Ok(n) => n,
-            Err(ErrorHid::TiempoAgotado) => continue,
+            Err(ErrorHid::TiempoAgotado) => {
+                // Como `READ_STREAM_TIMEOUT` y `TimeoutTestThread` de C#: el mando manda informes
+                // sin parar, así que 3 s sin nada es que se ha apagado. Si no se diera por
+                // desconectado, se quedaría con la última lectura (el botón PS que se mantiene
+                // para apagarlo) y al encenderlo de nuevo no se volvería a coger. Antes se pide un
+                // informe de característica para que Windows note que el dispositivo ya no está.
+                if ultimo_dato.elapsed() >= SIN_DATOS {
+                    let mut serie = [0u8; 64];
+                    serie[0] = 0x09;
+                    let _ = d.leer_caracteristica(&mut serie);
+                    return;
+                }
+                continue;
+            }
             Err(_) => {
                 errores += 1;
                 if errores > 3 {
@@ -369,6 +385,7 @@ fn hilo(mando: &Arc<Mando>, d: Dispositivo, ordenes: Receiver<Orden>, en: &Entor
             }
         };
         errores = 0;
+        ultimo_dato = Instant::now();
         let informe = &bufer[..n];
         if !dec.valido(informe) {
             if conexion == Conexion::Bt && informe.first() == Some(&0x31) {

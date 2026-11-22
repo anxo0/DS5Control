@@ -40,8 +40,19 @@ impl Drop for HidHide {
     }
 }
 
+/// Si HidHide está instalado, mirando su controlador en Windows. No abre el dispositivo de control,
+/// que solo admite un programa a la vez: abrirlo para preguntar podía fallar mientras el propio
+/// programa lo estaba usando, y entonces decía que no estaba instalado.
+pub fn instalado() -> bool {
+    std::env::var_os("SystemRoot").is_some_and(|r| {
+        Path::new(&r)
+            .join(r"System32\drivers\HidHide.sys")
+            .is_file()
+    })
+}
+
 impl HidHide {
-    /// `None` si HidHide no está instalado.
+    /// `None` si HidHide no está instalado o si otro programa lo tiene abierto.
     pub fn abrir() -> Option<HidHide> {
         let h = unsafe {
             CreateFileW(

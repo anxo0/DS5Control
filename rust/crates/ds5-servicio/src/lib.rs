@@ -136,7 +136,7 @@ impl Servicio {
         };
         // Si está instalado se mira siempre, también sin mandos, para no avisar de que falta.
         let vigem = bus.is_some() || (!mandos && Bus::abrir().is_ok());
-        let hidhide = HidHide::abrir().is_some();
+        let hidhide = hidhide::instalado();
         let compartido = Arc::new(Compartido {
             entorno: Arc::new(mando::Entorno {
                 dsu: if mandos {
@@ -159,7 +159,7 @@ impl Servicio {
             .name("busca mandos".into())
             .spawn(move || {
                 if mandos {
-                    vigilar(&c, HidHide::abrir(), &avisos)
+                    vigilar(&c, &avisos)
                 }
             })
             .expect("no se pudo crear el hilo que busca mandos");
@@ -281,16 +281,31 @@ impl Drop for Servicio {
     }
 }
 
-fn vigilar(c: &Compartido, hh: Option<HidHide>, avisos: &Sender<Aviso>) {
+/// HidHide solo deja abrir su control a un programa a la vez: se abre para cada operación y se
+/// cierra enseguida, como el `using` de C#. Si se dejara abierto, ni `Ocultador::aplicar` (que lo
+/// abre otra vez) ni el programa de configuración de HidHide podrían usarlo.
+fn vigilar(c: &Compartido, avisos: &Sender<Aviso>) {
     // El propio programa en la lista blanca de HidHide, para seguir viendo los mandos escondidos.
     let exe = std::env::current_exe().ok();
-    if let (Some(h), Some(exe)) = (&hh, &exe) {
-        h.permitir_programa(exe);
-    }
+    let preparar = || match HidHide::abrir() {
+        Some(h) => {
+            if let Some(exe) = &exe {
+                h.permitir_programa(exe);
+            }
+            true
+        }
+        None => false,
+    };
+    let mut hay_hidhide = preparar();
     let mut ocultador = Ocultador::new(std::env::temp_dir().join("ds5control-rust-hidhide.txt"));
     let mut escondidos: Vec<String> = Vec::new();
+    let mut ocultos = std::collections::BTreeSet::<String>::new();
 
     while !c.parar.load(Ordering::Relaxed) {
+        // Si se instala HidHide con el programa abierto, se empieza a usar sin reiniciarlo.
+        if !hay_hidhide && hidhide::instalado() {
+            hay_hidhide = preparar();
+        }
         {
             let mut mandos = c.mandos.lock().unwrap();
             mandos.retain(|m| !m.acabado.load(Ordering::Acquire));
@@ -316,12 +331,22 @@ fn vigilar(c: &Compartido, hh: Option<HidHide>, avisos: &Sender<Aviso>) {
                     }
                 }
             }
-            if hh.is_some() {
-                let mut esconder: Vec<String> = mandos
-                    .iter()
-                    .filter_map(|m| hidhide::instancia_de(&m.info.ruta))
-                    .collect();
-                esconder.sort();
+            if hay_hidhide {
+                // Un mando se queda escondido aunque se apague, hasta cerrar el programa: si se
+                // quitara de la lista al desconectarse, al volver a encenderlo el juego (o Steam)
+                // lo cogería antes de esconderlo otra vez, y le llegaría cada botón dos veces.
+                // En el modo DualSense real el juego tiene que verlo: ese no se esconde.
+                for m in mandos.iter() {
+                    let Some(instancia) = hidhide::instancia_de(&m.info.ruta) else {
+                        continue;
+                    };
+                    if m.vivo.lock().unwrap().ajustes.ajustes.solo_dinput {
+                        ocultos.remove(&instancia);
+                    } else {
+                        ocultos.insert(instancia);
+                    }
+                }
+                let esconder: Vec<String> = ocultos.iter().cloned().collect();
                 if esconder != escondidos {
                     ocultador.aplicar(&esconder);
                     escondidos = esconder;
@@ -341,10 +366,10 @@ fn vigilar(c: &Compartido, hh: Option<HidHide>, avisos: &Sender<Aviso>) {
     {
         std::thread::sleep(Duration::from_millis(20));
     }
-    if hh.is_some() {
+    if hay_hidhide {
         ocultador.aplicar(&[]);
     }
-    if let (Some(h), Some(exe)) = (&hh, &exe) {
+    if let (Some(h), Some(exe)) = (HidHide::abrir(), &exe) {
         h.retirar_programa(exe);
     }
 }

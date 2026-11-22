@@ -167,6 +167,8 @@ export interface EstadoApp {
   mandos: EstadoMando[]
   /** El idioma elegido en Ajustes (`es`, `en`, `pt`); vacío o ausente es el de Windows. */
   idioma?: string
+  /** La versión del programa (`0.3.1`); la versión en C# no la manda. */
+  version?: string
   abrirConMute: boolean
   controlConMando: boolean
   ventanaVisible: boolean

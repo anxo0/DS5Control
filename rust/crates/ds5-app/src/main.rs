@@ -172,6 +172,7 @@ impl App {
                 "controlConMando": p.control_con_mando,
                 "ventanaVisible": ventana_visible,
                 "idioma": self.idioma.lock().unwrap().codigo(),
+                "version": env!("CARGO_PKG_VERSION"),
                 "perfiles": servicio.carpeta().perfiles(),
                 "registro": *self.registro.lock().unwrap(),
                 "servicios": {
@@ -498,7 +499,7 @@ fn enviar_generales(app: &AppHandle, estado: &App) {
         inicio_windows: sistema::inicio_windows(),
         prioridad: sistema::prioridad(),
         vigem: ds5_virtual::Bus::abrir().is_ok(),
-        hidhide: ds5_virtual::hidhide::HidHide::abrir().is_some(),
+        hidhide: ds5_virtual::hidhide::instalado(),
     };
     emitir(
         app,
@@ -600,7 +601,7 @@ fn instalar(app: &AppHandle, hidhide: bool) {
         let fin = instaladores::ejecutar(&ruta, argumentos);
         *bandera.lock().unwrap() = false;
         let instalado = if hidhide {
-            ds5_virtual::hidhide::HidHide::abrir().is_some()
+            ds5_virtual::hidhide::instalado()
         } else {
             ds5_virtual::Bus::abrir().is_ok()
         };
@@ -621,7 +622,7 @@ fn instalar(app: &AppHandle, hidhide: bool) {
 /// que tiene registrado Windows (que pide confirmación); si no, lo instala.
 fn instalar_o_desinstalar(app: &AppHandle, hidhide: bool) {
     let instalado = if hidhide {
-        ds5_virtual::hidhide::HidHide::abrir().is_some()
+        ds5_virtual::hidhide::instalado()
     } else {
         ds5_virtual::Bus::abrir().is_ok()
     };
@@ -651,7 +652,7 @@ fn instalar_o_desinstalar(app: &AppHandle, hidhide: bool) {
         estado.servicio.lock().unwrap().parar();
         let fin = instaladores::ejecutar(std::path::Path::new(&programa), argumentos.as_deref());
         let sigue = if hidhide {
-            ds5_virtual::hidhide::HidHide::abrir().is_some()
+            ds5_virtual::hidhide::instalado()
         } else {
             ds5_virtual::Bus::abrir().is_ok()
         };
